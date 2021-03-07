@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+//First Test
+
 
 /**
  *
@@ -401,7 +403,7 @@ public class server_frame extends javax.swing.JFrame {
                                 .addComponent(clear_button))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 548, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
