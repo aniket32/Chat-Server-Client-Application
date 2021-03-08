@@ -15,7 +15,7 @@ telnet localhost <PortID>     // Basically replecating the client
  ** Here are some commands to interact to the server and with other clients **
  // Enter the commands without the "< >" sign to iunteract with the Server 
  
- login <username>   // logs you into the server 
+ login  <username>   // logs you into the server 
   
  msg <receiver> <message_body>  // send a message to your targeted receiver
   
