@@ -22,11 +22,17 @@ telnet localhost 8283   // Basically replecating the client
  kick <username>    // kicks the specified user from the server
   
  join <group_name>  // join a group chat
+ 
  leave <group_name> // leave the group chat
+ 
  msg <group_name> <message-body>    // msg all the participants in the specified group chat
+  
  announcemnet <message_body>    // send a message to all the active users in the server 
+ 
  quit   // disconnects you from the server
+ 
  ListUsr    // lists all the current active users and their server ID in the server
+ 
  NUKE   // spams "WORLD DOMONATION" all throughout the server and all active client window for 10 seconds
  
  
