@@ -147,8 +147,10 @@ public class server_frame extends javax.swing.JFrame {
                                                     } else if ("ListUser".equalsIgnoreCase(cmd)){
                                                         ListUser();
                                                         // Call a function or method to list all active users in the Server
-                                                        } else if ("NUKE".equalsIgnoreCase(cmd)) {  
+                                                        } else if ("NUKE".equalsIgnoreCase(cmd)) { 
                                                             // Spam world domination on all GUIs
+                                                            String[] tokensMsg = line.split(" ");
+                                                            NUKE(tokensMsg);
                                                             } else {
                                                                 String msg = " Unknown " + cmd + "\n";
                                                                 outputStream.write(msg.getBytes());
@@ -320,6 +322,19 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         }
+         
+        private void NUKE( String[] tokens) throws IOException {
+            String timer = tokens[1];
+            
+            List<ServerWorker> workerList = server.getworkerList();
+            long aTime = System.currentTimeMillis();
+            while(false||(System.currentTimeMillis()-aTime) < 10000 ){
+                    for (ServerWorker worker : workerList){
+                     String msg = "WORLD DOMINATION" + "\n";
+                    worker.sendMsg(msg);   
+                }
+            }
+        }
         
         public boolean Membership(String topic){
             return SetTopic.contains(topic);
@@ -338,6 +353,8 @@ public class server_frame extends javax.swing.JFrame {
                 SetTopic.remove(topic);
             }
         }
+
+      
 
        
 
