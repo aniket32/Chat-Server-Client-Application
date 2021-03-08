@@ -5,12 +5,12 @@ It is a basic Server based chat application in java using Sockets.
 ** How to Run the Chat application **
 
 Run the server_frame file  first, start the server and then the the client_frame  
-Enter the details in IP Addredd as "localhost" and Port as "8283" since its the port ID that is initialised in the code
+Enter the details in IP Addredd as "localhost" and Port as what you set in the server side Interface since its the port ID that is initialised in the code
 
 If the client code is still incompete then you can use cmd prompt or terminal depending on your OS to run the chat client
 Open terminal or cmd prompt and type in 
-telnet localhost 8283   // Basically replecating the client
-                        // You can do this as mnay times as you want
+telnet localhost <PortID>     // Basically replecating the client
+                              // You can do this as mnay times as you want
                         
  ** Here are some commands to interact to the server and with other clients **
  // Enter the commands without the "< >" sign to iunteract with the Server 
