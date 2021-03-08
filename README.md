@@ -13,25 +13,25 @@ telnet localhost <PortID>     // Basically replecating the client
                               // You can do this as mnay times as you want
                         
  ** Here are some commands to interact to the server and with other clients **
- // Enter the commands without the "< >" sign to iunteract with the Server 
+ // Enter the commands without the "( )" sign to iunteract with the Server 
  
- login  <username>   // logs you into the server 
+ login  (username)   // logs you into the server 
   
- msg <receiver> <message_body>  // send a message to your targeted receiver
+ msg (receiver) (message_body)  // send a message to your targeted receiver
   
- kick <username>    // kicks the specified user from the server
+ kick (username)    // kicks the specified user from the server
   
- join <group_name>  // join a group chat
+ join (group_name)  // join a group chat
  
- leave <group_name> // leave the group chat
+ leave (group_name) // leave the group chat
  
- msg <group_name> <message-body>    // msg all the participants in the specified group chat
+ msg (group_name) (message_body)    // msg all the participants in the specified group chat
   
- announcemnet <message_body>    // send a message to all the active users in the server 
+ announcemnet (message_body)    // send a message to all the active users in the server 
  
  quit   // disconnects you from the server
  
- ListUsr    // lists all the current active users and their server ID in the server
+ ListUser    // lists all the current active users and their server ID in the server
  
  NUKE   // spams "WORLD DOMONATION" all throughout the server and all active client window for 10 seconds
  
