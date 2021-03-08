@@ -23,14 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-//Ramdom Comment 
-// Testing Commit
 
-
-/**
- *
- * @author aniketbasu
- */
 public class server_frame extends javax.swing.JFrame {
 
     /**
