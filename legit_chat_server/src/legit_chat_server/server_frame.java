@@ -140,7 +140,9 @@ public class server_frame extends javax.swing.JFrame {
                                         leaveHandler(tokens);
                                         } else if ("sleep".equalsIgnoreCase(cmd)){
                                                 // Call a function or method to Sleep an user for certain period of time
-                                                } else if ("announcerment".equalsIgnoreCase(cmd)){
+                                                } else if ("announcement".equalsIgnoreCase(cmd)){
+                                                    String[] tokensMsg = line.split(" ", 2);
+                                                    sendAll(tokensMsg);
                                                     // Call a function or method to announce a message to all active users
                                                     } else if ("ListUser".equalsIgnoreCase(cmd)){
                                                         ListUser();
@@ -305,9 +307,18 @@ public class server_frame extends javax.swing.JFrame {
                         }
                     }
                  idRemover();
+            }            
+        }
+        
+         private void sendAll(String[] tokens) throws IOException {
+            String msg = tokens[1];
+             
+            List<ServerWorker> workerList  = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                if(worker.getLogin()!= null){
+                    worker.sendMsg(msg);
+                }
             }
-            
-            
         }
         
         public boolean Membership(String topic){
@@ -327,6 +338,8 @@ public class server_frame extends javax.swing.JFrame {
                 SetTopic.remove(topic);
             }
         }
+
+       
 
        
 
