@@ -37,7 +37,8 @@ public class server_frame extends javax.swing.JFrame {
     
     public class StartServer implements Runnable{
         public void run(){
-            int port = 8283;
+            String portID = portId.getText();
+            int port = Integer.parseInt(portID);
             ServerS server = new ServerS(port);
             server.start();
         }
@@ -450,6 +451,7 @@ public class server_frame extends javax.swing.JFrame {
         listusr_button = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         console_text = new javax.swing.JTextArea();
+        portId = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -481,9 +483,22 @@ public class server_frame extends javax.swing.JFrame {
             }
         });
 
+        console_text.setEditable(false);
         console_text.setColumns(20);
         console_text.setRows(5);
         jScrollPane1.setViewportView(console_text);
+
+        portId.setText("Port ID");
+        portId.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                portIdMouseClicked(evt);
+            }
+        });
+        portId.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                portIdActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -495,16 +510,21 @@ public class server_frame extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(start_button)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(stop_button))
+                                .addGap(374, 374, 374)
+                                .addComponent(stop_button, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(listusr_button)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(clear_button))))
+                                .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(239, 239, 239)
+                                .addComponent(clear_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(portId)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(286, 286, 286))
+                            .addComponent(jScrollPane1))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -512,14 +532,15 @@ public class server_frame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(start_button)
-                    .addComponent(stop_button))
+                    .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(stop_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(portId))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(clear_button)
-                    .addComponent(listusr_button))
+                    .addComponent(clear_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -549,6 +570,14 @@ public class server_frame extends javax.swing.JFrame {
         // TODO add your handling code here:
         console_text.setText("");
     }//GEN-LAST:event_clear_buttonActionPerformed
+
+    private void portIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portIdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_portIdActionPerformed
+
+    private void portIdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_portIdMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_portIdMouseClicked
 
     /**
      * @param args the command line arguments
@@ -590,6 +619,7 @@ public class server_frame extends javax.swing.JFrame {
     private javax.swing.JTextArea console_text;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton listusr_button;
+    private javax.swing.JTextField portId;
     private javax.swing.JButton start_button;
     private javax.swing.JButton stop_button;
     // End of variables declaration//GEN-END:variables
