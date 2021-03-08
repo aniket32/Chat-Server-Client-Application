@@ -20,8 +20,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//First Test
-//Second Test
+
 
 
 /**
@@ -139,6 +138,9 @@ public class server_frame extends javax.swing.JFrame {
                                         // Call a function or method to leave a Group Conversation
                                         leaveHandler(tokens);
                                         } else if ("sleep".equalsIgnoreCase(cmd)){
+                                            // Callsa function to ban member from messaging for a certain amount of time
+                                            String[] tokensMsg = line.split(" ");
+                                            sleep(tokensMsg);
                                                 // Call a function or method to Sleep an user for certain period of time
                                                 } else if ("announcement".equalsIgnoreCase(cmd)){
                                                     String[] tokensMsg = line.split(" ", 2);
@@ -336,6 +338,20 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        private void sleep(String[] tokens) throws InterruptedException, IOException {
+            String receiver = tokens[1];
+            List<ServerWorker> workerList = server.getworkerList();
+            for(ServerWorker worker : workerList){
+                if (receiver.equalsIgnoreCase(worker.getLogin())){
+                        String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec " +"\n";
+                        //outputStream.write(message.getBytes());
+                        worker.sendMsg(MsgOut);
+                        Thread.sleep(50000);
+                    }
+            }
+         
+        }
+        
         public boolean Membership(String topic){
             return SetTopic.contains(topic);
         }
@@ -353,12 +369,6 @@ public class server_frame extends javax.swing.JFrame {
                 SetTopic.remove(topic);
             }
         }
-
-      
-
-       
-
-       
 
         
     }
