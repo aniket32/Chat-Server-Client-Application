@@ -15,9 +15,12 @@ telnet localhost 8283   // Basically replecating the client
  ** Here are some commands to interact to the server and with other clients **
  // Enter the commands without the "< >" sign to iunteract with the Server 
  
- login <username>   // logs you into the server                      
+ login <username>   // logs you into the server 
+  
  msg <receiver> <message_body>  // send a message to your targeted receiver
+  
  kick <username>    // kicks the specified user from the server
+  
  join <group_name>  // join a group chat
  leave <group_name> // leave the group chat
  msg <group_name> <message-body>    // msg all the participants in the specified group chat
