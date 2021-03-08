@@ -143,6 +143,7 @@ public class server_frame extends javax.swing.JFrame {
                                                 } else if ("announcerment".equalsIgnoreCase(cmd)){
                                                     // Call a function or method to announce a message to all active users
                                                     } else if ("ListUser".equalsIgnoreCase(cmd)){
+                                                        ListUser();
                                                         // Call a function or method to list all active users in the Server
                                                         } else if ("NUKE".equalsIgnoreCase(cmd)) {  
                                                             // Spam world domination on all GUIs
@@ -215,6 +216,7 @@ public class server_frame extends javax.swing.JFrame {
                 String msg = "User Disconnected " +  username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
+                break;
 //                Set<String> keys = usr_id_map.keySet();
 //                for (String k : keys){
 //                    System.out.println(k);
@@ -255,6 +257,25 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
             }
+        }
+        
+        private void ListUser() throws IOException {
+           List<ServerWorker> workerList = server.getworkerList();
+           for (ServerWorker worker : workerList){
+               Set<String> keys = usr_id_map.keySet();
+                for (String k : keys){
+                    System.out.println(k);
+                    // Removing disconnected Users from the list
+                    if (username.equals(usr_id_map.get(k))){
+                        if (username.equals(worker.getLogin())){
+                            String  data = username + usr_id_map;
+                            worker.sendMsg("Online Users");
+                            worker.sendMsg(data);
+                        }
+                    }
+                }
+               
+           }
         }
         
         private void sendMsg(String msg) throws IOException {
@@ -306,6 +327,8 @@ public class server_frame extends javax.swing.JFrame {
                 SetTopic.remove(topic);
             }
         }
+
+       
 
         
     }
