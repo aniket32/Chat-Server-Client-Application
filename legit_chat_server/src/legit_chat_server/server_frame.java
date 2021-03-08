@@ -23,7 +23,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-
+//Ramdom Comment 
+// Testing Commit
 
 
 /**
@@ -290,43 +291,43 @@ public class server_frame extends javax.swing.JFrame {
            }
         }
         
-//        private void status (String[] tokens) throws IOException{
-//            String ID = tokens[1];
-//            String dataFile = null;
-//            try {
-//                File read = new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/commands.txt");
-//                Scanner myReader = new Scanner(read);
-//                while (myReader.hasNextLine()) {
-//                dataFile = myReader.nextLine();
-//                //System.out.println(dataFile);
-//                }
-//                myReader.close();
-//            }catch (IOException ex){
-//                ex.printStackTrace();
-//            }
-//                
-//                    
-//            List<ServerWorker> workerList = server.getworkerList();
-//            //while(true){
-//                for(ServerWorker worker : workerList){  
-//                    if (queue.contains(worker.getLogin()) == true){
-//                    } else{
-//                        queue.add(worker.getLogin());
-//                    }
-//                    System.out.println(queue.peek());
-//                    String first = queue.peek();
-//                    if(first.equals(worker.getLogin())){
-//                        String msg = worker.getLogin() + " the admin of this server ";
-//                        worker.sendMsg(msg);
-//                        if(username!= null){
-//                            String space = "\n";
-//                            outputStream.write(dataFile.getBytes());
-//                            outputStream.write(space.getBytes());
-//                        }
-//                    }
-//                }
-//            
-//        }
+        private void status (String[] tokens) throws IOException{
+            String ID = tokens[1];
+            String dataFile = null;
+            try {
+                File read = new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/commands.txt");
+                Scanner myReader = new Scanner(read);
+                while (myReader.hasNextLine()) {
+                dataFile = myReader.nextLine();
+                //System.out.println(dataFile);
+                }
+                myReader.close();
+            }catch (IOException ex){
+                ex.printStackTrace();
+            }
+                
+                    
+            List<ServerWorker> workerList = server.getworkerList();
+            //while(true){
+                for(ServerWorker worker : workerList){  
+                    if (queue.contains(worker.getLogin()) == true){
+                    } else{
+                        queue.add(worker.getLogin());
+                    }
+                    System.out.println(queue.peek());
+                    String first = queue.peek();
+                    if(first.equals(worker.getLogin())){
+                        String msg = worker.getLogin() + " the admin of this server ";
+                        worker.sendMsg(msg);
+                        if(username!= null){
+                            String space = "\n";
+                            outputStream.write(dataFile.getBytes());
+                            outputStream.write(space.getBytes());
+                        }
+                    }
+                }
+            
+        }
         
         
         private void sendMsg(String msg) throws IOException {
@@ -371,7 +372,7 @@ public class server_frame extends javax.swing.JFrame {
         }
          
         private void NUKE( String[] tokens) throws IOException {
-            String timer = tokens[1];
+            //String timer = tokens[1];
             
             List<ServerWorker> workerList = server.getworkerList();
             long aTime = System.currentTimeMillis();
