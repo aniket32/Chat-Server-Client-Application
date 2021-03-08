@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //First Test
 //Second Test
@@ -119,14 +121,13 @@ public class server_frame extends javax.swing.JFrame {
                     if ("quit".equalsIgnoreCase(cmd)){
                         //quit();
                         disconnectHandler();
-                        break;
                     } else if ("login".equalsIgnoreCase(cmd)) {
                         // Clalling the loginHandler function to store the login information for further use
                         loginHandler(outputStream, tokens);
                         } else if("kick".equalsIgnoreCase(cmd)){
                             // Call a function or method to Kick someone out of the server
-                            String msg = " Kicking User " + cmd +"\n";
-                            outputStream.write(msg.getBytes()); 
+                            String[] tokensMsg = line.split(" ");
+                                kickUser(tokensMsg);
                             } else if("msg".equalsIgnoreCase(cmd)){
                                 // Call a function or method to send a message to other user
                                 String[] tokensMsg = line.split(" ", 3);
@@ -195,14 +196,9 @@ public class server_frame extends javax.swing.JFrame {
                     }
             }
         }
-
-        private void disconnectHandler() throws IOException {
-            // Function to handle all User Disconnection from the Server 
-            List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                String msg = "User Disconnected " +  username + "\n";
-                worker.sendMsg(msg);
-                Set<String> keys = usr_id_map.keySet();
+        
+        private  void idRemover(){
+            Set<String> keys = usr_id_map.keySet();
                 for (String k : keys){
                     System.out.println(k);
                     // Removing disconnected Users from the list
@@ -210,13 +206,30 @@ public class server_frame extends javax.swing.JFrame {
                         usr_id_map.remove(k);
                     }
                 }
+        }
+
+        private void disconnectHandler() throws IOException {
+            // Function to handle all User Disconnection from the Server 
+            List<ServerWorker> workerList = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                String msg = "User Disconnected " +  username + "\n";
+                worker.sendMsg(msg);
+                idRemover();
+//                Set<String> keys = usr_id_map.keySet();
+//                for (String k : keys){
+//                    System.out.println(k);
+//                    // Removing disconnected Users from the list
+//                    if (username.equals(usr_id_map.get(k))){
+//                        usr_id_map.remove(k);
+//                    }
+//                }
             }
             // Append approipriate response to the Server 
             console_text.append(" User Disconnected: " +  username +"\n");
         }
         
         private void quit() throws IOException {
-            // At this moment does nothing but i hope to make it wortk in the bear future
+            // At this moment does nothing but i hope to make it wortk in the near future
             clientSocket.close();
         }
 
@@ -254,6 +267,28 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
         
+        private void kickUser(String[] tokens) throws IOException, InterruptedException {
+            String receiver = tokens[1];
+            
+            List<ServerWorker> workerList = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                 if (receiver.equalsIgnoreCase(worker.getLogin())){
+                        String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server " +"\n";
+                        //outputStream.write(message.getBytes());
+                        worker.sendMsg(MsgOut);
+                        try{
+                            Thread.sleep(5000);
+                            worker.clientSocket.close();
+                        }catch (IOException ex){
+                            ex.printStackTrace();
+                        }
+                    }
+                 idRemover();
+            }
+            
+            
+        }
+        
         public boolean Membership(String topic){
             return SetTopic.contains(topic);
         }
@@ -271,6 +306,8 @@ public class server_frame extends javax.swing.JFrame {
                 SetTopic.remove(topic);
             }
         }
+
+        
     }
 
 //    public void userDisconnect(String username){        
@@ -288,20 +325,20 @@ public class server_frame extends javax.swing.JFrame {
       console_text.append("Server started...\n");
     }           
     
-    public void serverStopButton() {
+    public void serverStopButton() throws InterruptedException {
        // Closes the Server without any warnings, ned to find a way to send message to everyone when Server is closing
 //       Thread starter = new Thread(new StartServer());
-//       starter.stop();
-        try 
-        {
-            console_text.append("Closing Server.\n");
-            // The Thread will wait for 5 seconds before closing the server
-            Thread.sleep(5000);  
+////       starter.stop();
+//        try 
+//        {
+//            console_text.append("Closing Server.\n");
+//            // The Thread will wait for 5 seconds before closing the server
+//            Thread.sleep(5000);  
             System.exit(0);
-        } 
-        catch(InterruptedException ex) {Thread.currentThread().interrupt();}
-        //System.exit(0);
-        //dispose();
+//        } 
+//        catch(InterruptedException ex) {Thread.currentThread().interrupt();}
+//        //System.exit(0);
+//        //dispose();
     }
     
     public void idGenerator(String username) {   
@@ -427,8 +464,12 @@ public class server_frame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void stop_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stop_buttonActionPerformed
-        // TODO add your handling code here:
-        serverStopButton();
+         try {
+             // TODO add your handling code here:
+             serverStopButton();
+         } catch (InterruptedException ex) {
+             ex.printStackTrace();
+         }
     }//GEN-LAST:event_stop_buttonActionPerformed
 
     private void start_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_buttonActionPerformed
