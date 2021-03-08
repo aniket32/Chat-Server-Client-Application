@@ -22,6 +22,7 @@ import java.util.Set;
 import java.io.File;  
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.io.PrintWriter;
 
 
 public class server_frame extends javax.swing.JFrame {
@@ -31,7 +32,7 @@ public class server_frame extends javax.swing.JFrame {
      */
     
     LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
-    
+    PrintWriter printerOut;
     Queue<String> queue = new LinkedList<>();
     
     public class StartServer implements Runnable{
@@ -110,7 +111,8 @@ public class server_frame extends javax.swing.JFrame {
            // Main function to handel all the Users and in case the Moderators action in the Server
            InputStream inputStream = clientSocket.getInputStream();
            this.outputStream = clientSocket.getOutputStream();
-           
+           printerOut = new PrintWriter(this.outputStream, true);
+                   
            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
            String line;
            while ((line = reader.readLine()) != null){
@@ -201,6 +203,7 @@ public class server_frame extends javax.swing.JFrame {
                         }    
                     } else {
                         String msg = "login failed";
+                        
                         outputStream.write(msg.getBytes());
                         console_text.append(" Logged in Failed for User: " + username + "\n");
                     }
@@ -284,7 +287,7 @@ public class server_frame extends javax.swing.JFrame {
            }
         }
         
-        private void status (String[] tokens) throws IOException{
+        private void adminStatus (String[] tokens) throws IOException{
             String ID = tokens[1];
             String dataFile = null;
             try {
@@ -316,6 +319,7 @@ public class server_frame extends javax.swing.JFrame {
                             String space = "\n";
                             outputStream.write(dataFile.getBytes());
                             outputStream.write(space.getBytes());
+                            
                         }
                     }
                 }
@@ -327,6 +331,7 @@ public class server_frame extends javax.swing.JFrame {
             // Function to send Message to the Client Side in this case its the Command Prompt
             if(username != null){
             outputStream.write(msg.getBytes());
+            printerOut.println(msg+"\n");
            //console_text.append(msg);
             }
             // Printing same messsages to the Server

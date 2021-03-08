@@ -7,6 +7,7 @@ package actual_chat_client;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,8 +35,9 @@ public class client_frame extends javax.swing.JFrame
         // Reading and writing to the Server
         private OutputStream serverOut;
         private InputStream serverIn;
-        private BufferedReader bufferedIn;
+        private BufferedReader packetIn;
         private PrintWriter packetOut;
+       
         
        
         public ChatClient (String serverName, int serverPort) throws IOException 
@@ -53,18 +55,19 @@ public class client_frame extends javax.swing.JFrame
                 socket = new Socket(serverName, serverPort);
                 serverOut = socket.getOutputStream();
                 serverIn = socket.getInputStream();
-                bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
+                
                 clientconsoleText.append("Connection Sucessful\n");
-                bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
                 //Using the login command in the server_code and passing in the entire username as a command
                 String login_command = ("login "+username);
+                packetIn = new BufferedReader(new InputStreamReader(serverIn));
                 packetOut = new PrintWriter(serverOut, true);
                 // Printing the login command in this case its login <username>
                 //System.out.println(login_command);
                 packetOut.println(login_command);
-                //this.packetOut.println("msg u have gaye");
-                clientconsoleText.append(bufferedIn.readLine());
+                String message = packetIn.readLine();
+                clientconsoleText.append(message+"\n");
                 connection_state = true;
+                
                 
             }
             catch(IOException ex)
@@ -75,6 +78,20 @@ public class client_frame extends javax.swing.JFrame
             } 
         }
         
+        //function to receive messages
+        public void SocketListener() throws InterruptedException{
+            long millis = System.currentTimeMillis();
+            while (connection_state = true){
+                try {
+                    String message = packetIn.readLine();
+                    clientconsoleText.append(message+"\n");
+                    Thread.sleep(1000 - millis % 1000);
+                } catch (IOException ex) {
+                    Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
+                    Thread.sleep(1000 - millis % 1000);
+                }
+            }
+        }
         
 //        private void login(String address, int port ,String username) throws IOException { 
 //            this.socket = new Socket(serverName, serverPort);
@@ -105,11 +122,13 @@ public class client_frame extends javax.swing.JFrame
         public void server_disconnect() throws IOException{
             if (connection_state == true){
                 packetOut.println("quit");
+                socket.close();
+                connection_state = false;
             }
         }
     }
     
-    
+        
     public client_frame() throws IOException
     {
         initComponents();
@@ -313,6 +332,8 @@ public class client_frame extends javax.swing.JFrame
                     addressStr.setBackground(Color.gray);
                     portID.setBackground(Color.gray);
                     usernametext.setBackground(Color.gray);
+                    //clientWindow.SocketListener();
+                    
                 }
             }
         }
@@ -331,7 +352,9 @@ public class client_frame extends javax.swing.JFrame
        else {
             try {
                 clientWindow.server_disconnect();
-                System.exit(0);
+                addressStr.setEditable(true);
+                portID.setEditable(true);
+                usernametext.setEditable(true);
             } catch (IOException ex) {
                 Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
             }
