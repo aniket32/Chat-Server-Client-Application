@@ -17,12 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-//you have gayer
-
-/**
- *
- * @author aniket
- */
 public class client_frame extends javax.swing.JFrame 
 {
     Boolean connection_state = false;
