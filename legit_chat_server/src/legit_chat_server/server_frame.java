@@ -19,8 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.File;  
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 
 
@@ -128,6 +129,7 @@ public class server_frame extends javax.swing.JFrame {
                     } else if ("login".equalsIgnoreCase(cmd)) {
                         // Clalling the loginHandler function to store the login information for further use
                         loginHandler(outputStream, tokens);
+                        status(tokens);
                         } else if("kick".equalsIgnoreCase(cmd)){
                             // Call a function or method to Kick someone out of the server
                             String[] tokensMsg = line.split(" ");
@@ -154,6 +156,8 @@ public class server_frame extends javax.swing.JFrame {
                                                     } else if ("ListUser".equalsIgnoreCase(cmd)){
                                                         ListUser();
                                                         // Call a function or method to list all active users in the Server
+                                                        } else if ("help".equalsIgnoreCase(cmd)) {
+                                                            //Call a function to show all the availble commands avavilable to the clients
                                                         } else if ("NUKE".equalsIgnoreCase(cmd)) { 
                                                             // Spam world domination on all GUIs
                                                             String[] tokensMsg = line.split(" ");
@@ -212,7 +216,7 @@ public class server_frame extends javax.swing.JFrame {
         private  void idRemover(){
             Set<String> keys = usr_id_map.keySet();
                 for (String k : keys){
-                    System.out.println(k);
+                    //System.out.println(k);
                     // Removing disconnected Users from the list
                     if (username.equals(usr_id_map.get(k))){
                         usr_id_map.remove(k);
@@ -270,24 +274,41 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        
         private void ListUser() throws IOException {
            List<ServerWorker> workerList = server.getworkerList();
            for (ServerWorker worker : workerList){
                Set<String> keys = usr_id_map.keySet();
                 for (String k : keys){
-                    System.out.println(k);
-                    // Removing disconnected Users from the list
+                    // System.out.println(k);
                     if (username.equals(usr_id_map.get(k))){
                         if (username.equals(worker.getLogin())){
-                            String  data = username + usr_id_map;
-                            worker.sendMsg("Online Users");
-                            worker.sendMsg(data);
+                            worker.sendMsg("Online Users  : " + usr_id_map + "\n");
                         }
                     }
-                }
-               
+                } 
            }
         }
+        
+        private void status (String[] tokens) throws IOException{
+            String ID = tokens[1];
+            List<ServerWorker> workerList = server.getworkerList();
+            //while(true){
+                for(ServerWorker worker : workerList){  
+                    if (queue.contains(worker.getLogin()) == true){
+                    } else{
+                        queue.add(worker.getLogin());
+                    }
+                    System.out.println(queue.peek());
+                    String first = queue.peek();
+                    if(first.equals(worker.getLogin())){
+                        String msg = "You are the admin of this server";
+                        worker.sendMsg(msg);
+                    }
+                }
+            
+        }
+        
         
         private void sendMsg(String msg) throws IOException {
             // Function to send Message to the Client Side in this case its the Command Prompt
@@ -417,7 +438,7 @@ public class server_frame extends javax.swing.JFrame {
     
     public void idRetriever(String username) {
         // Prints in the console window all the online users or running ServerWorker
-        console_text.append(usr_id_map+"\n");
+        console_text.append(usr_id_map + "\n");
     }
     
     public boolean ArrayIteratorCompare(String usr,LinkedHashMap map){
