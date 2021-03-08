@@ -65,6 +65,7 @@ public class client_frame extends javax.swing.JFrame
                 //System.out.println(login_command);
                 packetOut.println(login_command);
                 String message = packetIn.readLine();
+                //statement is only active until it receives the login message from server.
                 clientconsoleText.append(message+"\n");
                 connection_state = true;
                 
@@ -81,6 +82,7 @@ public class client_frame extends javax.swing.JFrame
         //function to receive messages
         public void SocketListener() throws InterruptedException{
             long millis = System.currentTimeMillis();
+            //repeats loop every second
             while (connection_state = true){
                 try {
                     String message = packetIn.readLine();
