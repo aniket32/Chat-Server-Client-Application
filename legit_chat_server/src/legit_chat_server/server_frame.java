@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +35,9 @@ public class server_frame extends javax.swing.JFrame {
      * Creates new form server_frame
      */
     
-     LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    
+    Queue<String> queue = new LinkedList<>();
     
     public class StartServer implements Runnable{
         public void run(){
