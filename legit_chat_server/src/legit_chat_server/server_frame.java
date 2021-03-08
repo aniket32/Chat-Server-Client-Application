@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package legit_chat_server;
 
 import java.io.BufferedReader;
@@ -331,8 +326,8 @@ public class server_frame extends javax.swing.JFrame {
             // Function to send Message to the Client Side in this case its the Command Prompt
             if(username != null){
             outputStream.write(msg.getBytes());
-            printerOut.println(msg+"\n");
-           //console_text.append(msg);
+            //printerOut.println(msg+"\n");
+            //console_text.append(msg);
             }
             // Printing same messsages to the Server
             console_text.append(msg);

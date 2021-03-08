@@ -23,6 +23,7 @@ public class client_frame extends javax.swing.JFrame
     Boolean connection_state = false;
     String username;
     ChatClient clientWindow;
+    BufferedReader packetIn;
     /**
      * Creates new form client_frame
      */
@@ -35,7 +36,6 @@ public class client_frame extends javax.swing.JFrame
         // Reading and writing to the Server
         private OutputStream serverOut;
         private InputStream serverIn;
-        private BufferedReader packetIn;
         private PrintWriter packetOut;
        
         
@@ -55,7 +55,6 @@ public class client_frame extends javax.swing.JFrame
                 socket = new Socket(serverName, serverPort);
                 serverOut = socket.getOutputStream();
                 serverIn = socket.getInputStream();
-                
                 clientconsoleText.append("Connection Sucessful\n");
                 //Using the login command in the server_code and passing in the entire username as a command
                 String login_command = ("login "+username);
@@ -79,21 +78,6 @@ public class client_frame extends javax.swing.JFrame
             } 
         }
         
-        //function to receive messages
-        public void SocketListener() throws InterruptedException{
-            long millis = System.currentTimeMillis();
-            //repeats loop every second
-            while (connection_state = true){
-                try {
-                    String message = packetIn.readLine();
-                    clientconsoleText.append(message+"\n");
-                    Thread.sleep(1000 - millis % 1000);
-                } catch (IOException ex) {
-                    Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-                    Thread.sleep(1000 - millis % 1000);
-                }
-            }
-        }
         
 //        private void login(String address, int port ,String username) throws IOException { 
 //            this.socket = new Socket(serverName, serverPort);
@@ -117,7 +101,7 @@ public class client_frame extends javax.swing.JFrame
 
         public void sendMsg(String msg_text_str) throws IOException{
             //this.serverOut.write(msg_text_str.getBytes());
-            packetOut.println("msg "+msg_text_str);
+            packetOut.println(msg_text_str);
             
             
         }
@@ -130,7 +114,21 @@ public class client_frame extends javax.swing.JFrame
         }
     }
     
-        
+    public class SocketListener implements Runnable {
+    //function to receive messages
+        public void run() {
+            //Will run until client has disconnected.
+            while (connection_state = true){
+                try {
+                    String message = packetIn.readLine();
+                    clientconsoleText.append(message+"\n");
+                } catch (IOException ex) {
+                    Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
     public client_frame() throws IOException
     {
         initComponents();
@@ -138,6 +136,11 @@ public class client_frame extends javax.swing.JFrame
         
     }
     
+    //Fuction that creates new thread dedicated to listening for inputs.
+    public void ListenThread() {
+		Thread SocketListener = new Thread(new SocketListener());
+		SocketListener.start();
+        }
    
     /**
      * This method is called from within the constructor to initialize the form.
@@ -166,6 +169,7 @@ public class client_frame extends javax.swing.JFrame
         jScrollPane1.setViewportView(jTextArea1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Chat Client");
 
         connectBtn.setText("Connect");
         connectBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -334,7 +338,7 @@ public class client_frame extends javax.swing.JFrame
                     addressStr.setBackground(Color.gray);
                     portID.setBackground(Color.gray);
                     usernametext.setBackground(Color.gray);
-                    //clientWindow.SocketListener();
+                    ListenThread();
                     
                 }
             }
