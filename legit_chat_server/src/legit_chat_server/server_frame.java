@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.io.File;  
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.PrintWriter;
 
@@ -120,6 +121,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "login":
                                 // calls the loginHandler function to handle login 
                                 loginHandler(outputStream, tokens);
+                                adminStatus(tokens);
                                 break;
                             case "join":
                                 // calls the joinHandler function to join a group
@@ -160,6 +162,7 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "help":
                                 //calls the help function and show all commands for the admin and the clients
+                                help();
                                 break;
                             case "quit":
                                 // calls the disconnectHandler functin and removes a user from the 
@@ -338,43 +341,48 @@ public class server_frame extends javax.swing.JFrame {
            }
         }
         
+//        private void help() throws IOException {
+//            String help = null;
+//            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+//            while (clientFile.hasNextLine()){
+//                help = clientFile.nextLine();
+//                outputStream.write(help.getBytes());
+//            }
+//        }
+        
         private void adminStatus (String[] tokens) throws IOException{
             String ID = tokens[1];
             String dataFile = null;
-            try {
-                File read = new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/commands.txt");
-                Scanner myReader = new Scanner(read);
-                while (myReader.hasNextLine()) {
-                dataFile = myReader.nextLine();
-                //System.out.println(dataFile);
-                }
-                myReader.close();
-            }catch (IOException ex){
-                ex.printStackTrace();
-            }
-                
-                    
+            
+            Scanner adminFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+                       
             List<ServerWorker> workerList = server.getworkerList();
-            //while(true){
+   //         while(true){
                 for(ServerWorker worker : workerList){  
                     if (queue.contains(worker.getLogin()) == true){
                     } else{
                         queue.add(worker.getLogin());
                     }
-                    System.out.println(queue.peek());
+                    //System.out.println(queue.peek());
                     String first = queue.peek();
                     if(first.equals(worker.getLogin())){
                         String msg = worker.getLogin() + " the admin of this server ";
                         worker.sendMsg(msg);
-                        if(username!= null){
-                            String space = "\n";
-                            outputStream.write(dataFile.getBytes());
-                            outputStream.write(space.getBytes());
-                            
+                        if(username!= null && username == first){
+                            while (adminFile.hasNextLine()){
+                                dataFile = adminFile.nextLine() + "\n";
+                                outputStream.write(dataFile.getBytes());
+                            }
+                        }else{
+                            while (clientFile.hasNextLine()){
+                                dataFile = clientFile.nextLine() + "\n";
+                                outputStream.write(dataFile.getBytes());
+                            }
                         }
                     }
                 }
-            
+            //}
         }
         
         
@@ -462,6 +470,15 @@ public class server_frame extends javax.swing.JFrame {
             if (tokens.length > 1){
                 String topic = tokens[1];
                 SetTopic.remove(topic);
+            }
+        }
+
+        private void help() throws IOException{
+            String help = null;
+            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+            while (clientFile.hasNextLine()){
+                help = clientFile.nextLine();
+                outputStream.write(help.getBytes());
             }
         }
 
