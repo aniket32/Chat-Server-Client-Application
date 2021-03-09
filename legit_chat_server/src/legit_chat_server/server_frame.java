@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.io.File;  
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.PrintWriter;
 
@@ -31,6 +30,7 @@ public class server_frame extends javax.swing.JFrame {
     Queue<String> queue = new LinkedList<>();
     
     public class StartServer implements Runnable{
+        @Override
         public void run(){
             String portID = portId.getText();
             int port = Integer.parseInt(portID);
@@ -103,63 +103,119 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         private void handleClientSocket() throws InterruptedException, IOException {
-           // Main function to handel all the Users and in case the Moderators action in the Server
-           InputStream inputStream = clientSocket.getInputStream();
-           this.outputStream = clientSocket.getOutputStream();
-           printerOut = new PrintWriter(this.outputStream, true);
-                   
-           BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-           String line;
-           while ((line = reader.readLine()) != null){
-                String tokens[] = line.split(" ");
-                if (tokens!= null && tokens.length>0){
-                    String cmd = tokens[0];
-                    if ("quit".equalsIgnoreCase(cmd)){
-                        //quit();
-                        disconnectHandler();
-                    } else if ("login".equalsIgnoreCase(cmd)) {
-                        // Clalling the loginHandler function to store the login information for further use
-                        loginHandler(outputStream, tokens);
-                        //status(tokens);
-                        } else if("kick".equalsIgnoreCase(cmd)){
-                            // Call a function or method to Kick someone out of the server
-                            String[] tokensMsg = line.split(" ");
-                                kickUser(tokensMsg);
-                            } else if("msg".equalsIgnoreCase(cmd)){
-                                // Call a function or method to send a message to other user
+            // Main function to handel all the Users and in case the Moderators action in the Server
+            try (clientSocket) {
+                // Main function to handel all the Users and in case the Moderators action in the Server
+                InputStream inputStream = clientSocket.getInputStream();
+                this.outputStream = clientSocket.getOutputStream();
+                printerOut = new PrintWriter(this.outputStream, true);
+                
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null){
+                    String tokens[] = line.split(" ");
+                    if (tokens!= null && tokens.length>0){
+                        String cmd = tokens[0];
+                        switch(cmd){
+                            case "login":
+                                // calls the loginHandler function to handle login 
+                                loginHandler(outputStream, tokens);
+                                break;
+                            case "join":
+                                // calls the joinHandler function to join a group
+                                joinHandler(tokens);
+                                break;
+                            case "leave":
+                                 // calls the leaveHandler function to leave a group
+                                leaveHandler(tokens);
+                                break;
+                            case "msg":
+                                // Message a receiver
                                 String[] tokensMsg = line.split(" ", 3);
                                 messageHandler(tokensMsg);
-                                } else if ("join".equalsIgnoreCase(cmd)){
-                                    // Call a function to join a User to a Group for Group Conversation 
-                                    joinHandler(tokens);
-                                    } else if ("leave".equalsIgnoreCase(cmd)){
-                                        // Call a function or method to leave a Group Conversation
-                                        leaveHandler(tokens);
-                                        } else if ("sleep".equalsIgnoreCase(cmd)){
-                                            // Callsa function to ban member from messaging for a certain amount of time
-                                            String[] tokensMsg = line.split(" ");
-                                            sleep(tokensMsg);
-                                                // Call a function or method to Sleep an user for certain period of time
-                                                } else if ("announcement".equalsIgnoreCase(cmd)){
-                                                    String[] tokensMsg = line.split(" ", 2);
-                                                    sendAll(tokensMsg);
-                                                    // Call a function or method to announce a message to all active users
-                                                    } else if ("ListUser".equalsIgnoreCase(cmd)){
-                                                        ListUser();
-                                                        // Call a function or method to list all active users in the Server
-                                                        } else if ("help".equalsIgnoreCase(cmd)) {
-                                                            //Call a function to show all the availble commands avavilable to the clients
-                                                        } else if ("NUKE".equalsIgnoreCase(cmd)) { 
-                                                            // Spam world domination on all GUIs
-                                                            String[] tokensMsg = line.split(" ");
-                                                            NUKE(tokensMsg);
-                                                            } else {
-                                                                String msg = " Unknown " + cmd + "\n";
-                                                                outputStream.write(msg.getBytes());
-                                                            }
-                }
-           }
-           clientSocket.close();
+                                break;
+                            case "announcement":
+                                // calls the sendAll function to send a message to all the clients
+                                String[] token = line.split(" ", 2);
+                                sendAll(token);
+                                break;
+                            case "ListUser":
+                                // calls the ListUser function to lists all the activ users in the server
+                                ListUser();
+                                break;
+                            case "NUKE":
+                                // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
+                                String[] tokenMsg = line.split(" ");
+                                NUKE(tokenMsg);
+                                break;
+                            case "sleep":
+                                // calls the sleep fucntion and bans a client for a certain time
+                                String[] Msg = line.split(" ");
+                                sleep(Msg);
+                                break;
+                            case "kick":
+                                // calls the kickuser functin and removes a client from the Server
+                                String[] msg = line.split(" ");
+                                kickUser(msg);
+                                break;
+                            case "help":
+                                //calls the help function and show all commands for the admin and the clients
+                                break;
+                            case "quit":
+                                // calls the disconnectHandler functin and removes a user from the 
+                                disconnectHandler();
+                                break;
+                            default:
+                                // sends a default message for unknown commands
+                                String defMsg = " Unknown " + cmd + "\n";
+                                outputStream.write(defMsg.getBytes());
+                                
+                        }
+//                        if ("quit".equalsIgnoreCase(cmd)){
+//                            //quit();
+//                            disconnectHandler();
+//                        } else if ("login".equalsIgnoreCase(cmd)) {
+//                            // Clalling the loginHandler function to store the login information for further use
+//                            loginHandler(outputStream, tokens);
+//                            //status(tokens);
+//                        } else if("kick".equalsIgnoreCase(cmd)){
+//                            // Call a function or method to Kick someone out of the server
+//                            String[] tokensMsg = line.split(" ");
+//                            kickUser(tokensMsg);
+//                        } else if("msg".equalsIgnoreCase(cmd)){
+//                            // Call a function or method to send a message to other user
+//                            String[] tokensMsg = line.split(" ", 3);
+//                            messageHandler(tokensMsg);
+//                        } else if ("join".equalsIgnoreCase(cmd)){
+//                            // Call a function to join a User to a Group for Group Conversation
+//                            joinHandler(tokens);
+//                        } else if ("leave".equalsIgnoreCase(cmd)){
+//                            // Call a function or method to leave a Group Conversation
+//                            leaveHandler(tokens);
+//                        } else if ("sleep".equalsIgnoreCase(cmd)){
+//                            // Callsa function to ban member from messaging for a certain amount of time
+//                            String[] tokensMsg = line.split(" ");
+//                            sleep(tokensMsg);
+//                            // Call a function or method to Sleep an user for certain period of time
+//                        } else if ("announcement".equalsIgnoreCase(cmd)){
+//                            String[] tokensMsg = line.split(" ", 2);
+//                            sendAll(tokensMsg);
+//                            // Call a function or method to announce a message to all active users
+//                        } else if ("ListUser".equalsIgnoreCase(cmd)){
+//                            ListUser();
+//                            // Call a function or method to list all active users in the Server
+//                        } else if ("help".equalsIgnoreCase(cmd)) {
+//                            //Call a function to show all the availble commands avavilable to the clients
+//                        } else if ("NUKE".equalsIgnoreCase(cmd)) {
+//                            // Spam world domination on all GUIs
+//                            String[] tokensMsg = line.split(" ");
+//                            NUKE(tokensMsg);
+//                        } else {
+//                            String msg = " Unknown " + cmd + "\n";
+//                            outputStream.write(msg.getBytes());
+//                        }
+                    }
+                }}
        }   
         
         public String getLogin(){
