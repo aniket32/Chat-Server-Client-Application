@@ -62,10 +62,10 @@ public class server_frame extends javax.swing.JFrame {
                 //Accepting Client Sockets and creates the connection between them
                 //clientSocket used to identify Clients
                 while (true){
-                    console_text.append("\n About to accept connections....\n");
+                    console_text.append("About to accept connections....\n");
                     //While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
-                    console_text.append("\n Accepting Connections from \n" + clientSocket);
+                    console_text.append("Accepting Connections from \n" + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     workerList.add(worker);
                     console_text.append(String.valueOf(workerList));
@@ -136,10 +136,13 @@ public class server_frame extends javax.swing.JFrame {
                                 String[] tokensMsg = line.split(" ", 3);
                                 messageHandler(tokensMsg);
                                 break;
+                            case "privatemsg":
+                                // privately message a user
+                                privateMsg();
                             case "announcement":
                                 // calls the sendAll function to send a message to all the clients
                                 String[] token = line.split(" ", 2);
-                                sendAll(token);
+                                //sendAll(token);
                                 break;
                             case "ListUser":
                                 // calls the ListUser function to lists all the activ users in the server
@@ -223,6 +226,10 @@ public class server_frame extends javax.swing.JFrame {
         
         public String getLogin(){
             return username;
+        }
+        
+        public int getPort(){
+            return clientSocket.getPort();
         }
 
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
@@ -417,16 +424,16 @@ public class server_frame extends javax.swing.JFrame {
             }            
         }
         
-         private void sendAll(String[] tokens) throws IOException {
-            String msg = tokens[1];
-             
-            List<ServerWorker> workerList  = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                if(worker.getLogin()!= null){
-                    worker.sendMsg(msg);
-                }
-            }
-        }
+//        private void sendAll(String[] tokens) throws IOException {
+//            String msg = tokens[1];
+//             
+//            List<ServerWorker> workerList  = server.getworkerList();
+//            for (ServerWorker worker : workerList){
+//                if(worker.getLogin()!= null){
+//                    worker.sendMsg(msg);
+//                }
+//            }
+//        }
          
         private void NUKE( String[] tokens) throws IOException {
             //String timer = tokens[1];
@@ -452,7 +459,6 @@ public class server_frame extends javax.swing.JFrame {
                         Thread.sleep(50000);
                     }
             }
-         
         }
         
         public boolean Membership(String topic){
@@ -479,6 +485,16 @@ public class server_frame extends javax.swing.JFrame {
             while (clientFile.hasNextLine()){
                 help = clientFile.nextLine();
                 outputStream.write(help.getBytes());
+            }
+        }
+
+        private void privateMsg() {
+            List<ServerWorker> workerList = server.getworkerList();
+            for(ServerWorker worker : workerList){
+                String name = worker.getLogin();
+                int port = worker.getPort();
+                System.out.print(port);
+                System.out.print(name);
             }
         }
 
