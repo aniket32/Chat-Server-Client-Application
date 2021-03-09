@@ -18,10 +18,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 
 
 public class server_frame extends javax.swing.JFrame {
-
+    
+    
+    
     /**
      * Creates new form server_frame
      */
@@ -67,6 +70,8 @@ public class server_frame extends javax.swing.JFrame {
                     Socket clientSocket = serverSocket.accept();
                     console_text.append("Accepting Connections from \n" + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
+                    InetAddress Ip = clientSocket.getLocalAddress();
+                    System.out.print(Ip);
                     workerList.add(worker);
                     console_text.append(String.valueOf(workerList));
                     worker.start();  
@@ -139,10 +144,10 @@ public class server_frame extends javax.swing.JFrame {
                             case "privatemsg":
                                 // privately message a user
                                 privateMsg();
-                            case "announcement":
+                            case "sendall":
                                 // calls the sendAll function to send a message to all the clients
                                 String[] token = line.split(" ", 2);
-                                //sendAll(token);
+                                sendAll(token);
                                 break;
                             case "ListUser":
                                 // calls the ListUser function to lists all the activ users in the server
@@ -230,6 +235,10 @@ public class server_frame extends javax.swing.JFrame {
         
         public int getPort(){
             return clientSocket.getPort();
+        }
+        
+        public InetAddress IP(){
+            return clientSocket.getInetAddress();
         }
 
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
@@ -424,16 +433,16 @@ public class server_frame extends javax.swing.JFrame {
             }            
         }
         
-//        private void sendAll(String[] tokens) throws IOException {
-//            String msg = tokens[1];
-//             
+        private void sendAll(String[] token) throws IOException {
+            String msg = token[1];
+            console_text.append(msg);
 //            List<ServerWorker> workerList  = server.getworkerList();
 //            for (ServerWorker worker : workerList){
-//                if(worker.getLogin()!= null){
+//                if(username != null){
 //                    worker.sendMsg(msg);
 //                }
 //            }
-//        }
+        }
          
         private void NUKE( String[] tokens) throws IOException {
             //String timer = tokens[1];
@@ -533,14 +542,14 @@ public class server_frame extends javax.swing.JFrame {
     }
     
     public void idGenerator(String username) {   
-        // Creates random number for the ID of eash User
+        // Creates random number for the ID of eash User    
         int gen_id =(int)(Math.random() * (10000000 - 1000000 + 1) + 100000);
         usr_id_map.put(String.valueOf(gen_id),username);
     } 
     
     public void idRetriever(String username) {
         // Prints in the console window all the online users or running ServerWorker
-        console_text.append(usr_id_map + "\n");
+        console_text.append(usr_id_map + "\n"); 
     }
     
     public boolean ArrayIteratorCompare(String usr,LinkedHashMap map){
@@ -559,9 +568,12 @@ public class server_frame extends javax.swing.JFrame {
             return false;
         }
     }
+    
     public server_frame() {
         initComponents();
     }
+    
+
 
     /**
      * This method is called from within the constructor to initialize the form.
