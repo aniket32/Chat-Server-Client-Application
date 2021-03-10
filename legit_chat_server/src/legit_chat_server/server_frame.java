@@ -31,7 +31,7 @@ Fix disconnect both in server and in Client
 Add a function for the next user to be the admin
 */
 
-<<<<<<< HEAD
+
 //Branching test Commit and Push
 // More test
 // More test last to see that ot works properly
@@ -40,8 +40,7 @@ Add a function for the next user to be the admin
 
 
 
-=======
->>>>>>> 23db081ea2e6406499beb6f0d3c3164ae1982e4d
+
 
 public class server_frame extends javax.swing.JFrame {
     
