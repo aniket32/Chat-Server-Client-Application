@@ -23,10 +23,15 @@ import java.net.InetAddress;
 
 /*
 TODO LIST:
-Check Line 275 and afterwards to know what to do ==> Leo
 Will try and fix the admin thingi ==> AB
+If user fails to login, do not display help text file.
+Fix the Server stop button 
+Fix kick user command
+Fix disconnect both in server and in Client
+Add a function for the next user to be the admin
 */
 
+<<<<<<< HEAD
 //Branching test Commit and Push
 // More test
 // More test last to see that ot works properly
@@ -35,19 +40,17 @@ Will try and fix the admin thingi ==> AB
 
 
 
+=======
+>>>>>>> 23db081ea2e6406499beb6f0d3c3164ae1982e4d
 
 public class server_frame extends javax.swing.JFrame {
     
     
     
     
-    // Linked Hash Map to store the user name and their ID
-    LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    // Linked Hash Map to store id and ArrayList object containing username,Port Number, IP Address
+    LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
     
-    // Linked Hash ,map to store the Users name, POrt ID and IP Address
-    // THis will be used to show the other users who is online
-    LinkedList<String> listUser = new LinkedList<String>();
-     
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them later
     PrintWriter printerOut;
@@ -217,7 +220,7 @@ public class server_frame extends javax.swing.JFrame {
        }   
         
         
-        //Fnctions
+        //Functions
         // gets the Login name ==> String
         public String getLogin(){
             return username;
@@ -227,23 +230,28 @@ public class server_frame extends javax.swing.JFrame {
             return clientSocket.getPort();
         }
         // gets the IP address ==> InetAddress
-        // in this case all the IP Address will be ==> 127.0.0.1
+        // in this case all the IP Address will be ==> 127.0.0.1(GUI) or 0.0.0.0.0.1(Command Line)
         public InetAddress getIP(){
             return clientSocket.getInetAddress();
         }
+        
         
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2){
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
+                System.out.println(workerList);
                     int i = 0;
                     if (!(ArrayIteratorCompare(username,usr_id_map))){
                         String msg = " Logged in " + username + "\n";
                         outputStream.write(msg.getBytes()); 
                         this.username = username;
                         console_text.append(" Logged in User: " + username + "\n");
-                        idGenerator(username);
+                        int port = getPort();
+                        InetAddress address = getIP();
+                        //int address = 85;
+                        idGenerator(username, port, address.toString());
                         console_text.append(usr_id_map+"\n");
                         
                         // Send the current user other online Login 
@@ -279,7 +287,8 @@ public class server_frame extends javax.swing.JFrame {
                 for (String k : keys){
                     //System.out.println(k);
                     // Removing disconnected Users from the list
-                    if (username.equals(usr_id_map.get(k))){
+                    ArrayList list = (ArrayList) usr_id_map.get(k);
+                    if (username.equals(list.get(0))){
                         usr_id_map.remove(k);
                     }
                 }
@@ -292,41 +301,30 @@ public class server_frame extends javax.swing.JFrame {
         
         private LinkedList<String> getAll() throws IOException{
             //Declairing all the variables
-            String usr = null;
-            int port = 0;
-            InetAddress ip = null;
-            String info = null;
-            String list = null, first, slip;
-            
-
+            String usr_list = null;
+            // Linked Hash ,map to store the Users name, POrt ID and IP Address
+            // THis will be used to show the other users who is online
+            LinkedList<String> listUser = new LinkedList<String>();
             List<ServerWorker> workerList = server.getworkerList(); // will need this to get the IP , Port and Name
-            Set<String> keys = usr_id_map.keySet(); // Ueless line
+            Set<String> keys = usr_id_map.keySet(); // Useless line
                 // Going through the list of workers in the LinkedList workerList
-                
-                for(ServerWorker worker : workerList){ // will need this to get the Port, IP and Name
+                for(String k : keys){ // will need this to get the Port, IP and Name
+                    ArrayList info_list = (ArrayList) usr_id_map.get(k);
+                    System.out.println(usr_id_map);
+                    // Storing all the values in the variable
+                    String info = " Username: " + info_list.get(0) + " Port ID: " + info_list.get(1) + " IP Address: " + info_list.get(2) + "\n";
+                    listUser.add(info);
+                    usr_list = listUser.toString();
+                    System.out.println(usr_list);
+                    //System.out.print(listUser);
+                    //worker.sendMsg();
                     
-                    // calling the functions to get the Username, Port Id and IP
-                    usr = worker.getLogin();
-                    port = worker.getPort();
-                    ip = worker.getIP();
-                
-                // Storing all the values in the variable
-                info = " Username: " + usr + " Port ID: " + port + " IP Address: " + ip;
-                listUser.add(info);
-                
-                //System.out.print(listUser);
-                //worker.sendMsg();
-                list = listUser.toString();
                 }
-                // Useless Code to do show up the list on the Client's Interface
-                for (ServerWorker worker : workerList){
-                    if(username.equals(worker.getLogin())){
-                        worker.sendMsg(list);
-                    }
-                }
-                //console_text.append(listUser);
+                sendMsg(usr_list);
+                listUser.clear();       
             return null;
-        }
+                    }
+        
         
         // Works but sometimes breaks
         private void disconnectHandler() throws IOException {
@@ -372,31 +370,13 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         }
-        
-        // Broken code ===> Dont use this 
-        // Use getAll() instead
-//        private void ListUser() throws IOException {
-//           List<ServerWorker> workerList = server.getworkerList();
-//           for (ServerWorker worker : workerList){
-//               Set<String> keys = usr_id_map.keySet();
-//                for (String k : keys){
-//                    // System.out.println(k);
-//                    if (username.equals(usr_id_map.get(k))){
-//                        if (username.equals(worker.getLogin())){
-//                            worker.sendMsg("Online Users  : " + getAll() + "\n");
-//                            //worker.sendMsg(getAll);
-//                        }
-//                    }
-//                } 
-//           }
-//        }
-        
-        
+                
         // Works for the clinet
         // Need to make a thing where it works for the Admin as well
         private void help() throws IOException {
             String help = null;
-            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+            //This line needs to be universal, currently only works on Leo's machine. Path must be changed.
+            Scanner clientFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
             while (clientFile.hasNextLine()){
                 help = clientFile.nextLine();
                 outputStream.write(help.getBytes());
@@ -409,8 +389,9 @@ public class server_frame extends javax.swing.JFrame {
             String ID = tokens[1];
             String dataFile = null;
             
-            Scanner adminFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
-            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+            //This line needs to be universal, currently only works on Leo's machine. Path must be changed.
+            Scanner adminFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+            Scanner clientFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
                        
             List<ServerWorker> workerList = server.getworkerList();
    //         while(true){
@@ -478,15 +459,15 @@ public class server_frame extends javax.swing.JFrame {
         ///Broken Code ===> Funcking breaks the entire thing
         private void sendAll(String[] token) throws IOException {
             
-            String msg = token[0]; // This line is broken don't know why
+            String msg = token[1]; // This line is broken don't know why
             
             console_text.append(msg);
-//            List<ServerWorker> workerList  = server.getworkerList();
-//            for (ServerWorker worker : workerList){
-//                if(username != null){
-//                    worker.sendMsg(msg);
-//                }
-//            }
+            List<ServerWorker> workerList  = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                if(username != null){
+                    worker.sendMsg(msg);
+                }
+            }
         }
          
         // Works
@@ -586,10 +567,15 @@ public class server_frame extends javax.swing.JFrame {
     }
     
     // Works
-    public void idGenerator(String username) {   
-        // Creates random number for the ID of eash User    
+    public void idGenerator(String username, int port, String ipaddress) {   
+        // Creates random number for the ID of eash User
+        ArrayList<String> port_usr_list = new ArrayList<String>();
+        port_usr_list.add(username);
+        port_usr_list.add(String.valueOf(port));
+        port_usr_list.add(ipaddress);
         int gen_id =(int)(Math.random() * (10000000 - 1000000 + 1) + 100000);
-        usr_id_map.put(String.valueOf(gen_id),username);
+        usr_id_map.put(String.valueOf(gen_id),port_usr_list);
+        System.out.println(usr_id_map);
     } 
     
     
@@ -606,7 +592,8 @@ public class server_frame extends javax.swing.JFrame {
         Set<String> keys = map.keySet();
         for (String k : keys){
             //System.out.println(k);
-            if (usr.equals(map.get(k))){
+            ArrayList info_list = (ArrayList) map.get(k);
+            if (usr.equals(info_list.get(0))){
                 duplicate_usr = true;
             }
         }
@@ -641,6 +628,7 @@ public class server_frame extends javax.swing.JFrame {
         portId = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Chat Server");
 
         start_button.setText("Start");
         start_button.addActionListener(new java.awt.event.ActionListener() {
