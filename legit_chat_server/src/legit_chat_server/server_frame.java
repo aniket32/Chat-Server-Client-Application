@@ -15,10 +15,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.io.File;  
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.util.Map;
 
 
 public class server_frame extends javax.swing.JFrame {
@@ -30,6 +30,8 @@ public class server_frame extends javax.swing.JFrame {
      */
     
     LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    LinkedList<String> listUser = new LinkedList<String>();
+            
     PrintWriter printerOut;
     Queue<String> queue = new LinkedList<>();
     
@@ -71,7 +73,7 @@ public class server_frame extends javax.swing.JFrame {
                     console_text.append("Accepting Connections from \n" + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
-                    System.out.print(Ip);
+                    //System.out.print(Ip);
                     workerList.add(worker);
                     console_text.append(String.valueOf(workerList));
                     worker.start();  
@@ -127,6 +129,7 @@ public class server_frame extends javax.swing.JFrame {
                                 // calls the loginHandler function to handle login 
                                 loginHandler(outputStream, tokens);
                                 adminStatus(tokens);
+                                //getAll();
                                 break;
                             case "join":
                                 // calls the joinHandler function to join a group
@@ -151,7 +154,8 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "ListUser":
                                 // calls the ListUser function to lists all the activ users in the server
-                                ListUser();
+                                //ListUser();
+                                getAll();
                                 break;
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
@@ -179,54 +183,11 @@ public class server_frame extends javax.swing.JFrame {
                             default:
                                 // sends a default message for unknown commands
                                 String defMsg = " Unknown " + cmd + "\n";
-                                outputStream.write(defMsg.getBytes());
-                                
+                                outputStream.write(defMsg.getBytes());       
                         }
-//                        if ("quit".equalsIgnoreCase(cmd)){
-//                            //quit();
-//                            disconnectHandler();
-//                        } else if ("login".equalsIgnoreCase(cmd)) {
-//                            // Clalling the loginHandler function to store the login information for further use
-//                            loginHandler(outputStream, tokens);
-//                            //status(tokens);
-//                        } else if("kick".equalsIgnoreCase(cmd)){
-//                            // Call a function or method to Kick someone out of the server
-//                            String[] tokensMsg = line.split(" ");
-//                            kickUser(tokensMsg);
-//                        } else if("msg".equalsIgnoreCase(cmd)){
-//                            // Call a function or method to send a message to other user
-//                            String[] tokensMsg = line.split(" ", 3);
-//                            messageHandler(tokensMsg);
-//                        } else if ("join".equalsIgnoreCase(cmd)){
-//                            // Call a function to join a User to a Group for Group Conversation
-//                            joinHandler(tokens);
-//                        } else if ("leave".equalsIgnoreCase(cmd)){
-//                            // Call a function or method to leave a Group Conversation
-//                            leaveHandler(tokens);
-//                        } else if ("sleep".equalsIgnoreCase(cmd)){
-//                            // Callsa function to ban member from messaging for a certain amount of time
-//                            String[] tokensMsg = line.split(" ");
-//                            sleep(tokensMsg);
-//                            // Call a function or method to Sleep an user for certain period of time
-//                        } else if ("announcement".equalsIgnoreCase(cmd)){
-//                            String[] tokensMsg = line.split(" ", 2);
-//                            sendAll(tokensMsg);
-//                            // Call a function or method to announce a message to all active users
-//                        } else if ("ListUser".equalsIgnoreCase(cmd)){
-//                            ListUser();
-//                            // Call a function or method to list all active users in the Server
-//                        } else if ("help".equalsIgnoreCase(cmd)) {
-//                            //Call a function to show all the availble commands avavilable to the clients
-//                        } else if ("NUKE".equalsIgnoreCase(cmd)) {
-//                            // Spam world domination on all GUIs
-//                            String[] tokensMsg = line.split(" ");
-//                            NUKE(tokensMsg);
-//                        } else {
-//                            String msg = " Unknown " + cmd + "\n";
-//                            outputStream.write(msg.getBytes());
-//                        }
                     }
-                }}
+                }
+            }
        }   
         
         public String getLogin(){
@@ -237,7 +198,7 @@ public class server_frame extends javax.swing.JFrame {
             return clientSocket.getPort();
         }
         
-        public InetAddress IP(){
+        public InetAddress getIP(){
             return clientSocket.getInetAddress();
         }
 
@@ -290,6 +251,40 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
         }
+        
+        private LinkedList<String> getAll() throws IOException{
+            //Declairing all the variables
+            String usr = null;
+            int port = 0;
+            InetAddress ip = null;
+            String info = null;
+            String list = null, first, slip;
+            
+
+            List<ServerWorker> workerList = server.getworkerList();
+            Set<String> keys = usr_id_map.keySet();
+                // Going through the list of workers in the LinkedList workerList
+                for(ServerWorker worker : workerList){
+                    // calling the functions to get the Username, Port Id and IP
+                    usr = worker.getLogin();
+                    port = worker.getPort();
+                    ip = worker.getIP();
+                
+                // Storing all the values in the variable
+                info = " Username: " + usr + " Port ID: " + port + " IP Address: " + ip;
+                listUser.add(info);
+                //System.out.print(listUser);
+                //worker.sendMsg();
+                list = listUser.toString();
+                }
+                for (ServerWorker worker : workerList){
+                    if(username.equals(worker.getLogin())){
+                        worker.sendMsg(list);
+                    }
+                }
+                //console_text.append(listUser);
+            return null;
+        }
 
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server 
@@ -299,14 +294,6 @@ public class server_frame extends javax.swing.JFrame {
                 worker.sendMsg(msg);
                 idRemover();
                 break;
-//                Set<String> keys = usr_id_map.keySet();
-//                for (String k : keys){
-//                    System.out.println(k);
-//                    // Removing disconnected Users from the list
-//                    if (username.equals(usr_id_map.get(k))){
-//                        usr_id_map.remove(k);
-//                    }
-//                }
             }
             // Append approipriate response to the Server 
             console_text.append(" User Disconnected: " +  username +"\n");
@@ -342,29 +329,30 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         
-        private void ListUser() throws IOException {
-           List<ServerWorker> workerList = server.getworkerList();
-           for (ServerWorker worker : workerList){
-               Set<String> keys = usr_id_map.keySet();
-                for (String k : keys){
-                    // System.out.println(k);
-                    if (username.equals(usr_id_map.get(k))){
-                        if (username.equals(worker.getLogin())){
-                            worker.sendMsg("Online Users  : " + usr_id_map + "\n");
-                        }
-                    }
-                } 
-           }
-        }
-        
-//        private void help() throws IOException {
-//            String help = null;
-//            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
-//            while (clientFile.hasNextLine()){
-//                help = clientFile.nextLine();
-//                outputStream.write(help.getBytes());
-//            }
+//        private void ListUser() throws IOException {
+//           List<ServerWorker> workerList = server.getworkerList();
+//           for (ServerWorker worker : workerList){
+//               Set<String> keys = usr_id_map.keySet();
+//                for (String k : keys){
+//                    // System.out.println(k);
+//                    if (username.equals(usr_id_map.get(k))){
+//                        if (username.equals(worker.getLogin())){
+//                            worker.sendMsg("Online Users  : " + getAll() + "\n");
+//                            //worker.sendMsg(getAll);
+//                        }
+//                    }
+//                } 
+//           }
 //        }
+        
+        private void help() throws IOException {
+            String help = null;
+            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
+            while (clientFile.hasNextLine()){
+                help = clientFile.nextLine();
+                outputStream.write(help.getBytes());
+            }
+        }
         
         private void adminStatus (String[] tokens) throws IOException{
             String ID = tokens[1];
@@ -383,7 +371,7 @@ public class server_frame extends javax.swing.JFrame {
                     //System.out.println(queue.peek());
                     String first = queue.peek();
                     if(first.equals(worker.getLogin())){
-                        String msg = worker.getLogin() + " the admin of this server ";
+                        String msg = worker.getLogin() + " the admin of this server " + "\n";
                         worker.sendMsg(msg);
                         if(username!= null && username == first){
                             while (adminFile.hasNextLine()){
@@ -488,15 +476,6 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        private void help() throws IOException{
-            String help = null;
-            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
-            while (clientFile.hasNextLine()){
-                help = clientFile.nextLine();
-                outputStream.write(help.getBytes());
-            }
-        }
-
         private void privateMsg() {
             List<ServerWorker> workerList = server.getworkerList();
             for(ServerWorker worker : workerList){
@@ -510,9 +489,6 @@ public class server_frame extends javax.swing.JFrame {
         
     }
 
-//    public void userDisconnect(String username){        
-//        usr_id_map.remove(username);
-//    }
   
     public void stopServer(){
        // Doers nothing  
@@ -557,7 +533,7 @@ public class server_frame extends javax.swing.JFrame {
         Boolean duplicate_usr = false;
         Set<String> keys = map.keySet();
         for (String k : keys){
-            System.out.println(k);
+            //System.out.println(k);
             if (usr.equals(map.get(k))){
                 duplicate_usr = true;
             }
