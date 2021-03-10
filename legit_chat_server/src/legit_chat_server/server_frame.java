@@ -35,7 +35,8 @@ public class server_frame extends javax.swing.JFrame {
     
     
     // Linked Hash Map to store the user name and their ID
-    LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
+    
     
     // Linked Hash ,map to store the Users name, POrt ID and IP Address
     // THis will be used to show the other users who is online
@@ -230,13 +231,17 @@ public class server_frame extends javax.swing.JFrame {
             if (tokens.length == 2){
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
+                System.out.println(workerList);
                     int i = 0;
                     if (!(ArrayIteratorCompare(username,usr_id_map))){
                         String msg = " Logged in " + username + "\n";
                         outputStream.write(msg.getBytes()); 
                         this.username = username;
                         console_text.append(" Logged in User: " + username + "\n");
-                        idGenerator(username);
+                        int port = getPort();
+                        //InetAddress address = getIP();
+                        int address = 85;
+                        idGenerator(username, port, address);
                         console_text.append(usr_id_map+"\n");
                         
                         // Send the current user other online Login 
@@ -272,7 +277,8 @@ public class server_frame extends javax.swing.JFrame {
                 for (String k : keys){
                     //System.out.println(k);
                     // Removing disconnected Users from the list
-                    if (username.equals(usr_id_map.get(k))){
+                    ArrayList list = (ArrayList) usr_id_map.get(k);
+                    if (username.equals(list.get(0))){
                         usr_id_map.remove(k);
                     }
                 }
@@ -293,7 +299,7 @@ public class server_frame extends javax.swing.JFrame {
             
 
             List<ServerWorker> workerList = server.getworkerList(); // will need this to get the IP , Port and Name
-            Set<String> keys = usr_id_map.keySet(); // Ueless line
+            Set<String> keys = usr_id_map.keySet(); // Useless line
                 // Going through the list of workers in the LinkedList workerList
                 
                 for(ServerWorker worker : workerList){ // will need this to get the Port, IP and Name
@@ -579,10 +585,15 @@ public class server_frame extends javax.swing.JFrame {
     }
     
     // Works
-    public void idGenerator(String username) {   
-        // Creates random number for the ID of eash User    
+    public void idGenerator(String username, int port, int ipaddress) {   
+        // Creates random number for the ID of eash User
+        ArrayList<String> port_usr_list = new ArrayList<String>();
+        port_usr_list.add(username);
+        port_usr_list.add(String.valueOf(port));
+        port_usr_list.add(String.valueOf(ipaddress));
         int gen_id =(int)(Math.random() * (10000000 - 1000000 + 1) + 100000);
-        usr_id_map.put(String.valueOf(gen_id),username);
+        usr_id_map.put(String.valueOf(gen_id),port_usr_list);
+        System.out.println(usr_id_map);
     } 
     
     
@@ -599,7 +610,8 @@ public class server_frame extends javax.swing.JFrame {
         Set<String> keys = map.keySet();
         for (String k : keys){
             //System.out.println(k);
-            if (usr.equals(map.get(k))){
+            ArrayList info_list = (ArrayList) map.get(k);
+            if (usr.equals(info_list.get(0))){
                 duplicate_usr = true;
             }
         }

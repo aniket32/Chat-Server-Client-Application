@@ -124,7 +124,9 @@ public class client_frame extends javax.swing.JFrame
             while (connection_state = true){
                 try {
                     String message = packetIn.readLine();
+                    if (message != null){
                     clientconsoleText.append(message+"\n");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
                 }
