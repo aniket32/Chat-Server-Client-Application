@@ -1,5 +1,6 @@
 package legit_chat_server;
 
+//Importing all the Packages 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,20 +19,29 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.util.Map;
+
+
+/*
+TODO LIST:
+Check Line 275 and afterwards to know what to do ==> Leo
+Will try and fix the admin thingi ==> AB
+*/
 
 
 public class server_frame extends javax.swing.JFrame {
     
     
     
-    /**
-     * Creates new form server_frame
-     */
     
+    // Linked Hash Map to store the user name and their ID
     LinkedHashMap<String, String> usr_id_map = new LinkedHashMap<String, String>();
+    
+    // Linked Hash ,map to store the Users name, POrt ID and IP Address
+    // THis will be used to show the other users who is online
     LinkedList<String> listUser = new LinkedList<String>();
-            
+     
+    // Declairing global variables
+    // Forgot where they are used, just leave them will do semothing about them later
     PrintWriter printerOut;
     Queue<String> queue = new LinkedList<>();
     
@@ -45,6 +55,7 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
     
+    // Works
     public class ServerS extends Thread{
         // Main reason for creating this class is to havce a clooection for this workers for every Client that joins the Server
         private final int serverPort;
@@ -55,6 +66,7 @@ public class server_frame extends javax.swing.JFrame {
             this.serverPort = serverPort;          
         }
         
+        // Works
         public List<ServerWorker> getworkerList(){
             return workerList;
         }
@@ -84,7 +96,8 @@ public class server_frame extends javax.swing.JFrame {
             }  
         }
     }
-          
+    
+    // Works
     public class ServerWorker extends Thread {
         public final Socket clientSocket;
         public ServerS server;
@@ -109,7 +122,8 @@ public class server_frame extends javax.swing.JFrame {
             } catch (IOException | InterruptedException ex) {
             }
         }
-
+        
+        // Best Code I ==> AB has writtem in my entire life
         private void handleClientSocket() throws InterruptedException, IOException {
             // Main function to handel all the Users and in case the Moderators action in the Server
             try (clientSocket) {
@@ -123,7 +137,11 @@ public class server_frame extends javax.swing.JFrame {
                 while ((line = reader.readLine()) != null){
                     String tokens[] = line.split(" ");
                     if (tokens!= null && tokens.length>0){
+                        
+                        // Declairing the first token or the first word as the Command
                         String cmd = tokens[0];
+                        
+                        // Switch case to choose from different types of commands
                         switch(cmd){
                             case "login":
                                 // calls the loginHandler function to handle login 
@@ -190,18 +208,23 @@ public class server_frame extends javax.swing.JFrame {
             }
        }   
         
+        
+        //Fnctions
+        // gets the Login name ==> String
         public String getLogin(){
             return username;
         }
-        
+        // gets the PortID ==> Int
         public int getPort(){
             return clientSocket.getPort();
         }
-        
+        // gets the IP address ==> InetAddress
+        // in this case all the IP Address will be ==> 127.0.0.1
         public InetAddress getIP(){
             return clientSocket.getInetAddress();
         }
-
+        
+        // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2){
                 String username = tokens[1];
@@ -241,6 +264,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        //Works
+        // Need to make someting similar for the getAll() function
         private  void idRemover(){
             Set<String> keys = usr_id_map.keySet();
                 for (String k : keys){
@@ -252,6 +277,11 @@ public class server_frame extends javax.swing.JFrame {
                 }
         }
         
+        
+        // Broken ===> Leo Fix this to display the online users list the client that types ListUser
+        // and also add a remove function to remove a Client when a Client leaves
+        // OR make something of your own
+        
         private LinkedList<String> getAll() throws IOException{
             //Declairing all the variables
             String usr = null;
@@ -261,10 +291,12 @@ public class server_frame extends javax.swing.JFrame {
             String list = null, first, slip;
             
 
-            List<ServerWorker> workerList = server.getworkerList();
-            Set<String> keys = usr_id_map.keySet();
+            List<ServerWorker> workerList = server.getworkerList(); // will need this to get the IP , Port and Name
+            Set<String> keys = usr_id_map.keySet(); // Ueless line
                 // Going through the list of workers in the LinkedList workerList
-                for(ServerWorker worker : workerList){
+                
+                for(ServerWorker worker : workerList){ // will need this to get the Port, IP and Name
+                    
                     // calling the functions to get the Username, Port Id and IP
                     usr = worker.getLogin();
                     port = worker.getPort();
@@ -273,10 +305,12 @@ public class server_frame extends javax.swing.JFrame {
                 // Storing all the values in the variable
                 info = " Username: " + usr + " Port ID: " + port + " IP Address: " + ip;
                 listUser.add(info);
+                
                 //System.out.print(listUser);
                 //worker.sendMsg();
                 list = listUser.toString();
                 }
+                // Useless Code to do show up the list on the Client's Interface
                 for (ServerWorker worker : workerList){
                     if(username.equals(worker.getLogin())){
                         worker.sendMsg(list);
@@ -285,7 +319,8 @@ public class server_frame extends javax.swing.JFrame {
                 //console_text.append(listUser);
             return null;
         }
-
+        
+        // Works but sometimes breaks
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server 
             List<ServerWorker> workerList = server.getworkerList();
@@ -299,11 +334,13 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(" User Disconnected: " +  username +"\n");
         }
         
+        //Broken
         private void quit() throws IOException {
             // At this moment does nothing but i hope to make it wortk in the near future
             clientSocket.close();
         }
-
+        
+        // Works
         private void messageHandler(String[] tokens) throws IOException {
             String receiver = tokens[1];
             String message = tokens[2];
@@ -328,7 +365,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        
+        // Broken code ===> Dont use this 
+        // Use getAll() instead
 //        private void ListUser() throws IOException {
 //           List<ServerWorker> workerList = server.getworkerList();
 //           for (ServerWorker worker : workerList){
@@ -345,6 +383,9 @@ public class server_frame extends javax.swing.JFrame {
 //           }
 //        }
         
+        
+        // Works for the clinet
+        // Need to make a thing where it works for the Admin as well
         private void help() throws IOException {
             String help = null;
             Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
@@ -354,6 +395,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        //a bit broken need to fix it 
+        // Need to add the functionality that when a person leaves the next becomes the admin
         private void adminStatus (String[] tokens) throws IOException{
             String ID = tokens[1];
             String dataFile = null;
@@ -390,6 +433,7 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         
+        //Works
         private void sendMsg(String msg) throws IOException {
             // Function to send Message to the Client Side in this case its the Command Prompt
             if(username != null){
@@ -401,6 +445,8 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
         
+        
+        // Broken ==> Kicks the client that sends the message and not the other persen
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
             
@@ -421,8 +467,11 @@ public class server_frame extends javax.swing.JFrame {
             }            
         }
         
+        ///Broken Code ===> Funcking breaks the entire thing
         private void sendAll(String[] token) throws IOException {
-            String msg = token[1];
+            
+            String msg = token[0]; // This line is broken don't know why
+            
             console_text.append(msg);
 //            List<ServerWorker> workerList  = server.getworkerList();
 //            for (ServerWorker worker : workerList){
@@ -432,6 +481,7 @@ public class server_frame extends javax.swing.JFrame {
 //            }
         }
          
+        // Works
         private void NUKE( String[] tokens) throws IOException {
             //String timer = tokens[1];
             
@@ -445,6 +495,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        
+        // A bit Broken
         private void sleep(String[] tokens) throws InterruptedException, IOException {
             String receiver = tokens[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -458,10 +510,12 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        // Works
         public boolean Membership(String topic){
             return SetTopic.contains(topic);
         }
         
+        // Works
         private void joinHandler(String[] tokens) {
             if (tokens.length > 1){
                 String topic = tokens[1];
@@ -469,6 +523,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+        // Works
         private void leaveHandler(String[] tokens) {
             if (tokens.length > 1){
                 String topic = tokens[1];
@@ -476,6 +531,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+        
+        // no functionality Yet
         private void privateMsg() {
             List<ServerWorker> workerList = server.getworkerList();
             for(ServerWorker worker : workerList){
@@ -494,6 +551,7 @@ public class server_frame extends javax.swing.JFrame {
        // Doers nothing  
     }
     
+    // Works
     public void serverStartButton(){
        // Starts the Server by calling in the StratServer Thread that in turn calls the ServerWorker Thread and the clientHandler
       Thread starter = new Thread(new StartServer());
@@ -501,6 +559,8 @@ public class server_frame extends javax.swing.JFrame {
       console_text.append("Server started...\n");
     }           
     
+    
+    // Needs to Fix it ==> Right now just force quits the entire program
     public void serverStopButton() throws InterruptedException {
        // Closes the Server without any warnings, ned to find a way to send message to everyone when Server is closing
 //       Thread starter = new Thread(new StartServer());
@@ -517,17 +577,21 @@ public class server_frame extends javax.swing.JFrame {
 //        //dispose();
     }
     
+    // Works
     public void idGenerator(String username) {   
         // Creates random number for the ID of eash User    
         int gen_id =(int)(Math.random() * (10000000 - 1000000 + 1) + 100000);
         usr_id_map.put(String.valueOf(gen_id),username);
     } 
     
+    
+    // Works but is of no use at the moment
     public void idRetriever(String username) {
         // Prints in the console window all the online users or running ServerWorker
         console_text.append(usr_id_map + "\n"); 
     }
     
+    // Works
     public boolean ArrayIteratorCompare(String usr,LinkedHashMap map){
         // Goes Through the array and checks for duplicates
         Boolean duplicate_usr = false;
