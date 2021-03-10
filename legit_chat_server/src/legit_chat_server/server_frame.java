@@ -25,6 +25,10 @@ import java.net.InetAddress;
 TODO LIST:
 Will try and fix the admin thingi ==> AB
 If user fails to login, do not display help text file.
+Fix the Server stop button 
+Fix kick user command
+Fix disconnect both in server and in Client
+Add a function for the next user to be the admin
 */
 
 
