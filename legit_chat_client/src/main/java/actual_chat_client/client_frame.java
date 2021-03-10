@@ -14,23 +14,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-//Test Commit
+/*
+TODO LIST:
+Client must handle login failed
+Client must not get stuck in an loop when disconnected.
 
-// Works
+*/
+
 public class client_frame extends javax.swing.JFrame 
 {
     Boolean connection_state = false;
     String username;
     ChatClient clientWindow;
     BufferedReader packetIn;
-    
+    Socket socket;
     
     // Works
     public class ChatClient
     {
         private final String serverName;
         private final int serverPort;
-        private Socket socket;
+        
         // Reading and writing to the Server
         private OutputStream serverOut;
         private InputStream serverIn;
@@ -121,12 +125,11 @@ public class client_frame extends javax.swing.JFrame
     //function to receive messages
         public void run() {
             //Will run until client has disconnected.
-            while (connection_state = true){
+            while (connection_state == true && socket.isClosed() == false){
                 try {
                     String message = packetIn.readLine();
-                    if (message != null){
                     clientconsoleText.append(message+"\n");
-                    }
+                    
                 } catch (IOException ex) {
                     Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
                 }
