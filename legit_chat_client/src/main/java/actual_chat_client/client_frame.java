@@ -1,5 +1,6 @@
 package actual_chat_client;
 
+// Importing the Packages
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -15,17 +16,16 @@ import java.util.logging.Logger;
 
 //Test Commit
 
-
+// Works
 public class client_frame extends javax.swing.JFrame 
 {
     Boolean connection_state = false;
     String username;
     ChatClient clientWindow;
     BufferedReader packetIn;
-    /**
-     * Creates new form client_frame
-     */
     
+    
+    // Works
     public class ChatClient
     {
         private final String serverName;
@@ -46,6 +46,7 @@ public class client_frame extends javax.swing.JFrame
         
         }
         
+        // Works
         public void server_connector()
         {
             try
@@ -76,7 +77,8 @@ public class client_frame extends javax.swing.JFrame
             } 
         }
         
-        
+        // BullShit Code
+        // Need to Delete this
 //        private void login(String address, int port ,String username) throws IOException { 
 //            this.socket = new Socket(serverName, serverPort);
 //            //this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
@@ -96,13 +98,14 @@ public class client_frame extends javax.swing.JFrame
 //                out.println(login_command);
 //            }
 //       }
-
+        
+        // Works
         public void sendMsg(String msg_text_str) throws IOException{
             //this.serverOut.write(msg_text_str.getBytes());
-            packetOut.println(msg_text_str);
-            
-            
+            packetOut.println(msg_text_str);  
         }
+        
+        // Works
         public void server_disconnect() throws IOException{
             if (connection_state == true){
                 packetOut.println("quit");
@@ -112,6 +115,8 @@ public class client_frame extends javax.swing.JFrame
         }
     }
     
+    // Works Beautifully
+    // Leo is the BEST
     public class SocketListener implements Runnable {
     //function to receive messages
         public void run() {
@@ -134,6 +139,7 @@ public class client_frame extends javax.swing.JFrame
         
     }
     
+    // Works
     //Fuction that creates new thread dedicated to listening for inputs.
     public void ListenThread() {
 		Thread SocketListener = new Thread(new SocketListener());
@@ -310,6 +316,7 @@ public class client_frame extends javax.swing.JFrame
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // Works
     private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed
         // TODO add your handling code here:
         username = usernametext.getText();
@@ -347,6 +354,7 @@ public class client_frame extends javax.swing.JFrame
         
     }//GEN-LAST:event_connectBtnActionPerformed
 
+    // Works
     private void discBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discBtnActionPerformed
         // TODO add your handling code here:
         if (connection_state == false) 
