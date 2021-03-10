@@ -9,7 +9,7 @@ Enter the details in IP Addredd as "localhost" and Port as what you set in the s
 
 If the client code is still incompete then you can use cmd prompt or terminal depending on your OS to run the chat client
 Open terminal or cmd prompt and type in 
-telnet localhost <PortID>     // Basically replecating the client
+telnet localhost (PortID)     // Basically replecating the client
                               // You can do this as mnay times as you want
                         
  ** Here are some commands to interact to the server and with other clients **
@@ -31,7 +31,7 @@ telnet localhost <PortID>     // Basically replecating the client
  
  quit   // disconnects you from the server
  
- ListUser    // lists all the current active users and their server ID in the server
+ ListUser    // lists all the current active users along with their Port ID, IP Address
  
  NUKE   // spams "WORLD DOMONATION" all throughout the server and all active client window for 10 seconds
  
