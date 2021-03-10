@@ -27,14 +27,13 @@ Check Line 275 and afterwards to know what to do ==> Leo
 Will try and fix the admin thingi ==> AB
 */
 
-//Branching test Commit and Push
 
 public class server_frame extends javax.swing.JFrame {
     
     
     
     
-    // Linked Hash Map to store the user name and their ID
+    // Linked Hash Map to store id and ArrayList object containing username,Port Number, IP Address
     LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
     
     
