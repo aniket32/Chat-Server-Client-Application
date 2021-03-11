@@ -47,7 +47,7 @@ Fixed quit command in command line
 
 Fixed Nuke function
 
-Made a stopServer() to respond to the command stop-Server to close the server
+Made a stopServer() to respond to the command stop-server to close the server
 
 Universal admin and clinet commands text ==> <AB> They cannot be fixed, may be some one else can
 If user fails to login, do not display help text file ==>  <AB> Fixed on the command line side 
