@@ -10,3 +10,4 @@ quit   // disconnects you from the server
 ListUser    // lists all the current active users and their server ID in the server
 help       // shows all commands you can use in the interface
 NUKE   // spams "WORLD DOMINATION" all throughout the server and all active client window for 10 seconds
+stop-server     // closes all Client Connections with appropriate message and closes the server

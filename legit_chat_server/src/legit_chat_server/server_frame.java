@@ -24,28 +24,43 @@ import java.net.InetAddress;
 /*
 TODO LIST:
 Will try and fix the admin thingi ==> AB
-If user fails to login, do not display help text file.
-Fix the Server stop button 
-Fix kick user command
-Fix disconnect both in server and in Client
-Add a function for the next user to be the admin
+
+Fix the Server stop button ==> AB
+Need help calling the stopServer() function from outside the ServerWorker class
+
+Fix kick user command ==> AB
+
+Fix disconnect both in server and in Client ==> Leo
+
+Add a function for the next user to be the admin ==> AB and LEO
+
+kickUser() kicks the correct user but deletes the id of another user
 */
 
 
-//Branching test Commit and Push
-// More test
-// More test last to see that ot works properly
 
+/*
+Added Functionality 
+Added stop-server functionality
 
+Fixed quit command in command line
 
+Fixed Nuke function
 
+Made a stopServer() to respond to the command stop-Server to close the server
+
+Universal admin and clinet commands text ==> <AB> They cannot be fixed, may be some one else can
+If user fails to login, do not display help text file ==>  <AB> Fixed on the command line side 
+but the clinet cannot handle login failure when there are two people of the same name so its just prints Null infinitely
+
+Changed sendAll() ==> accouncements() and made a sendAll() function
+*/
 
 
 
 public class server_frame extends javax.swing.JFrame {
     
-    
-    
+
     
     // Linked Hash Map to store id and ArrayList object containing username,Port Number, IP Address
     LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
@@ -178,7 +193,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "sendall":
                                 // calls the sendAll function to send a message to all the clients
                                 String[] token = line.split(" ", 2);
-                                sendAll(token);
+                                announcements(token);
                                 break;
                             case "ListUser":
                                 // calls the ListUser function to lists all the activ users in the server
@@ -187,8 +202,8 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
-                                String[] tokenMsg = line.split(" ");
-                                NUKE(tokenMsg);
+                                //String[] tokenMsg = line.split(" ");
+                                NUKE();
                                 break;
                             case "sleep":
                                 // calls the sleep fucntion and bans a client for a certain time
@@ -207,6 +222,10 @@ public class server_frame extends javax.swing.JFrame {
                             case "quit":
                                 // calls the disconnectHandler functin and removes a user from the 
                                 disconnectHandler();
+                                break;
+                            case "stop-server":
+                                //calls function to stop the Server
+                                stopServer();
                                 break;
                             default:
                                 // sends a default message for unknown commands
@@ -272,15 +291,16 @@ public class server_frame extends javax.swing.JFrame {
                         }    
                     } else {
                         String msg = "login failed";
-                        
                         outputStream.write(msg.getBytes());
                         console_text.append(" Logged in Failed for User: " + username + "\n");
+                        clientSocket.close();
                     }
             }
         }
         
         //Works
-        // Need to make someting similar for the getAll() function
+        // Leo take a look at this function because the kick comands destroys this function
+        // It doesnot work with the kick commands
         private  void idRemover(){
             Set<String> keys = usr_id_map.keySet();
                 for (String k : keys){
@@ -293,6 +313,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
         }
         
+
         
         // Broken ===> Leo Fix this to display the online users list the client that types ListUser
         // and also add a remove function to remove a Client when a Client leaves
@@ -337,6 +358,7 @@ public class server_frame extends javax.swing.JFrame {
             }
             // Append approipriate response to the Server 
             console_text.append(" User Disconnected: " +  username +"\n");
+            clientSocket.close();
         }
         
         //Broken
@@ -369,6 +391,15 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         }
+        
+        private String findPath( String file){
+            File f = new File(file);
+            String path = f.getAbsolutePath();
+            
+            
+            //System.out.println(path);
+            return path;
+        }
                 
         // Works for the clinet
         // Need to make a thing where it works for the Admin as well
@@ -389,9 +420,20 @@ public class server_frame extends javax.swing.JFrame {
             String dataFile = null;
             
             //This line needs to be universal, currently only works on Leo's machine. Path must be changed.
-            Scanner adminFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
-            Scanner clientFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
-                       
+            
+            //Gets the file path for the file
+            String adminFilePath = findPath("adminCommands.txt");
+            String clientFilePath = findPath("clientCommands.txt"); 
+            
+            
+            // Path is half right so I <AB> moved the files up a folder, it should work by doesnt
+            // Ned to try this with Buffered Reader
+            Scanner adminFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/adminCommand.txt"));
+            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/clientCommand.txt"));            
+                    
+            //Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
+            //Scanner clientFile =  new Scanner(new File("\""+clientFilePath+"\""));
+                        
             List<ServerWorker> workerList = server.getworkerList();
    //         while(true){
                 for(ServerWorker worker : workerList){  
@@ -433,8 +475,17 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
         
+        private void sendAll( String msg) throws IOException {
+            List<ServerWorker> workerList = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                worker.outputStream.write(msg.getBytes());
+            }
+            console_text.append(msg);
+        }
         
-        // Broken ==> Kicks the client that sends the message and not the other persen
+        
+        // Broken ==> Kicks the client that sends the message and not the other person in command line
+        // In Client GUI it works perfectly but since client is broke to Null infinitely
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
             
@@ -444,21 +495,16 @@ public class server_frame extends javax.swing.JFrame {
                         String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server " +"\n";
                         //outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
-                        //try{
-                            Thread.sleep(5000);
-                            worker.clientSocket.close();
-//                        }catch (IOException ex){
-//                            ex.printStackTrace();
-//                        }
+                        worker.clientSocket.close();
+                        worker.idRemover();
                     }
-                 idRemover();
-            }            
+            } 
         }
         
-        ///Broken Code ===> Funcking breaks the entire thing
-        private void sendAll(String[] token) throws IOException {
+        // Works ==> has been fixed but might break in the future
+        private void announcements(String[] token) throws IOException {
             
-            String msg = token[1]; // This line is broken don't know why
+            String msg = token[1];
             
             console_text.append(msg);
             List<ServerWorker> workerList  = server.getworkerList();
@@ -470,8 +516,7 @@ public class server_frame extends javax.swing.JFrame {
         }
          
         // Works
-        private void NUKE( String[] tokens) throws IOException {
-            //String timer = tokens[1];
+        private void NUKE() throws IOException {
             
             List<ServerWorker> workerList = server.getworkerList();
             long aTime = System.currentTimeMillis();
@@ -531,13 +576,21 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+       public void stopServer() throws IOException{
+            List<ServerWorker> workerList = server.getworkerList();
+            for(ServerWorker worker : workerList){
+                String msg =  "\n" +"Server Closing";
+                worker.sendAll(msg);
+                
+                worker.clientSocket.close();
+            }
+       
+    }
         
     }
 
   
-    public void stopServer(){
-       // Doers nothing  
-    }
+    
     
     // Works
     public void serverStartButton(){
@@ -548,21 +601,21 @@ public class server_frame extends javax.swing.JFrame {
     }           
     
     
-    // Needs to Fix it ==> Right now just force quits the entire program
+    // Needs to Fix it ==> Find a way to call the function on line 579 to be called here to close the Server
+    // With appropriate messages to all the active clients
     public void serverStopButton() throws InterruptedException {
        // Closes the Server without any warnings, ned to find a way to send message to everyone when Server is closing
-//       Thread starter = new Thread(new StartServer());
-////       starter.stop();
+        Thread starter = new Thread(new StartServer());
 //        try 
 //        {
 //            console_text.append("Closing Server.\n");
-//            // The Thread will wait for 5 seconds before closing the server
-//            Thread.sleep(5000);  
+            // The Thread will wait for 5 seconds before closing the server
+            //Thread.sleep(5000); 
             System.exit(0);
 //        } 
-//        catch(InterruptedException ex) {Thread.currentThread().interrupt();}
-//        //System.exit(0);
-//        //dispose();
+//        catch(InterruptedException ex) {
+//            ex.printStackTrace();
+//        }
     }
     
     // Works
