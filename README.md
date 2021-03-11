@@ -31,15 +31,11 @@ telnet localhost (PortID)     // Basically replecating the client
  
  quit   // disconnects you from the server
  
-<<<<<<< HEAD
  ListUser    // lists all the current active users along with their Port ID, IP Address
-=======
- ListUser  // lists all the current active users and their server ID in the server
->>>>>>> 23db081ea2e6406499beb6f0d3c3164ae1982e4d
  
  NUKE   // spams "WORLD DOMONATION" all throughout the server and all active client window for 10 seconds
  
- 
+ stop-server	// closes the server and closes all open Client Connections 
 
 ** Currently Under Developement **
 
