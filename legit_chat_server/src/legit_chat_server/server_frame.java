@@ -445,6 +445,11 @@ public class server_frame extends javax.swing.JFrame {
                     String first = queue.peek();
                     if(first.equals(worker.getLogin())){
                         String msg = worker.getLogin() + " the admin of this server " + "\n";
+                        adminjoinHandler();
+                        boolean isTopic = first.charAt(0) == '#';
+                        if (isTopic){
+                            if (worker.Membership(first));
+                        }
                         worker.sendMsg(msg);
                         if(username!= null && username == first){
                             while (adminFile.hasNextLine()){
@@ -460,6 +465,20 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
             //}
+        }
+        
+        private void adminjoinHandler() {
+//            if (tokens.length > 1){
+                String topic = "#AdmIn";
+                SetTopic.add(topic);
+//            }
+        }
+        
+        private void leaveHandler() {
+//            if (tokens.length > 1){
+                String topic = "#AdmIn";
+                SetTopic.remove(topic);
+//            }
         }
         
         
@@ -581,6 +600,7 @@ public class server_frame extends javax.swing.JFrame {
             for(ServerWorker worker : workerList){
                 String msg =  "\n" +"Server Closing";
                 worker.sendAll(msg);
+                worker.idRemover();
                 
                 worker.clientSocket.close();
             }
