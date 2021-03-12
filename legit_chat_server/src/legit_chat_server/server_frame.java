@@ -33,7 +33,8 @@ Fix disconnect both in server and in Client ==> Leo
 
 Add a function for the next user to be the admin ==> AB and LEO
 
-kickUser() kicks the correct user but deletes the id of another user
+kickUser() kicks the correct user but deletes the id of another user ==> Check line 312 for more 
+
 */
 
 /*
@@ -308,6 +309,7 @@ public class server_frame extends javax.swing.JFrame {
         // Leo take a look at this function because the kick comands destroys this
         // function
         // It doesnot work with the kick commands
+        //Found the error it only workd for one client but if there are multiple id that needs to be removed that its fucked
         private void idRemover() {
             Set<String> keys = usr_id_map.keySet();
             for (String k : keys) {
@@ -463,9 +465,8 @@ public class server_frame extends javax.swing.JFrame {
                 String first = queue.peek();
                 if(!first.equals(worker.getLogin())){
                     if (worker.getLogin() != null) {
-                        String msg = first + "is now the admin of the Server \n";
+                        String msg = first + " is now the admin of the Server \n";
                         worker.outputStream.write(msg.getBytes()); 
-                        //sendMsg(msg);
                     }
                 
             }
@@ -542,7 +543,7 @@ public class server_frame extends javax.swing.JFrame {
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     worker.clientSocket.close();
-                    worker.idRemover();
+                    //idRemover();
                 }
             }
         }
@@ -625,7 +626,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList) {
                 String msg = "\n" + "Server Closing";
                 worker.sendAll(msg);
-                worker.idRemover();
+                idRemover();
 
                 worker.clientSocket.close();
             }
@@ -633,12 +634,15 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         private void sendStatus() {
-            
+            List<ServerWorker> workerList = server.getworkerList();
+            for(ServerWorker worker : workerList){
+                
+            }
         }
 
         private void checkStatus() throws IOException {
-            InputStream inputStream = clientSocket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+//            InputStream inputStream = clientSocket.getInputStream();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList){
@@ -646,9 +650,9 @@ public class server_frame extends javax.swing.JFrame {
                     if (worker.getLogin() != null) {
                         String msg = "Are you online yes/no?";
                         worker.outputStream.write(msg.getBytes()); 
-                        //sendMsg(onlineMsg);
+                        // need to find a way to get the latest typed message after this outputStream
+                        }
                     }
-                }
                 //String msg = "Are you Online, yes/no";
                 //worker.outputStream.write(msg.getBytes());  
                 
