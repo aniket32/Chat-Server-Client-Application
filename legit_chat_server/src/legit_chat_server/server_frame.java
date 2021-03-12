@@ -461,27 +461,35 @@ public class server_frame extends javax.swing.JFrame {
                 }
                 // System.out.println(queue.peek());
                 String first = queue.peek();
-                if (first.equals(worker.getLogin())) {
-                    String msg = worker.getLogin() + " the admin of this server " + "\n";
-                    adminjoinHandler();
-                    boolean isTopic = first.charAt(0) == '#';
-                    if (isTopic) {
-                        if (worker.Membership(first))
-                            ;
+                if(!first.equals(worker.getLogin())){
+                    if (worker.getLogin() != null) {
+                        String msg = first + "is now the admin of the Server \n";
+                        worker.outputStream.write(msg.getBytes()); 
+                        //sendMsg(msg);
                     }
-                    worker.sendMsg(msg);
-                    if (username != null && username == first) {
-                        while (adminFile.hasNextLine()) {
-                            dataFile = adminFile.nextLine() + "\n";
-                            outputStream.write(dataFile.getBytes());
-                        }
-                    } else {
-                        while (clientFile.hasNextLine()) {
-                            dataFile = clientFile.nextLine() + "\n";
-                            outputStream.write(dataFile.getBytes());
-                        }
-                    }
-                }
+                
+            }
+//                if (first.equals(worker.getLogin())) {
+//                    String msg = worker.getLogin() + " the admin of this server " + "\n";
+//                    adminjoinHandler();
+//                    boolean isTopic = first.charAt(0) == '#';
+//                    if (isTopic) {
+//                        if (worker.Membership(first))
+//                            ;
+//                    }
+//                    worker.sendMsg(msg);
+//                    if (username != null && username == first) {
+//                        while (adminFile.hasNextLine()) {
+//                            dataFile = adminFile.nextLine() + "\n";
+//                            outputStream.write(dataFile.getBytes());
+//                        }
+//                    } else {
+//                        while (clientFile.hasNextLine()) {
+//                            dataFile = clientFile.nextLine() + "\n";
+//                            outputStream.write(dataFile.getBytes());
+//                        }
+//                    }
+//                }
             }
             // }
         }
@@ -493,7 +501,7 @@ public class server_frame extends javax.swing.JFrame {
             // }
         }
 
-        private void leaveHandler() {
+        private void adminleaveHandler() {
             // if (tokens.length > 1){
             String topic = "#AdmIn";
             SetTopic.remove(topic);
@@ -629,14 +637,35 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         private void checkStatus() throws IOException {
-           List<ServerWorker> workerList = server.getworkerList();
-           for (ServerWorker worker : workerList){
-               String msg = "Are you Online";
-               worker.outputStream.write(msg.getBytes());
-               worker.inputStream.get();
-               if(worker){
-                   
-               }
+            InputStream inputStream = clientSocket.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            
+            List<ServerWorker> workerList = server.getworkerList();
+            for (ServerWorker worker : workerList){
+                if (!username.equals(worker.getLogin())) {
+                    if (worker.getLogin() != null) {
+                        String msg = "Are you online yes/no?";
+                        worker.outputStream.write(msg.getBytes()); 
+                        //sendMsg(onlineMsg);
+                    }
+                }
+                //String msg = "Are you Online, yes/no";
+                //worker.outputStream.write(msg.getBytes());  
+                
+                
+//                String line;
+//                while ((line = reader.readLine()) != null){
+//                    String tokens[] = line.split(" ");
+//                    if (tokens!=null && tokens.length>0){
+//                       if (tokens.equals("yes")){   
+//                            clientSocket.close();
+//                        }else{
+//                            String msg1 = worker.getLogin()+ " is online ";
+//                            sendMsg(msg1);
+//                        }
+//                        
+//                    }
+//                }
            }
         }
 
