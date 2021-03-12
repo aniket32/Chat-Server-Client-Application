@@ -34,6 +34,10 @@ telnet localhost (PortID)     // Basically replecating the client
  ListUser    // lists all the current active users along with their Port ID, IP Address
  
  NUKE   // spams "WORLD DOMONATION" all throughout the server and all active client window for 10 seconds
+
+ checkStatus 	// sends a message to every client asking their online status and according to answer get a respomd from the server
+
+ sendStatus	// sends all the current user the online/offline status of all user 
  
  stop-server	// closes the server and closes all open Client Connections 
 
