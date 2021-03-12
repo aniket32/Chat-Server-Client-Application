@@ -15,11 +15,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.io.File;  
+import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-
 
 /*
 TODO LIST:
@@ -36,8 +35,6 @@ Add a function for the next user to be the admin ==> AB and LEO
 
 kickUser() kicks the correct user but deletes the id of another user
 */
-
-
 
 /*
 Added Functionality 
@@ -56,82 +53,81 @@ but the clinet cannot handle login failure when there are two people of the same
 Changed sendAll() ==> accouncements() and made a sendAll() function
 */
 
-
-
 public class server_frame extends javax.swing.JFrame {
-    
 
-    
-    // Linked Hash Map to store id and ArrayList object containing username,Port Number, IP Address
+    // Linked Hash Map to store id and ArrayList object containing username,Port
+    // Number, IP Address
     LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
-    
+
     // Declairing global variables
-    // Forgot where they are used, just leave them will do semothing about them later
+    // Forgot where they are used, just leave them will do semothing about them
+    // later
     PrintWriter printerOut;
     Queue<String> queue = new LinkedList<>();
-    
-    public class StartServer implements Runnable{
+
+    public class StartServer implements Runnable {
         @Override
-        public void run(){
+        public void run() {
             String portID = portId.getText();
             int port = Integer.parseInt(portID);
             ServerS server = new ServerS(port);
             server.start();
         }
     }
-    
+
     // Works
-    public class ServerS extends Thread{
-        // Main reason for creating this class is to havce a clooection for this workers for every Client that joins the Server
+    public class ServerS extends Thread {
+        // Main reason for creating this class is to havce a clooection for this workers
+        // for every Client that joins the Server
         private final int serverPort;
-        
+
         private ArrayList<ServerWorker> workerList = new ArrayList<>();
-        
-        public ServerS (int serverPort){
-            this.serverPort = serverPort;          
+
+        public ServerS(int serverPort) {
+            this.serverPort = serverPort;
         }
-        
+
         // Works
-        public List<ServerWorker> getworkerList(){
+        public List<ServerWorker> getworkerList() {
             return workerList;
         }
-        
+
         @Override
-        public void run()
-        {
-           try {
+        public void run() {
+            try {
                 ServerSocket serverSocket = new ServerSocket(serverPort);
-                //Accepting Client Sockets and creates the connection between them
-                //clientSocket used to identify Clients
-                while (true){
+                // Accepting Client Sockets and creates the connection between them
+                // clientSocket used to identify Clients
+                while (true) {
                     console_text.append("About to accept connections....\n");
-                    //While loop to keep looking or accepting from clients
+                    // While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
                     console_text.append("Accepting Connections from \n" + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
-                    //System.out.print(Ip);
+                    // System.out.print(Ip);
                     workerList.add(worker);
                     console_text.append(String.valueOf(workerList));
-                    worker.start();  
-                }    
-            }catch(IOException e){
-               //print in server console if error in Creating Server~
+                    worker.start();
+                }
+            } catch (IOException e) {
+                // print in server console if error in Creating Server~
                 console_text.append("server broke");
-            }  
+            }
         }
     }
-    
+
     // Works
     public class ServerWorker extends Thread {
         public final Socket clientSocket;
         public ServerS server;
         public String username = null;
         private OutputStream outputStream;
+        //private InputStream inputStream;
         private HashSet<String> SetTopic = new HashSet<>();
-        
+
         // Passing a Server instance to each ServerWorker
-        public ServerWorker (Socket clientSocket){
+        public ServerWorker(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
 
@@ -141,13 +137,13 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         @Override
-        public void run (){
+        public void run() {
             try {
                 handleClientSocket();
             } catch (IOException | InterruptedException ex) {
             }
         }
-        
+
         // Best Code I ==> AB has writtem in my entire life
         private void handleClientSocket() throws InterruptedException, IOException {
             // Main function to handel all the Users and in case the Moderators action in the Server
@@ -155,6 +151,7 @@ public class server_frame extends javax.swing.JFrame {
                 // Main function to handel all the Users and in case the Moderators action in the Server
                 InputStream inputStream = clientSocket.getInputStream();
                 this.outputStream = clientSocket.getOutputStream();
+                //this.inputStream = clientSocket.getInputStream();
                 printerOut = new PrintWriter(this.outputStream, true);
                 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -227,6 +224,14 @@ public class server_frame extends javax.swing.JFrame {
                                 //calls function to stop the Server
                                 stopServer();
                                 break;
+                            case "sendStatus":
+                                //calls a function to send the satatus of all online users to all the Clients
+                                sendStatus();
+                                break;
+                            case "checkStatus":
+                                //calls a function to check if the Clients are online or not
+                                checkStatus();
+                                break;
                             default:
                                 // sends a default message for unknown commands
                                 String defMsg = " Unknown " + cmd + "\n";
@@ -235,341 +240,354 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
             }
-       }   
-        
-        
-        //Functions
+       }
+
+        // Functions
         // gets the Login name ==> String
-        public String getLogin(){
+        public String getLogin() {
             return username;
         }
+
         // gets the PortID ==> Int
-        public int getPort(){
+        public int getPort() {
             return clientSocket.getPort();
         }
+
         // gets the IP address ==> InetAddress
-        // in this case all the IP Address will be ==> 127.0.0.1(GUI) or 0.0.0.0.0.1(Command Line)
-        public InetAddress getIP(){
+        // in this case all the IP Address will be ==> 127.0.0.1(GUI) or
+        // 0.0.0.0.0.1(Command Line)
+        public InetAddress getIP() {
             return clientSocket.getInetAddress();
         }
-        
-        
+
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
-            if (tokens.length == 2){
+            if (tokens.length == 2) {
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
                 System.out.println(workerList);
-                    int i = 0;
-                    if (!(ArrayIteratorCompare(username,usr_id_map))){
-                        String msg = " Logged in " + username + "\n";
-                        outputStream.write(msg.getBytes()); 
-                        this.username = username;
-                        console_text.append(" Logged in User: " + username + "\n");
-                        int port = getPort();
-                        InetAddress address = getIP();
-                        //int address = 85;
-                        idGenerator(username, port, address.toString());
-                        console_text.append(usr_id_map+"\n");
-                        
-                        // Send the current user other online Login 
-                        for(ServerWorker worker :workerList){
-                            if (!username.equals(worker.getLogin())){
-                                if (worker.getLogin() != null){
-                                    String onlineMsg = " User online: " + worker.getLogin() + "\n";
-                                    sendMsg(onlineMsg);
-                                }  
+                int i = 0;
+                if (!(ArrayIteratorCompare(username, usr_id_map))) {
+                    String msg = " Logged in " + username + "\n";
+                    outputStream.write(msg.getBytes());
+                    this.username = username;
+                    console_text.append(" Logged in User: " + username + "\n");
+                    int port = getPort();
+                    InetAddress address = getIP();
+                    // int address = 85;
+                    idGenerator(username, port, address.toString());
+                    console_text.append(usr_id_map + "\n");
+
+                    // Send the current user other online Login
+                    for (ServerWorker worker : workerList) {
+                        if (!username.equals(worker.getLogin())) {
+                            if (worker.getLogin() != null) {
+                                String onlineMsg = " User online: " + worker.getLogin() + "\n";
+                                sendMsg(onlineMsg);
                             }
                         }
-                        
-                        // Send other online users current users Status
-                        String Msg  = " User Online: " + username + "\n";
-                        for(ServerWorker worker : workerList){
-                            if (!username.equals(worker.getLogin())){
-                            worker.sendMsg(Msg);
-                            }
-                        }    
-                    } else {
-                        String msg = "login failed";
-                        outputStream.write(msg.getBytes());
-                        console_text.append(" Logged in Failed for User: " + username + "\n");
-                        clientSocket.close();
                     }
+
+                    // Send other online users current users Status
+                    String Msg = " User Online: " + username + "\n";
+                    for (ServerWorker worker : workerList) {
+                        if (!username.equals(worker.getLogin())) {
+                            worker.sendMsg(Msg);
+                        }
+                    }
+                } else {
+                    String msg = "login failed";
+                    outputStream.write(msg.getBytes());
+                    console_text.append(" Logged in Failed for User: " + username + "\n");
+                    clientSocket.close();
+                }
             }
         }
-        
-        //Works
-        // Leo take a look at this function because the kick comands destroys this function
-        // It doesnot work with the kick commands
-        private  void idRemover(){
-            Set<String> keys = usr_id_map.keySet();
-                for (String k : keys){
-                    //System.out.println(k);
-                    // Removing disconnected Users from the list
-                    ArrayList list = (ArrayList) usr_id_map.get(k);
-                    if (username.equals(list.get(0))){
-                        usr_id_map.remove(k);
-                    }
-                }
-        }
-        
 
-        
-        // Broken ===> Leo Fix this to display the online users list the client that types ListUser
+        // Works
+        // Leo take a look at this function because the kick comands destroys this
+        // function
+        // It doesnot work with the kick commands
+        private void idRemover() {
+            Set<String> keys = usr_id_map.keySet();
+            for (String k : keys) {
+                // System.out.println(k);
+                // Removing disconnected Users from the list
+                ArrayList list = (ArrayList) usr_id_map.get(k);
+                if (username.equals(list.get(0))) {
+                    usr_id_map.remove(k);
+                }
+            }
+        }
+
+
+        // Broken ===> Leo Fix this to display the online users list the client that
+        // types ListUser
         // and also add a remove function to remove a Client when a Client leaves
         // OR make something of your own
-        
-        private LinkedList<String> getAll() throws IOException{
-            //Declairing all the variables
+
+        private LinkedList<String> getAll() throws IOException {
+            // Declairing all the variables
             String usr_list = null;
             // Linked Hash ,map to store the Users name, POrt ID and IP Address
             // THis will be used to show the other users who is online
             LinkedList<String> listUser = new LinkedList<String>();
             List<ServerWorker> workerList = server.getworkerList(); // will need this to get the IP , Port and Name
             Set<String> keys = usr_id_map.keySet(); // Useless line
-                // Going through the list of workers in the LinkedList workerList
-                for(String k : keys){ // will need this to get the Port, IP and Name
-                    ArrayList info_list = (ArrayList) usr_id_map.get(k);
-                    System.out.println(usr_id_map);
-                    // Storing all the values in the variable
-                    String info = " Username: " + info_list.get(0) + " Port ID: " + info_list.get(1) + " IP Address: " + info_list.get(2) + "\n";
-                    listUser.add(info);
-                    usr_list = listUser.toString();
-                    System.out.println(usr_list);
-                    //System.out.print(listUser);
-                    //worker.sendMsg();
-                    
-                }
-                sendMsg(usr_list);
-                listUser.clear();       
+            // Going through the list of workers in the LinkedList workerList
+            for (String k : keys) { // will need this to get the Port, IP and Name
+                ArrayList info_list = (ArrayList) usr_id_map.get(k);
+                System.out.println(usr_id_map);
+                // Storing all the values in the variable
+                String info = " Username: " + info_list.get(0) + " Port ID: " + info_list.get(1) + " IP Address: "
+                        + info_list.get(2) + "\n";
+                listUser.add(info);
+                usr_list = listUser.toString();
+                System.out.println(usr_list);
+                // System.out.print(listUser);
+                // worker.sendMsg();
+
+            }
+            sendMsg(usr_list);
+            listUser.clear();
             return null;
-                    }
-        
-        
+        }
+
         // Works but sometimes breaks
         private void disconnectHandler() throws IOException {
-            // Function to handle all User Disconnection from the Server 
+            // Function to handle all User Disconnection from the Server
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                String msg = "User Disconnected " +  username + "\n";
+            for (ServerWorker worker : workerList) {
+                String msg = "User Disconnected " + username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
                 break;
             }
-            // Append approipriate response to the Server 
-            console_text.append(" User Disconnected: " +  username +"\n");
+            // Append approipriate response to the Server
+            console_text.append(" User Disconnected: " + username + "\n");
             clientSocket.close();
         }
-        
-        //Broken
+
+        // Broken
         private void quit() throws IOException {
             // At this moment does nothing but i hope to make it wortk in the near future
             clientSocket.close();
         }
-        
+
         // Works
         private void messageHandler(String[] tokens) throws IOException {
             String receiver = tokens[1];
             String message = tokens[2];
-            
+
             boolean isTopic = receiver.charAt(0) == '#';
-            
+
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                if (isTopic){
-                    if (worker.Membership(receiver)){
-                        String MsgOut = "Msg : " + receiver + " : " + username + " " + message +"\n";
-                        //outputStream.write(message.getBytes());
+            for (ServerWorker worker : workerList) {
+                if (isTopic) {
+                    if (worker.Membership(receiver)) {
+                        String MsgOut = "Msg: " + receiver + " : " + username + " " + message + "\n";
+                        // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
                 } else {
-                    if (receiver.equalsIgnoreCase(worker.getLogin())){
-                        String MsgOut = "Msg : " + username + " " + message +"\n";
-                        //outputStream.write(message.getBytes());
+                    if (receiver.equalsIgnoreCase(worker.getLogin())) {
+                        String MsgOut = "Msg: " + username + " " + message + "\n";
+                        // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
                 }
             }
         }
-        
-        private String findPath( String file){
+
+        private String findPath(String file) {
             File f = new File(file);
             String path = f.getAbsolutePath();
-            
-            
-            //System.out.println(path);
+
+            // System.out.println(path);
             return path;
         }
-                
+
         // Works for the clinet
         // Need to make a thing where it works for the Admin as well
         private void help() throws IOException {
             String help = null;
-            //This line needs to be universal, currently only works on Leo's machine. Path must be changed.
-            Scanner clientFile = new Scanner(new File("C:/Users/Leonardo Jesus/Documents/JAVA/src/git/gay/Chat-Server-Client-Application-1/legit_chat_server/src/legit_chat_server/clientCommand.txt"));            
-            while (clientFile.hasNextLine()){
+            // This line needs to be universal, currently only works on Leo's machine. Path
+            // must be changed.
+            Scanner clientFile = new Scanner(new File(
+                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+            while (clientFile.hasNextLine()) {
                 help = clientFile.nextLine();
                 outputStream.write(help.getBytes());
             }
+            // List<ServerWorker> workerList = server.getworkerList();
+            // for (ServerWorker worker : workerList){
+            // if(isTopic){
+            // if (worker.Membership(worker))
+            // }
+            // }
         }
-        
-        //a bit broken need to fix it 
-        // Need to add the functionality that when a person leaves the next becomes the admin
-        private void adminStatus (String[] tokens) throws IOException{
+
+        // a bit broken need to fix it
+        // Need to add the functionality that when a person leaves the next becomes the
+        // admin
+        private void adminStatus(String[] tokens) throws IOException {
             String ID = tokens[1];
             String dataFile = null;
-            
-            //This line needs to be universal, currently only works on Leo's machine. Path must be changed.
-            
-            //Gets the file path for the file
+
+            // This line needs to be universal, currently only works on Leo's machine. Path
+            // must be changed.
+
+            // Gets the file path for the file
             String adminFilePath = findPath("adminCommands.txt");
-            String clientFilePath = findPath("clientCommands.txt"); 
-            
-            
-            // Path is half right so I <AB> moved the files up a folder, it should work by doesnt
+            String clientFilePath = findPath("clientCommands.txt");
+
+            // Path is half right so I <AB> moved the files up a folder, it should work by
+            // doesnt
             // Ned to try this with Buffered Reader
-            Scanner adminFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/adminCommand.txt"));
-            Scanner clientFile = new Scanner(new File("/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/clientCommand.txt"));            
-                    
-            //Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
-            //Scanner clientFile =  new Scanner(new File("\""+clientFilePath+"\""));
-                        
+            Scanner adminFile = new Scanner(new File(
+                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/adminCommand.txt"));
+            Scanner clientFile = new Scanner(new File(
+                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/clientCommand.txt"));
+
+            // Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
+            // Scanner clientFile = new Scanner(new File("\""+clientFilePath+"\""));
+
             List<ServerWorker> workerList = server.getworkerList();
-   //         while(true){
-                for(ServerWorker worker : workerList){  
-                    if (queue.contains(worker.getLogin()) == true){
-                    } else{
-                        queue.add(worker.getLogin());
+            // while(true){
+            for (ServerWorker worker : workerList) {
+                if (queue.contains(worker.getLogin()) == true) {
+                } else {
+                    queue.add(worker.getLogin());
+                }
+                // System.out.println(queue.peek());
+                String first = queue.peek();
+                if (first.equals(worker.getLogin())) {
+                    String msg = worker.getLogin() + " the admin of this server " + "\n";
+                    adminjoinHandler();
+                    boolean isTopic = first.charAt(0) == '#';
+                    if (isTopic) {
+                        if (worker.Membership(first))
+                            ;
                     }
-                    //System.out.println(queue.peek());
-                    String first = queue.peek();
-                    if(first.equals(worker.getLogin())){
-                        String msg = worker.getLogin() + " the admin of this server " + "\n";
-                        adminjoinHandler();
-                        boolean isTopic = first.charAt(0) == '#';
-                        if (isTopic){
-                            if (worker.Membership(first));
+                    worker.sendMsg(msg);
+                    if (username != null && username == first) {
+                        while (adminFile.hasNextLine()) {
+                            dataFile = adminFile.nextLine() + "\n";
+                            outputStream.write(dataFile.getBytes());
                         }
-                        worker.sendMsg(msg);
-                        if(username!= null && username == first){
-                            while (adminFile.hasNextLine()){
-                                dataFile = adminFile.nextLine() + "\n";
-                                outputStream.write(dataFile.getBytes());
-                            }
-                        }else{
-                            while (clientFile.hasNextLine()){
-                                dataFile = clientFile.nextLine() + "\n";
-                                outputStream.write(dataFile.getBytes());
-                            }
+                    } else {
+                        while (clientFile.hasNextLine()) {
+                            dataFile = clientFile.nextLine() + "\n";
+                            outputStream.write(dataFile.getBytes());
                         }
                     }
                 }
-            //}
+            }
+            // }
         }
-        
+
         private void adminjoinHandler() {
-//            if (tokens.length > 1){
-                String topic = "#AdmIn";
-                SetTopic.add(topic);
-//            }
+            // if (tokens.length > 1){
+            String topic = "#AdmIn";
+            SetTopic.add(topic);
+            // }
         }
-        
+
         private void leaveHandler() {
-//            if (tokens.length > 1){
-                String topic = "#AdmIn";
-                SetTopic.remove(topic);
-//            }
+            // if (tokens.length > 1){
+            String topic = "#AdmIn";
+            SetTopic.remove(topic);
+            // }
         }
-        
-        
-        //Works
+
+        // Works
         private void sendMsg(String msg) throws IOException {
-            // Function to send Message to the Client Side in this case its the Command Prompt
-            if(username != null){
-            outputStream.write(msg.getBytes());
-            //printerOut.println(msg+"\n");
-            //console_text.append(msg);
+            // Function to send Message to the Client Side in this case its the Command
+            // Prompt
+            if (username != null) {
+                outputStream.write(msg.getBytes());
+                // printerOut.println(msg+"\n");
+                // console_text.append(msg);
             }
             // Printing same messsages to the Server
             console_text.append(msg);
         }
-        
-        private void sendAll( String msg) throws IOException {
+
+        private void sendAll(String msg) throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList){
+            for (ServerWorker worker : workerList) {
                 worker.outputStream.write(msg.getBytes());
             }
             console_text.append(msg);
         }
-        
-        
-        // Broken ==> Kicks the client that sends the message and not the other person in command line
+
+        // Broken ==> Kicks the client that sends the message and not the other person
+        // in command line
         // In Client GUI it works perfectly but since client is broke to Null infinitely
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
-            
+
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                 if (receiver.equalsIgnoreCase(worker.getLogin())){
-                        String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server " +"\n";
-                        //outputStream.write(message.getBytes());
-                        worker.sendMsg(MsgOut);
-                        worker.clientSocket.close();
-                        worker.idRemover();
-                    }
-            } 
+            for (ServerWorker worker : workerList) {
+                if (receiver.equalsIgnoreCase(worker.getLogin())) {
+                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server " + "\n";
+                    // outputStream.write(message.getBytes());
+                    worker.sendMsg(MsgOut);
+                    worker.clientSocket.close();
+                    worker.idRemover();
+                }
+            }
         }
-        
+
         // Works ==> has been fixed but might break in the future
         private void announcements(String[] token) throws IOException {
-            
+
             String msg = token[1];
-            
+
             console_text.append(msg);
-            List<ServerWorker> workerList  = server.getworkerList();
-            for (ServerWorker worker : workerList){
-                if(username != null){
+            List<ServerWorker> workerList = server.getworkerList();
+            for (ServerWorker worker : workerList) {
+                if (username != null) {
                     worker.sendMsg(msg);
                 }
             }
         }
-         
+
         // Works
         private void NUKE() throws IOException {
-            
+
             List<ServerWorker> workerList = server.getworkerList();
             long aTime = System.currentTimeMillis();
-            while(false||(System.currentTimeMillis()-aTime) < 10000 ){
-                    for (ServerWorker worker : workerList){
-                     String msg = "WORLD DOMINATION" + "\n";
-                    worker.sendMsg(msg);   
+            while (false || (System.currentTimeMillis() - aTime) < 10000) {
+                for (ServerWorker worker : workerList) {
+                    String msg = "WORLD DOMINATION" + "\n";
+                    worker.sendMsg(msg);
                 }
             }
         }
-        
-        
+
         // A bit Broken
         private void sleep(String[] tokens) throws InterruptedException, IOException {
             String receiver = tokens[1];
             List<ServerWorker> workerList = server.getworkerList();
-            for(ServerWorker worker : workerList){
-                if (receiver.equalsIgnoreCase(worker.getLogin())){
-                        String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec " +"\n";
-                        //outputStream.write(message.getBytes());
-                        worker.sendMsg(MsgOut);
-                        Thread.sleep(50000);
-                    }
+            for (ServerWorker worker : workerList) {
+                if (receiver.equalsIgnoreCase(worker.getLogin())) {
+                    String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec " + "\n";
+                    // outputStream.write(message.getBytes());
+                    worker.sendMsg(MsgOut);
+                    Thread.sleep(50000);
+                }
             }
         }
-        
+
         // Works
-        public boolean Membership(String topic){
+        public boolean Membership(String topic) {
             return SetTopic.contains(topic);
         }
-        
+
         // Works
         private void joinHandler(String[] tokens) {
-            if (tokens.length > 1){
+            if (tokens.length > 1) {
                 String topic = tokens[1];
                 SetTopic.add(topic);
             }
@@ -577,17 +595,16 @@ public class server_frame extends javax.swing.JFrame {
 
         // Works
         private void leaveHandler(String[] tokens) {
-            if (tokens.length > 1){
+            if (tokens.length > 1) {
                 String topic = tokens[1];
                 SetTopic.remove(topic);
             }
         }
 
-        
         // no functionality Yet
         private void privateMsg() {
             List<ServerWorker> workerList = server.getworkerList();
-            for(ServerWorker worker : workerList){
+            for (ServerWorker worker : workerList) {
                 String name = worker.getLogin();
                 int port = worker.getPort();
                 System.out.print(port);
@@ -595,92 +612,104 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-       public void stopServer() throws IOException{
+        public void stopServer() throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
-            for(ServerWorker worker : workerList){
-                String msg =  "\n" +"Server Closing";
+            for (ServerWorker worker : workerList) {
+                String msg = "\n" + "Server Closing";
                 worker.sendAll(msg);
                 worker.idRemover();
-                
+
                 worker.clientSocket.close();
             }
-       
-    }
-        
+
+        }
+
+        private void sendStatus() {
+            
+        }
+
+        private void checkStatus() throws IOException {
+           List<ServerWorker> workerList = server.getworkerList();
+           for (ServerWorker worker : workerList){
+               String msg = "Are you Online";
+               worker.outputStream.write(msg.getBytes());
+               worker.inputStream.get();
+               if(worker){
+                   
+               }
+           }
+        }
+
     }
 
-  
-    
-    
     // Works
-    public void serverStartButton(){
-       // Starts the Server by calling in the StratServer Thread that in turn calls the ServerWorker Thread and the clientHandler
-      Thread starter = new Thread(new StartServer());
-      starter.start();
-      console_text.append("Server started...\n");
-    }           
-    
-    
-    // Needs to Fix it ==> Find a way to call the function on line 579 to be called here to close the Server
+    public void serverStartButton() {
+        // Starts the Server by calling in the StratServer Thread that in turn calls the
+        // ServerWorker Thread and the clientHandler
+        Thread starter = new Thread(new StartServer());
+        starter.start();
+        console_text.append("Server started...\n");
+    }
+
+    // Needs to Fix it ==> Find a way to call the function on line 579 to be called
+    // here to close the Server
     // With appropriate messages to all the active clients
     public void serverStopButton() throws InterruptedException {
-       // Closes the Server without any warnings, ned to find a way to send message to everyone when Server is closing
+        // Closes the Server without any warnings, ned to find a way to send message to
+        // everyone when Server is closing
         Thread starter = new Thread(new StartServer());
-//        try 
-//        {
-//            console_text.append("Closing Server.\n");
-            // The Thread will wait for 5 seconds before closing the server
-            //Thread.sleep(5000); 
-            System.exit(0);
-//        } 
-//        catch(InterruptedException ex) {
-//            ex.printStackTrace();
-//        }
+        // try
+        // {
+        // console_text.append("Closing Server.\n");
+        // The Thread will wait for 5 seconds before closing the server
+        // Thread.sleep(5000);
+        System.exit(0);
+        // }
+        // catch(InterruptedException ex) {
+        // ex.printStackTrace();
+        // }
     }
-    
+
     // Works
-    public void idGenerator(String username, int port, String ipaddress) {   
+    public void idGenerator(String username, int port, String ipaddress) {
         // Creates random number for the ID of eash User
         ArrayList<String> port_usr_list = new ArrayList<String>();
         port_usr_list.add(username);
         port_usr_list.add(String.valueOf(port));
         port_usr_list.add(ipaddress);
-        int gen_id =(int)(Math.random() * (10000000 - 1000000 + 1) + 100000);
-        usr_id_map.put(String.valueOf(gen_id),port_usr_list);
+        int gen_id = (int) (Math.random() * (10000000 - 1000000 + 1) + 100000);
+        usr_id_map.put(String.valueOf(gen_id), port_usr_list);
         System.out.println(usr_id_map);
-    } 
-    
-    
+    }
+
     // Works but is of no use at the moment
     public void idRetriever(String username) {
         // Prints in the console window all the online users or running ServerWorker
-        console_text.append(usr_id_map + "\n"); 
+        console_text.append(usr_id_map + "\n");
     }
-    
+
     // Works
-    public boolean ArrayIteratorCompare(String usr,LinkedHashMap map){
+    public boolean ArrayIteratorCompare(String usr, LinkedHashMap map) {
         // Goes Through the array and checks for duplicates
         Boolean duplicate_usr = false;
         Set<String> keys = map.keySet();
-        for (String k : keys){
-            //System.out.println(k);
+        for (String k : keys) {
+            // System.out.println(k);
             ArrayList info_list = (ArrayList) map.get(k);
-            if (usr.equals(info_list.get(0))){
+            if (usr.equals(info_list.get(0))) {
                 duplicate_usr = true;
             }
         }
-        if (duplicate_usr == true){
+        if (duplicate_usr == true) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    
+
     public server_frame() {
         initComponents();
     }
-    
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -688,7 +717,8 @@ public class server_frame extends javax.swing.JFrame {
      * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated
+    // Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         start_button = new javax.swing.JButton();
@@ -749,91 +779,93 @@ public class server_frame extends javax.swing.JFrame {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout
+                .createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(374, 374, 374)
-                                .addComponent(stop_button, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(239, 239, 239)
-                                .addComponent(clear_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(portId)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(286, 286, 286))
-                            .addComponent(jScrollPane1))))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(stop_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(portId))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(clear_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+                        .addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
+                                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup().addGap(374, 374, 374).addComponent(stop_button,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
+                                        layout.createSequentialGroup()
+                                                .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGap(239, 239, 239).addComponent(clear_button,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(layout.createSequentialGroup().addGap(12, 12, 12)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup().addComponent(portId)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGap(286, 286, 286))
+                                        .addComponent(jScrollPane1))))
+                .addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup().addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(start_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(stop_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(portId))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(clear_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(listusr_button, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void stop_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stop_buttonActionPerformed
-         try {
-             // TODO add your handling code here:
-             serverStopButton();
-         } catch (InterruptedException ex) {
-             ex.printStackTrace();
-         }
-    }//GEN-LAST:event_stop_buttonActionPerformed
+    private void stop_buttonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_stop_buttonActionPerformed
+        try {
+            // TODO add your handling code here:
+            serverStopButton();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }// GEN-LAST:event_stop_buttonActionPerformed
 
-    private void start_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_buttonActionPerformed
+    private void start_buttonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_start_buttonActionPerformed
         // TODO add your handling code here:
         serverStartButton();
-    }//GEN-LAST:event_start_buttonActionPerformed
+    }// GEN-LAST:event_start_buttonActionPerformed
 
-    private void listusr_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listusr_buttonActionPerformed
+    private void listusr_buttonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_listusr_buttonActionPerformed
         // TODO add your handling code here:
         idRetriever("");
-    }//GEN-LAST:event_listusr_buttonActionPerformed
+    }// GEN-LAST:event_listusr_buttonActionPerformed
 
-    private void clear_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_buttonActionPerformed
+    private void clear_buttonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_clear_buttonActionPerformed
         // TODO add your handling code here:
         console_text.setText("");
-    }//GEN-LAST:event_clear_buttonActionPerformed
+    }// GEN-LAST:event_clear_buttonActionPerformed
 
-    private void portIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portIdActionPerformed
+    private void portIdActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_portIdActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_portIdActionPerformed
+    }// GEN-LAST:event_portIdActionPerformed
 
-    private void portIdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_portIdMouseClicked
+    private void portIdMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_portIdMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_portIdMouseClicked
+    }// GEN-LAST:event_portIdMouseClicked
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+        // <editor-fold defaultstate="collapsed" desc=" Look and feel setting code
+        // (optional) ">
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the default
+         * look and feel. For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -843,15 +875,19 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null,
+                    ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null,
+                    ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null,
+                    ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(server_frame.class.getName()).log(java.util.logging.Level.SEVERE, null,
+                    ex);
         }
-        //</editor-fold>
+        // </editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
