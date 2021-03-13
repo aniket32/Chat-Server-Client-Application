@@ -169,7 +169,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "login":
                                 // calls the loginHandler function to handle login 
                                 loginHandler(outputStream, tokens);
-                                adminStatus(tokens);
+                                adminStatus();
                                 //getAll();
                                 break;
                             case "join":
@@ -220,6 +220,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "quit":
                                 // calls the disconnectHandler functin and removes a user from the 
                                 disconnectHandler();
+                                adminStatus();
                                 break;
                             case "stop-server":
                                 //calls function to stop the Server
@@ -232,6 +233,13 @@ public class server_frame extends javax.swing.JFrame {
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
                                 checkStatus();
+                                break;
+                            case "changeStatus":
+                                //call a function to keep the Clinet in the Server
+                                changeStatus();
+                                break;
+                            case "no":
+                                //calls a function to kick the Clinet out of the server
                                 break;
                             default:
                                 // sends a default message for unknown commands
@@ -260,14 +268,35 @@ public class server_frame extends javax.swing.JFrame {
         public InetAddress getIP() {
             return clientSocket.getInetAddress();
         }
+        
+        public String getStatus(){
+            String status = null;
+            Set<String> keys = usr_id_map.keySet(); // Useless line
+            // Going through the list of workers in the LinkedList workerList
+            for (String k : keys) { 
+                ArrayList info_list = (ArrayList) usr_id_map.get(k);
+                status = (String) info_list.get(3);
+            } 
+            return status;
+        }
 
+        public void changeStatus(){
+            String role = "Admin";
+            //String status = null;
+            
+            List<ServerWorker> workerList = server.getworkerList();
+            //Set<String> keys = usr_id_map.keySet();
+            System.out.print(usr_id_map);
+            
+        }
+            
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
                 String username = tokens[1];
+                String role = "Client";
                 List<ServerWorker> workerList = server.getworkerList();
-                System.out.println(workerList);
-                int i = 0;
+                //int i = 0;
                 if (!(ArrayIteratorCompare(username, usr_id_map))) {
                     String msg = " Logged in " + username + "\n";
                     outputStream.write(msg.getBytes());
@@ -275,8 +304,7 @@ public class server_frame extends javax.swing.JFrame {
                     console_text.append(" Logged in User: " + username + "\n");
                     int port = getPort();
                     InetAddress address = getIP();
-                    // int address = 85;
-                    idGenerator(username, port, address.toString());
+                    idGenerator(username, port, address.toString(), role);
                     console_text.append(usr_id_map + "\n");
 
                     // Send the current user other online Login
@@ -297,15 +325,16 @@ public class server_frame extends javax.swing.JFrame {
                         }
                     }
                 } else {
+                    //handle login failure
                     String msg = "login failed";
                     outputStream.write(msg.getBytes());
                     console_text.append(" Logged in Failed for User: " + username + "\n");
-                    clientSocket.close();
+                    
+                    //clientSocket.close();
                 }
             }
         }
 
-        // Works
         // Leo take a look at this function because the kick comands destroys this
         // function
         // It doesnot work with the kick commands
@@ -313,7 +342,7 @@ public class server_frame extends javax.swing.JFrame {
         private void idRemover() {
             Set<String> keys = usr_id_map.keySet();
             for (String k : keys) {
-                // System.out.println(k);
+                System.out.println(k + ":");
                 // Removing disconnected Users from the list
                 ArrayList list = (ArrayList) usr_id_map.get(k);
                 if (username.equals(list.get(0))) {
@@ -323,11 +352,7 @@ public class server_frame extends javax.swing.JFrame {
         }
 
 
-        // Broken ===> Leo Fix this to display the online users list the client that
-        // types ListUser
-        // and also add a remove function to remove a Client when a Client leaves
-        // OR make something of your own
-
+        // Fixed
         private LinkedList<String> getAll() throws IOException {
             // Declairing all the variables
             String usr_list = null;
@@ -339,10 +364,10 @@ public class server_frame extends javax.swing.JFrame {
             // Going through the list of workers in the LinkedList workerList
             for (String k : keys) { // will need this to get the Port, IP and Name
                 ArrayList info_list = (ArrayList) usr_id_map.get(k);
-                System.out.println(usr_id_map);
+                //System.out.println(usr_id_map);
                 // Storing all the values in the variable
-                String info = " Username: " + info_list.get(0) + " Port ID: " + info_list.get(1) + " IP Address: "
-                        + info_list.get(2) + "\n";
+                String info = " Username: " + info_list.get(0) +","+ " Port ID: " + info_list.get(1) +","+ " IP Address: "
+                        + info_list.get(2) +","+ " Status: " + info_list.get(3) + "\n";
                 listUser.add(info);
                 usr_list = listUser.toString();
                 System.out.println(usr_list);
@@ -363,11 +388,13 @@ public class server_frame extends javax.swing.JFrame {
                 String msg = "User Disconnected " + username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
+                //clientSocket.close();
                 break;
+
             }
             // Append approipriate response to the Server
             console_text.append(" User Disconnected: " + username + "\n");
-            clientSocket.close();
+            //clientSocket.close();
         }
 
         // Broken
@@ -405,7 +432,6 @@ public class server_frame extends javax.swing.JFrame {
             File f = new File(file);
             String path = f.getAbsolutePath();
 
-            // System.out.println(path);
             return path;
         }
 
@@ -428,13 +454,15 @@ public class server_frame extends javax.swing.JFrame {
             // }
             // }
         }
-
+        
+        
+        
         // a bit broken need to fix it
         // Need to add the functionality that when a person leaves the next becomes the
         // admin
-        private void adminStatus(String[] tokens) throws IOException {
-            String ID = tokens[1];
-            String dataFile = null;
+        private void adminStatus() throws IOException {
+//            String ID = tokens[1];
+//            String dataFile = null;
 
             // This line needs to be universal, currently only works on Leo's machine. Path
             // must be changed.
@@ -458,12 +486,22 @@ public class server_frame extends javax.swing.JFrame {
             // while(true){
             for (ServerWorker worker : workerList) {
                 if (queue.contains(worker.getLogin()) == true) {
+                    //System.out.println();
                 } else {
                     queue.add(worker.getLogin());
+                    System.out.println(queue);
+                }
+                
+                if(worker.getLogin().equals(queue)){
+                    queue.remove();
+                }else{
+                    System.out.println("No");
                 }
                 // System.out.println(queue.peek());
                 String first = queue.peek();
+                //System.out.println(first);
                 if(!first.equals(worker.getLogin())){
+                    //System.out.println();
                     if (worker.getLogin() != null) {
                         String msg = first + " is now the admin of the Server \n";
                         worker.outputStream.write(msg.getBytes()); 
@@ -632,10 +670,16 @@ public class server_frame extends javax.swing.JFrame {
             }
 
         }
+        
+        private void passOwnership(){
+            List<ServerWorker> workerList = server.getworkerList();
+        }
 
         private void sendStatus() {
             List<ServerWorker> workerList = server.getworkerList();
             for(ServerWorker worker : workerList){
+                String role = worker.getStatus();
+                System.out.print(role + "\n");
                 
             }
         }
@@ -703,15 +747,18 @@ public class server_frame extends javax.swing.JFrame {
         // }
     }
 
+    
     // Works
-    public void idGenerator(String username, int port, String ipaddress) {
+    public void idGenerator(String username, int port, String ipaddress, String status) {
         // Creates random number for the ID of eash User
         ArrayList<String> port_usr_list = new ArrayList<String>();
         port_usr_list.add(username);
         port_usr_list.add(String.valueOf(port));
         port_usr_list.add(ipaddress);
+        port_usr_list.add(status);
         int gen_id = (int) (Math.random() * (10000000 - 1000000 + 1) + 100000);
         usr_id_map.put(String.valueOf(gen_id), port_usr_list);
+        // keys + all values
         System.out.println(usr_id_map);
     }
 
