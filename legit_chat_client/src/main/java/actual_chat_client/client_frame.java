@@ -137,8 +137,9 @@ public class client_frame extends javax.swing.JFrame
             while (connection_state == true && socket.isClosed() == false){
                 try {
                     String message = packetIn.readLine();
+                    if (message != null){
                     clientconsoleText.append(message+"\n");
-                    
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -156,9 +157,11 @@ public class client_frame extends javax.swing.JFrame
     // Works
     //Fuction that creates new thread dedicated to listening for inputs.
     public void ListenThread() {
+            if (socket.isClosed() == false) {
 		Thread SocketListener = new Thread(new SocketListener());
 		SocketListener.start();
-        }
+            }
+    }
    
     /**
      * This method is called from within the constructor to initialize the form.
@@ -180,7 +183,7 @@ public class client_frame extends javax.swing.JFrame
         clientconsoleText = new javax.swing.JTextArea();
         chatinputBox = new javax.swing.JTextField();
         sendBtn = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        refreshbutton = new javax.swing.JButton();
         connectBtn = new javax.swing.JButton();
 
         jTextArea1.setColumns(20);
@@ -257,10 +260,10 @@ public class client_frame extends javax.swing.JFrame
             }
         });
 
-        jButton1.setText("Refresh");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        refreshbutton.setText("Refresh");
+        refreshbutton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                refreshbuttonActionPerformed(evt);
             }
         });
 
@@ -296,7 +299,7 @@ public class client_frame extends javax.swing.JFrame
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton1)
+                                .addComponent(refreshbutton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(connectBtn)
                                 .addGap(22, 22, 22))
@@ -312,13 +315,11 @@ public class client_frame extends javax.swing.JFrame
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(addressStr, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(portID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(21, 21, 21))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(connectBtn))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                            .addComponent(portID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(refreshbutton)
+                        .addComponent(connectBtn)))
+                .addGap(21, 21, 21)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(discBtn)
                     .addComponent(usernametext, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -396,9 +397,13 @@ public class client_frame extends javax.swing.JFrame
        else {
             try {
                 clientWindow.server_disconnect();
+                clientWindow = null;
                 addressStr.setEditable(true);
                 portID.setEditable(true);
                 usernametext.setEditable(true);
+                addressStr.setBackground(Color.white);
+                portID.setBackground(Color.white);
+                usernametext.setBackground(Color.white);
             } catch (IOException ex) {
                 Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -446,7 +451,7 @@ public class client_frame extends javax.swing.JFrame
     private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
         // TODO add your handling code here:
         String msgText = chatinputBox.getText();
-        int portnum = Integer.parseInt(portID.getText());
+        //int portnum = Integer.parseInt(portID.getText());
         System.out.print(connection_state);
         if (connection_state == true) {
             clientconsoleText.append(username+":"+msgText+"\n");
@@ -468,7 +473,7 @@ public class client_frame extends javax.swing.JFrame
         }
     }//GEN-LAST:event_addressStrMouseClicked
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void refreshbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshbuttonActionPerformed
         // TODO add your handling code here:
         revalidate();
         clientconsoleText.setText("");
@@ -476,6 +481,7 @@ public class client_frame extends javax.swing.JFrame
         chatinputBox.setText("Type something nice...");
         portID.setText("Port");
         usernametext.setText("Username");
+        clientWindow = null;
         
         connection_state = false;{
                     addressStr.setEditable(true);
@@ -485,7 +491,7 @@ public class client_frame extends javax.swing.JFrame
                     portID.setBackground(Color.white);
                     usernametext.setBackground(Color.white);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_refreshbuttonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -532,12 +538,12 @@ public class client_frame extends javax.swing.JFrame
     private javax.swing.JTextArea clientconsoleText;
     private javax.swing.JButton connectBtn;
     private javax.swing.JButton discBtn;
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField portID;
+    private javax.swing.JButton refreshbutton;
     private javax.swing.JButton sendBtn;
     private javax.swing.JTextField usernametext;
     // End of variables declaration//GEN-END:variables

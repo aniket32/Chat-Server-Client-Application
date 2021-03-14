@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.util.PriorityQueue;
 
 /*
 TODO LIST:
@@ -59,12 +60,11 @@ public class server_frame extends javax.swing.JFrame {
     // Linked Hash Map to store id and ArrayList object containing username,Port
     // Number, IP Address
     LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
-
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
     // later
     PrintWriter printerOut;
-    Queue<String> queue = new LinkedList<>();
+    Queue<String> role_queue = new PriorityQueue<String>();
 
     public class StartServer implements Runnable {
         @Override
@@ -236,7 +236,7 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "changeStatus":
                                 //call a function to keep the Clinet in the Server
-                                changeStatus();
+                                //changeStatus();
                                 break;
                             case "no":
                                 //calls a function to kick the Clinet out of the server
@@ -280,21 +280,24 @@ public class server_frame extends javax.swing.JFrame {
             return status;
         }
 
-        public void changeStatus(){
-            String role = "Admin";
+        public String changeStatus(String usr){
+            String role = null;
             //String status = null;
-            
-            List<ServerWorker> workerList = server.getworkerList();
-            //Set<String> keys = usr_id_map.keySet();
-            System.out.print(usr_id_map);
-            
+            if (usr.equals(role_queue.peek())){
+                System.out.println(role_queue.peek());
+                role = "Admin";
+            } else {
+                role = "Client";
+            }
+           
+            return role;
+           
         }
             
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
                 String username = tokens[1];
-                String role = "Client";
                 List<ServerWorker> workerList = server.getworkerList();
                 //int i = 0;
                 if (!(ArrayIteratorCompare(username, usr_id_map))) {
@@ -304,9 +307,10 @@ public class server_frame extends javax.swing.JFrame {
                     console_text.append(" Logged in User: " + username + "\n");
                     int port = getPort();
                     InetAddress address = getIP();
+                    role_queue.add(username);
+                    String role = changeStatus(username);
                     idGenerator(username, port, address.toString(), role);
                     console_text.append(usr_id_map + "\n");
-
                     // Send the current user other online Login
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
@@ -347,6 +351,7 @@ public class server_frame extends javax.swing.JFrame {
                 ArrayList list = (ArrayList) usr_id_map.get(k);
                 if (username.equals(list.get(0))) {
                     usr_id_map.remove(k);
+                    role_queue.remove(username);
                 }
             }
         }
@@ -442,7 +447,7 @@ public class server_frame extends javax.swing.JFrame {
             // This line needs to be universal, currently only works on Leo's machine. Path
             // must be changed.
             Scanner clientFile = new Scanner(new File(
-                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
             while (clientFile.hasNextLine()) {
                 help = clientFile.nextLine();
                 outputStream.write(help.getBytes());
@@ -475,9 +480,9 @@ public class server_frame extends javax.swing.JFrame {
             // doesnt
             // Ned to try this with Buffered Reader
             Scanner adminFile = new Scanner(new File(
-                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/adminCommand.txt"));
+                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
             Scanner clientFile = new Scanner(new File(
-                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/clientCommand.txt"));
+                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
 
             // Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
             // Scanner clientFile = new Scanner(new File("\""+clientFilePath+"\""));
@@ -485,20 +490,20 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             // while(true){
             for (ServerWorker worker : workerList) {
-                if (queue.contains(worker.getLogin()) == true) {
+                if (role_queue.contains(worker.getLogin()) == true) {
                     //System.out.println();
                 } else {
-                    queue.add(worker.getLogin());
-                    System.out.println(queue);
+                    role_queue.add(worker.getLogin());
+                    System.out.println(role_queue);
                 }
                 
-                if(worker.getLogin().equals(queue)){
-                    queue.remove();
+                if(worker.getLogin().equals(role_queue)){
+                    role_queue.remove();
                 }else{
                     System.out.println("No");
                 }
                 // System.out.println(queue.peek());
-                String first = queue.peek();
+                String first = role_queue.peek();
                 //System.out.println(first);
                 if(!first.equals(worker.getLogin())){
                     //System.out.println();
