@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
 /*
@@ -64,7 +65,7 @@ public class server_frame extends javax.swing.JFrame {
     // Forgot where they are used, just leave them will do semothing about them
     // later
     PrintWriter printerOut;
-    Queue<String> role_queue = new PriorityQueue<String>();
+    ArrayDeque<String> role_queue = new ArrayDeque<String>();
 
     public class StartServer implements Runnable {
         @Override
@@ -220,7 +221,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "quit":
                                 // calls the disconnectHandler functin and removes a user from the 
                                 disconnectHandler();
-                                adminStatus();
+                                //adminStatus();
                                 break;
                             case "stop-server":
                                 //calls function to stop the Server
@@ -285,6 +286,7 @@ public class server_frame extends javax.swing.JFrame {
             //String status = null;
             if (usr.equals(role_queue.peek())){
                 System.out.println(role_queue.peek());
+                System.out.println(role_queue);
                 role = "Admin";
             } else {
                 role = "Client";
@@ -293,7 +295,21 @@ public class server_frame extends javax.swing.JFrame {
             return role;
            
         }
+        
+        public void StatusUpdater(){
+            Set<String> keys = usr_id_map.keySet();
+            String usr = role_queue.peek();
+            for (String k : keys) {
+             ArrayList list = (ArrayList) usr_id_map.get(k);
+             if (usr.equals(list.get(0))) {
+                 System.out.println(list);
+                 list.set(3, "Admin");
+                 usr_id_map.put(k, list);
+             }
+
+             }
             
+        }
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
@@ -307,7 +323,7 @@ public class server_frame extends javax.swing.JFrame {
                     console_text.append(" Logged in User: " + username + "\n");
                     int port = getPort();
                     InetAddress address = getIP();
-                    role_queue.add(username);
+                    role_queue.addLast(username);
                     String role = changeStatus(username);
                     idGenerator(username, port, address.toString(), role);
                     console_text.append(usr_id_map + "\n");
@@ -351,7 +367,6 @@ public class server_frame extends javax.swing.JFrame {
                 ArrayList list = (ArrayList) usr_id_map.get(k);
                 if (username.equals(list.get(0))) {
                     usr_id_map.remove(k);
-                    role_queue.remove(username);
                 }
             }
         }
@@ -393,6 +408,8 @@ public class server_frame extends javax.swing.JFrame {
                 String msg = "User Disconnected " + username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
+                role_queue.remove(username);
+                StatusUpdater();
                 //clientSocket.close();
                 break;
 
@@ -500,7 +517,7 @@ public class server_frame extends javax.swing.JFrame {
                 if(worker.getLogin().equals(role_queue)){
                     role_queue.remove();
                 }else{
-                    System.out.println("No");
+                    //System.out.println("No");
                 }
                 // System.out.println(queue.peek());
                 String first = role_queue.peek();
@@ -586,7 +603,7 @@ public class server_frame extends javax.swing.JFrame {
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     worker.clientSocket.close();
-                    //idRemover();
+                    idRemover();
                 }
             }
         }
