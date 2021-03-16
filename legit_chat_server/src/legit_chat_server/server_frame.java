@@ -11,16 +11,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
 import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayDeque;
-import java.util.PriorityQueue;
 
 /*
 TODO LIST:
@@ -29,31 +25,15 @@ Will try and fix the admin thingi ==> AB
 Fix the Server stop button ==> AB
 Need help calling the stopServer() function from outside the ServerWorker class
 
-Fix kick user command ==> AB
-
 Fix disconnect both in server and in Client ==> Leo
 
-Add a function for the next user to be the admin ==> AB and LEO
 
-kickUser() kicks the correct user but deletes the id of another user ==> Check line 312 for more 
 
 */
 
 /*
 Added Functionality 
-Added stop-server functionality
 
-Fixed quit command in command line
-
-Fixed Nuke function
-
-Made a stopServer() to respond to the command stop-server to close the server
-
-Universal admin and clinet commands text ==> <AB> They cannot be fixed, may be some one else can
-If user fails to login, do not display help text file ==>  <AB> Fixed on the command line side 
-but the clinet cannot handle login failure when there are two people of the same name so its just prints Null infinitely
-
-Changed sendAll() ==> accouncements() and made a sendAll() function
 */
 
 public class server_frame extends javax.swing.JFrame {
@@ -230,6 +210,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "sendStatus":
                                 //calls a function to send the satatus of all online users to all the Clients
                                 sendStatus();
+                                //getStatus();
                                 break;
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
@@ -241,6 +222,10 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "no":
                                 //calls a function to kick the Clinet out of the server
+                                break;
+                            case "pass-ownership":
+                                String[] usr = line.split(" ");
+                                //passOwnership(usr);
                                 break;
                             default:
                                 // sends a default message for unknown commands
@@ -257,11 +242,13 @@ public class server_frame extends javax.swing.JFrame {
         public String getLogin() {
             return username;
         }
+        
 
         // gets the PortID ==> Int
         public int getPort() {
             return clientSocket.getPort();
         }
+        
 
         // gets the IP address ==> InetAddress
         // in this case all the IP Address will be ==> 127.0.0.1(GUI) or
@@ -275,8 +262,11 @@ public class server_frame extends javax.swing.JFrame {
             // Going through the list of workers in the LinkedList workerList
             for (int i = 0; i < usr_id_list.size(); i++) { 
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
-                status = (String) info_list.get(3);
+                status = (String) info_list.get(4);
+                //console_text.append(status);
             } 
+            //console_text.append(status);
+
             return status;
         }
 
@@ -284,15 +274,14 @@ public class server_frame extends javax.swing.JFrame {
             String role = null;
             //String status = null;
             if (usr.equals(role_queue.peek())){
-                System.out.println(role_queue.peek());
-                System.out.println(role_queue);
+                //System.out.println(role_queue.peek());
+                //System.out.println(role_queue);
                 role = "Admin";
             } else {
                 role = "Client";
             }
            
-            return role;
-           
+            return role;  
         }
         
         public void StatusUpdater(){
@@ -303,11 +292,11 @@ public class server_frame extends javax.swing.JFrame {
                  System.out.println(list);
                  list.set(4, "Admin");
                  usr_id_list.set(i, list);
-             }
+                }
 
-             }
-            
+            }    
         }
+        
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
@@ -487,16 +476,16 @@ public class server_frame extends javax.swing.JFrame {
             // must be changed.
 
             // Gets the file path for the file
-            String adminFilePath = findPath("adminCommands.txt");
-            String clientFilePath = findPath("clientCommands.txt");
+            //String adminFilePath = findPath("adminCommands.txt");
+            //String clientFilePath = findPath("clientCommands.txt");
 
             // Path is half right so I <AB> moved the files up a folder, it should work by
             // doesnt
             // Ned to try this with Buffered Reader
-            Scanner adminFile = new Scanner(new File(
-                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
-            Scanner clientFile = new Scanner(new File(
-                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+//            Scanner adminFile = new Scanner(new File(
+//                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+//            Scanner clientFile = new Scanner(new File(
+//                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
 
             // Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
             // Scanner clientFile = new Scanner(new File("\""+clientFilePath+"\""));
@@ -600,7 +589,7 @@ public class server_frame extends javax.swing.JFrame {
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     worker.clientSocket.close();
-                    idRemover();
+                    worker.idRemover();
                 }
             }
         }
@@ -683,24 +672,43 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList) {
                 String msg = "\n" + "Server Closing";
                 worker.sendAll(msg);
-                idRemover();
+                worker.idRemover();
 
                 worker.clientSocket.close();
             }
 
         }
         
-        private void passOwnership(){
-            List<ServerWorker> workerList = server.getworkerList();
-        }
+        
+//        private void passOwnership(String[] user){
+//            String name = user[1];
+//            List<ServerWorker> workerList = server.getworkerList();
+//            String usr = role_queue.peek();
+//            for (int i = 0; i < usr_id_list.size(); i++) {
+//                ArrayList list = (ArrayList) usr_id_list.get(i);
+//                //console_text.append(list.toString());
+//                for(ServerWorker worker : workerList){
+//                    if(worker.getLogin().equals(name)){
+//                        //console_text.append(name);
+//                        list.set(4, "Admin");
+//                        //usr_id_list.set(i, list);
+//                    }else{
+//                        list.set(4, "Clinet");
+//                    }
+//                    
+//                }
+//            }
+//        }
 
         private void sendStatus() {
+            String role = " ";
             List<ServerWorker> workerList = server.getworkerList();
             for(ServerWorker worker : workerList){
-                String role = worker.getStatus();
-                System.out.print(role + "\n");
+                role = getStatus();
+                //System.out.print(role + "\n");
                 
             }
+            System.out.println(role);
         }
 
         private void checkStatus() throws IOException {
