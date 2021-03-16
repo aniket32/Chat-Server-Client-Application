@@ -58,9 +58,8 @@ Changed sendAll() ==> accouncements() and made a sendAll() function
 
 public class server_frame extends javax.swing.JFrame {
 
-    // Linked Hash Map to store id and ArrayList object containing username,Port
-    // Number, IP Address
-    LinkedHashMap<String, ArrayList> usr_id_map = new LinkedHashMap<String, ArrayList>();
+    // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
+    ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
     // later
@@ -73,7 +72,8 @@ public class server_frame extends javax.swing.JFrame {
             String portID = portId.getText();
             int port = Integer.parseInt(portID);
             ServerS server = new ServerS(port);
-            server.start();
+      
+             server.start();
         }
     }
 
@@ -272,10 +272,9 @@ public class server_frame extends javax.swing.JFrame {
         
         public String getStatus(){
             String status = null;
-            Set<String> keys = usr_id_map.keySet(); // Useless line
             // Going through the list of workers in the LinkedList workerList
-            for (String k : keys) { 
-                ArrayList info_list = (ArrayList) usr_id_map.get(k);
+            for (int i = 0; i < usr_id_list.size(); i++) { 
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
                 status = (String) info_list.get(3);
             } 
             return status;
@@ -297,14 +296,13 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         public void StatusUpdater(){
-            Set<String> keys = usr_id_map.keySet();
             String usr = role_queue.peek();
-            for (String k : keys) {
-             ArrayList list = (ArrayList) usr_id_map.get(k);
+            for (int i = 0; i < usr_id_list.size(); i++) {
+             ArrayList list = (ArrayList) usr_id_list.get(i);
              if (usr.equals(list.get(0))) {
                  System.out.println(list);
-                 list.set(3, "Admin");
-                 usr_id_map.put(k, list);
+                 list.set(4, "Admin");
+                 usr_id_list.set(i, list);
              }
 
              }
@@ -316,7 +314,7 @@ public class server_frame extends javax.swing.JFrame {
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
                 //int i = 0;
-                if (!(ArrayIteratorCompare(username, usr_id_map))) {
+                if (!(ArrayIteratorCompare(username, usr_id_list))) {
                     String msg = " Logged in " + username + "\n";
                     outputStream.write(msg.getBytes());
                     this.username = username;
@@ -326,7 +324,7 @@ public class server_frame extends javax.swing.JFrame {
                     role_queue.addLast(username);
                     String role = changeStatus(username);
                     idGenerator(username, port, address.toString(), role);
-                    console_text.append(usr_id_map + "\n");
+                    console_text.append(usr_id_list + "\n");
                     // Send the current user other online Login
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
@@ -360,13 +358,12 @@ public class server_frame extends javax.swing.JFrame {
         // It doesnot work with the kick commands
         //Found the error it only workd for one client but if there are multiple id that needs to be removed that its fucked
         private void idRemover() {
-            Set<String> keys = usr_id_map.keySet();
-            for (String k : keys) {
-                System.out.println(k + ":");
+            
+            for (int i = 0; i < usr_id_list.size(); i++) {
                 // Removing disconnected Users from the list
-                ArrayList list = (ArrayList) usr_id_map.get(k);
+                ArrayList list = (ArrayList) usr_id_list.get(i);
                 if (username.equals(list.get(0))) {
-                    usr_id_map.remove(k);
+                    usr_id_list.remove(i);
                 }
             }
         }
@@ -380,14 +377,14 @@ public class server_frame extends javax.swing.JFrame {
             // THis will be used to show the other users who is online
             LinkedList<String> listUser = new LinkedList<String>();
             List<ServerWorker> workerList = server.getworkerList(); // will need this to get the IP , Port and Name
-            Set<String> keys = usr_id_map.keySet(); // Useless line
             // Going through the list of workers in the LinkedList workerList
-            for (String k : keys) { // will need this to get the Port, IP and Name
-                ArrayList info_list = (ArrayList) usr_id_map.get(k);
+            for (int i = 0; i < usr_id_list.size(); i++) { // will need this to get the Port, IP and Name
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
                 //System.out.println(usr_id_map);
                 // Storing all the values in the variable
-                String info = " Username: " + info_list.get(0) +","+ " Port ID: " + info_list.get(1) +","+ " IP Address: "
-                        + info_list.get(2) +","+ " Status: " + info_list.get(3) + "\n";
+                String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
+                        + " Port ID: " + info_list.get(2) +","+ " IP Address: " 
+                        + info_list.get(3) +","+ " Status: " + info_list.get(4) + "\n";
                 listUser.add(info);
                 usr_list = listUser.toString();
                 System.out.println(usr_list);
@@ -405,7 +402,7 @@ public class server_frame extends javax.swing.JFrame {
             // Function to handle all User Disconnection from the Server
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
-                String msg = "User Disconnected " + username + "\n";
+                String msg = "User Disconnected: " + username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
                 role_queue.remove(username);
@@ -464,7 +461,7 @@ public class server_frame extends javax.swing.JFrame {
             // This line needs to be universal, currently only works on Leo's machine. Path
             // must be changed.
             Scanner clientFile = new Scanner(new File(
-                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
             while (clientFile.hasNextLine()) {
                 help = clientFile.nextLine();
                 outputStream.write(help.getBytes());
@@ -497,9 +494,9 @@ public class server_frame extends javax.swing.JFrame {
             // doesnt
             // Ned to try this with Buffered Reader
             Scanner adminFile = new Scanner(new File(
-                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
             Scanner clientFile = new Scanner(new File(
-                    "C:/Users/Leonardo Jesus/Documents/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
 
             // Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
             // Scanner clientFile = new Scanner(new File("\""+clientFilePath+"\""));
@@ -774,30 +771,31 @@ public class server_frame extends javax.swing.JFrame {
     public void idGenerator(String username, int port, String ipaddress, String status) {
         // Creates random number for the ID of eash User
         ArrayList<String> port_usr_list = new ArrayList<String>();
+        String gen_id_str = String.valueOf((int) (Math.random() * (10000000 - 1000000 + 1) + 100000));
         port_usr_list.add(username);
+        port_usr_list.add(gen_id_str);
         port_usr_list.add(String.valueOf(port));
         port_usr_list.add(ipaddress);
         port_usr_list.add(status);
-        int gen_id = (int) (Math.random() * (10000000 - 1000000 + 1) + 100000);
-        usr_id_map.put(String.valueOf(gen_id), port_usr_list);
+        
+        usr_id_list.add(port_usr_list);
         // keys + all values
-        System.out.println(usr_id_map);
+        System.out.println(usr_id_list);
     }
 
     // Works but is of no use at the moment
     public void idRetriever(String username) {
         // Prints in the console window all the online users or running ServerWorker
-        console_text.append(usr_id_map + "\n");
+        console_text.append(usr_id_list + "\n");
     }
 
     // Works
-    public boolean ArrayIteratorCompare(String usr, LinkedHashMap map) {
+    public boolean ArrayIteratorCompare(String usr, ArrayList list) {
         // Goes Through the array and checks for duplicates
         Boolean duplicate_usr = false;
-        Set<String> keys = map.keySet();
-        for (String k : keys) {
+        for (int i = 0; i < usr_id_list.size(); i++) {
             // System.out.println(k);
-            ArrayList info_list = (ArrayList) map.get(k);
+            ArrayList info_list = (ArrayList) list.get(i);
             if (usr.equals(info_list.get(0))) {
                 duplicate_usr = true;
             }
