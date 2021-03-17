@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Date;
 
 
 /*
@@ -70,7 +71,7 @@ public class client_frame extends javax.swing.JFrame
                 socket = new Socket(serverName, serverPort);
                 serverOut = socket.getOutputStream();
                 serverIn = socket.getInputStream();
-                clientconsoleText.append("Connection Sucessful\n");
+                clientconsoleText.append( new Date() + " Connection Sucessful\n ");
                 //Using the login command in the server_code and passing in the entire username as a command
                 String login_command = ("login "+username);
                 packetIn = new BufferedReader(new InputStreamReader(serverIn));
@@ -88,7 +89,7 @@ public class client_frame extends javax.swing.JFrame
             catch(IOException ex)
             {
                 ex.printStackTrace();
-                clientconsoleText.append("Connection Failed\n");
+                clientconsoleText.append(new Date() + " Connection Failed\n ");
                 connection_state = false;
             } 
         }
@@ -395,7 +396,7 @@ public class client_frame extends javax.swing.JFrame
         // TODO add your handling code here:
         if (connection_state == false) 
         {
-            clientconsoleText.append("No Connection has been made.\n");
+            clientconsoleText.append(new Date() + " No Connection has been made.\n ");
         }
        else {
             try {
@@ -465,7 +466,7 @@ public class client_frame extends javax.swing.JFrame
             }
              
         }else{
-            clientconsoleText.append("Connection not found. Please Connect to a Server\n");
+            clientconsoleText.append(new Date() + " Connection not found. Please Connect to a Server\n ");
         }
     }//GEN-LAST:event_sendBtnActionPerformed
 
