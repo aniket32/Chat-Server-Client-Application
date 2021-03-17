@@ -218,7 +218,7 @@ public class server_frame extends javax.swing.JFrame {
                                 //calls function to stop the Server
                                 Boolean v3 = getStatus();
                                 if(v3 == true){
-                                    String[] msg = line.split(" ");
+                                    String[] msg = line.split(" ", 2);
                                     stopServer(msg);
                                 }else{
                                     wrongPermission();
@@ -506,20 +506,27 @@ public class server_frame extends javax.swing.JFrame {
         // Need to make a thing where it works for the Admin as well
         private void help() throws IOException {
             String help = null;
+            String dataFile = null;
+            Boolean status = getStatus();
+            List<ServerWorker> workerList = server.getworkerList();
+             //for (ServerWorker worker : workerList){
             // This line needs to be universal, currently only works on Leo's machine. Path
             // must be changed.
+            Scanner adminFile = new Scanner(new File(
+                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
             Scanner clientFile = new Scanner(new File(
-                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
-            while (clientFile.hasNextLine()) {
-                help = clientFile.nextLine();
-                outputStream.write(help.getBytes());
+                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+          if(status == true){
+                while (adminFile.hasNextLine()) {
+                    dataFile = adminFile.nextLine() + "\n";
+                    outputStream.write(dataFile.getBytes());
+                }
+            }else{
+                while (adminFile.hasNextLine()) {
+                    dataFile = clientFile.nextLine() + "\n";
+                    outputStream.write(dataFile.getBytes());
+                }
             }
-            // List<ServerWorker> workerList = server.getworkerList();
-            // for (ServerWorker worker : workerList){
-            // if(isTopic){
-            // if (worker.Membership(worker))
-            // }
-            // }
         }
         
         
@@ -669,12 +676,15 @@ public class server_frame extends javax.swing.JFrame {
         // A bit Broken
         private void sleep(String[] tokens) throws InterruptedException, IOException {
             String receiver = tokens[1];
+            String time = tokens[2];
+            int sec = Integer.parseInt(time);
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are banned from the server for 20 sec \n";
-                    // outputStream.write(message.getBytes());
+                    String MsgOut = new Date() +  "Msg : " + username + "YOU are banned from the server for " + sec + " sec \n";
                     worker.sendMsg(MsgOut);
+                    int msec = sec * 1000;
+                    Thread.sleep(msec);
                 }
             }
         }
@@ -720,7 +730,7 @@ public class server_frame extends javax.swing.JFrame {
             ArrayList list = (ArrayList) usr_id_list.get(i);
                 for (ServerWorker worker : workerList) {
                     if(worker.getLogin().equals(list.get(0)) && worker.getLogin() != null){
-                        String msg = "\n Server Closing in" + sec +  "seconds \n";
+                        String msg = "\n Server Closing in " + sec +  " seconds \n";
                         sendAll(msg);
                         TimeUnit.SECONDS.sleep(sec);
                     }
