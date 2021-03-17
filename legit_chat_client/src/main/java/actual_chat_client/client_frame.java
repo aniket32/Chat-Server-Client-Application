@@ -21,6 +21,9 @@ Client must handle login failed
 
 Client must not get stuck in an loop when disconnected.
 
+Client gets stuck in ConnectionReset Loop when server is closed sometimes.
+
+
 */
 
 /*
