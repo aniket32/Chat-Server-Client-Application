@@ -81,10 +81,10 @@ public class server_frame extends javax.swing.JFrame {
                 // Accepting Client Sockets and creates the connection between them
                 // clientSocket used to identify Clients
                 while (true) {
-                    console_text.append("About to accept connections....\n");
+                    console_text.append(" About to accept connections....\n ");
                     // While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
-                    console_text.append("Accepting Connections from \n" + clientSocket);
+                    console_text.append(" Accepting Connections from \n " + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
                     // System.out.print(Ip);
@@ -94,7 +94,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
             } catch (IOException e) {
                 // print in server console if error in Creating Server~
-                console_text.append("server broke");
+                console_text.append(" Server broke \n");
             }
         }
     }
@@ -243,24 +243,27 @@ public class server_frame extends javax.swing.JFrame {
                                 if(sta == true){
                                     String[] usr = line.split(" ");
                                     promote(usr);
+                                    adminStatus();
                                 }else{
                                     wrongPermission();
                                 }
                                 break;
-                                case "demote":
+                            case "demote":
                                 Boolean s = getStatus();
                                 if(s == true){
                                     String[] usr = line.split(" ");
                                     demote(usr);
+                                    adminStatus();
                                 }else{
                                     wrongPermission();
                                 }
                                 break;
-                                case "pass-ownership":
+                            case "pass-ownership":
                                 Boolean st = getStatus();
                                 if(st == true){
                                     String[] usr = line.split(" ");
                                     passOwnership(usr);
+                                    adminStatus();
                                 }else{
                                     wrongPermission();
                                 }
@@ -326,8 +329,9 @@ public class server_frame extends javax.swing.JFrame {
             return role;  
         }
         
-        public void StatusUpdater(){
+        public void StatusUpdater() throws IOException{
             String usr = role_queue.peek();
+            List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
              ArrayList list = (ArrayList) usr_id_list.get(i);
              if (usr.equals(list.get(0))) {
@@ -335,8 +339,13 @@ public class server_frame extends javax.swing.JFrame {
                  list.set(4, "Admin");
                  usr_id_list.set(i, list);
                 }
-
-            }    
+            } 
+            String Msg = usr + " is now the admin of the Server \n";
+                for (ServerWorker worker : workerList) {
+                    if (!username.equals(worker.getLogin())) {
+                        worker.sendMsg(Msg);
+                    }
+                }
         }
         
         // Works
@@ -375,7 +384,7 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 } else {
                     //handle login failure
-                    String msg = "login failed";
+                    String msg = "login failed \n";
                     outputStream.write(msg.getBytes());
                     console_text.append(" Logged in Failed for User: " + username + "\n");
                     
@@ -397,7 +406,7 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         private void wrongPermission() throws IOException{
-            String msg = "You dont the correct Credentials for this command";
+            String msg = "You dont the correct Credentials for this command \n";
             outputStream.write(msg.getBytes());
         }
 
@@ -591,8 +600,6 @@ public class server_frame extends javax.swing.JFrame {
             // Prompt
             if (username != null) {
                 outputStream.write(msg.getBytes());
-                // printerOut.println(msg+"\n");
-                // console_text.append(msg);
             }
             // Printing same messsages to the Server
             console_text.append(msg);
@@ -615,7 +622,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server " + "\n";
+                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     worker.clientSocket.close();
@@ -645,7 +652,7 @@ public class server_frame extends javax.swing.JFrame {
             long aTime = System.currentTimeMillis();
             while (false || (System.currentTimeMillis() - aTime) < 10000) {
                 for (ServerWorker worker : workerList) {
-                    String msg = "WORLD DOMINATION" + "\n";
+                    String msg = "WORLD DOMINATION \n";
                     worker.sendMsg(msg);
                 }
             }
@@ -657,7 +664,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec " + "\n";
+                    String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     Thread.sleep(50000);
@@ -699,14 +706,18 @@ public class server_frame extends javax.swing.JFrame {
 
         public void stopServer() throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
-                String msg = "\n" + "Server Closing";
-                worker.sendAll(msg);
-                worker.idRemover();
-
-                worker.clientSocket.close();
+            for (int i = 0; i < usr_id_list.size(); i++) {
+            ArrayList list = (ArrayList) usr_id_list.get(i);
+                for (ServerWorker worker : workerList) {
+                    if(worker.getLogin().equals(list.get(0)) || worker.getLogin() != null){
+                        //String msg = "\n" + "Server Closing \n";
+                        //worker.sendAll(msg);
+                        String name = worker.getLogin();
+                        System.out.println(name);
+                        //clientSocket.close();
+                    } 
+                }
             }
-
         }
         
         
@@ -721,13 +732,6 @@ public class server_frame extends javax.swing.JFrame {
                             info_list.set(4, "Admin");
                     }
                 }
-//                for(ServerWorker worker : workerList){
-//                    if(name.equals(worker.getLogin()) && name.equals(info_list.get(0))){
-//                        info_list.set(4, "Admin");
-//                    }else{
-//                        info_list.set(4, "Client");
-//                    }
-//                }
             }
         }
          
@@ -766,7 +770,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = "Are you online yes/no?";
+                        String msg = " Are you online yes/no? \n";
                         worker.outputStream.write(msg.getBytes()); 
                         // need to find a way to get the latest typed message after this outputStream
                         }
@@ -799,7 +803,7 @@ public class server_frame extends javax.swing.JFrame {
         // ServerWorker Thread and the clientHandler
         Thread starter = new Thread(new StartServer());
         starter.start();
-        console_text.append("Server started...\n");
+        console_text.append(" Server started...\n");
     }
 
     // Needs to Fix it ==> Find a way to call the function on line 579 to be called
