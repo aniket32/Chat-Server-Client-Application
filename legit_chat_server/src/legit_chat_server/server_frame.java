@@ -242,7 +242,7 @@ public class server_frame extends javax.swing.JFrame {
                                 Boolean sta = getStatus();
                                 if(sta == true){
                                     String[] usr = line.split(" ");
-                                    //passOwnership(usr);
+                                    passOwnership(usr);
                                 }else{
                                     wrongPermission();
                                 }
@@ -691,37 +691,54 @@ public class server_frame extends javax.swing.JFrame {
 
         }
         
-        
-//        private void passOwnership(String[] user){
-//            String name = user[1];
-//            List<ServerWorker> workerList = server.getworkerList();
-//            String usr = role_queue.peek();
-//            for (int i = 0; i < usr_id_list.size(); i++) {
-//                ArrayList list = (ArrayList) usr_id_list.get(i);
-//                //console_text.append(list.toString());
-//                for(ServerWorker worker : workerList){
-//                    if(worker.getLogin().equals(name)){
-//                        //console_text.append(name);
-//                        list.set(4, "Admin");
-//                        //usr_id_list.set(i, list);
-//                    }else{
-//                        list.set(4, "Clinet");
+//        public Boolean getStatus(){
+//            String status = null;
+//            Boolean states = null;
+//            for (int i = 0; i < usr_id_list.size(); i++) { 
+//                ArrayList info_list = (ArrayList) usr_id_list.get(i);
+//                    if(username.equals(info_list.get(0))){
+//                        status = (String) info_list.get(4);
+//                        if (status.equals("Admin")){
+//                            states = true;
+//                        }else if (status.equals("Client")){
+//                        states = false;
 //                    }
-//                    
 //                }
 //            }
+//            return states;
 //        }
+        
+//         public void StatusUpdater(){
+//            String usr = role_queue.peek();
+//            for (int i = 0; i < usr_id_list.size(); i++) {
+//             ArrayList list = (ArrayList) usr_id_list.get(i);
+//             if (usr.equals(list.get(0))) {
+//                 System.out.println(list);
+//                 list.set(4, "Admin");
+//                 usr_id_list.set(i, list);
+//                }
+//
+//            }    
+//        }
+         
+        private void passOwnership(String[] user){
+            String name = user[1];
+            List<ServerWorker> workerList = server.getworkerList();
+            String usr = role_queue.peek();
+            for (int i = 0; i < usr_id_list.size(); i++) {
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
+                if(username.equals(info_list.get(0))){
+                    info_list.set(4, "Client");
+                }else{
+                    for(ServerWorker worker : workerList){
+                        if(name.equals(worker.getLogin())){
+                            info_list.set(4, "Admin");
+                        }
+                    }
+                }
+            }
+        }
 
-//        private void sendStatus() {
-//            String role = " ";
-//            List<ServerWorker> workerList = server.getworkerList();
-//            for(ServerWorker worker : workerList){
-//                role = getStatus();
-//                //System.out.print(role + "\n");
-//                
-//            }
-//            System.out.println(role);
-//        }
 
         private void checkStatus() throws IOException {
 //            InputStream inputStream = clientSocket.getInputStream();
