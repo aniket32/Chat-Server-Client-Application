@@ -218,7 +218,8 @@ public class server_frame extends javax.swing.JFrame {
                                 //calls function to stop the Server
                                 Boolean v3 = getStatus();
                                 if(v3 == true){
-                                    stopServer();
+                                    String[] msg = line.split(" ");
+                                    stopServer(msg);
                                 }else{
                                     wrongPermission();
                                 }
@@ -628,9 +629,10 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server \n";
+                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
+                    TimeUnit.SECONDS.sleep(5);
                     worker.clientSocket.close();
                     worker.idRemover();
                 }
@@ -673,7 +675,6 @@ public class server_frame extends javax.swing.JFrame {
                     String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are banned from the server for 20 sec \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
-                    Thread.sleep(50000);
                 }
             }
         }
@@ -709,17 +710,20 @@ public class server_frame extends javax.swing.JFrame {
                 System.out.print(name);
             }
         }
-
-        public void stopServer() throws IOException, InterruptedException {
+        
+        //Fixed
+        public void stopServer( String[] tokens) throws IOException, InterruptedException {
+            String time = tokens[1];
+            int sec = Integer.parseInt(time);
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
             ArrayList list = (ArrayList) usr_id_list.get(i);
                 for (ServerWorker worker : workerList) {
                     if(worker.getLogin().equals(list.get(0)) && worker.getLogin() != null){
-                        String msg = "\n Server Closing in 10 seconds \n";
+                        String msg = "\n Server Closing in" + sec +  "seconds \n";
                         sendAll(msg);
+                        TimeUnit.SECONDS.sleep(sec);
                     }
-                    TimeUnit.SECONDS.sleep(10);
                     worker.clientSocket.close();
                     worker.idRemover();
                 }
