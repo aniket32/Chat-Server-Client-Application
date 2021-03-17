@@ -144,7 +144,6 @@ public class server_frame extends javax.swing.JFrame {
                         
                         // Declairing the first token or the first word as the Command
                         String cmd = tokens[0];
-                        
                         // Switch case to choose from different types of commands
                         switch(cmd){
                             case "login":
@@ -182,7 +181,12 @@ public class server_frame extends javax.swing.JFrame {
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
                                 //String[] tokenMsg = line.split(" ");
-                                NUKE();
+                                Boolean status = getStatus();
+                                if(status == true){
+                                    NUKE();
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;
                             case "sleep":
                                 // calls the sleep fucntion and bans a client for a certain time
@@ -191,8 +195,13 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "kick":
                                 // calls the kickuser functin and removes a client from the Server
-                                String[] msg = line.split(" ");
-                                kickUser(msg);
+                                Boolean stat = getStatus();
+                                if(stat == true){
+                                    String[] msg = line.split(" ");
+                                    kickUser(msg);
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;
                             case "help":
                                 //calls the help function and show all commands for the admin and the clients
@@ -205,12 +214,18 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "stop-server":
                                 //calls function to stop the Server
+                                Boolean stats = getStatus();
+                                if(stats == true){
+                                    stopServer();
+                                }else{
+                                    wrongPermission();
+                                }
                                 stopServer();
                                 break;
                             case "sendStatus":
                                 //calls a function to send the satatus of all online users to all the Clients
-                                sendStatus();
-                                //getStatus();
+                                //sendStatus();
+                                getStatus();
                                 break;
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
@@ -224,8 +239,13 @@ public class server_frame extends javax.swing.JFrame {
                                 //calls a function to kick the Clinet out of the server
                                 break;
                             case "pass-ownership":
-                                String[] usr = line.split(" ");
-                                //passOwnership(usr);
+                                Boolean sta = getStatus();
+                                if(sta == true){
+                                    String[] usr = line.split(" ");
+                                    //passOwnership(usr);
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;
                             default:
                                 // sends a default message for unknown commands
@@ -257,17 +277,21 @@ public class server_frame extends javax.swing.JFrame {
             return clientSocket.getInetAddress();
         }
         
-        public String getStatus(){
+        public Boolean getStatus(){
             String status = null;
-            // Going through the list of workers in the LinkedList workerList
+            Boolean states = null;
             for (int i = 0; i < usr_id_list.size(); i++) { 
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
-                status = (String) info_list.get(4);
-                //console_text.append(status);
-            } 
-            //console_text.append(status);
-
-            return status;
+                    if(username.equals(info_list.get(0))){
+                        status = (String) info_list.get(4);
+                        if (status.equals("Admin")){
+                            states = true;
+                        }else if (status.equals("Client")){
+                        states = false;
+                    }
+                }
+            }
+            return states;
         }
 
         public String changeStatus(String usr){
@@ -342,10 +366,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Leo take a look at this function because the kick comands destroys this
-        // function
-        // It doesnot work with the kick commands
-        //Found the error it only workd for one client but if there are multiple id that needs to be removed that its fucked
+        // Fixed
         private void idRemover() {
             
             for (int i = 0; i < usr_id_list.size(); i++) {
@@ -356,7 +377,11 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         }
-
+        
+        private void wrongPermission() throws IOException{
+            String msg = "You dont the correct Credentials for this command";
+            outputStream.write(msg.getBytes());
+        }
 
         // Fixed
         private LinkedList<String> getAll() throws IOException {
@@ -541,19 +566,6 @@ public class server_frame extends javax.swing.JFrame {
             // }
         }
 
-        private void adminjoinHandler() {
-            // if (tokens.length > 1){
-            String topic = "#AdmIn";
-            SetTopic.add(topic);
-            // }
-        }
-
-        private void adminleaveHandler() {
-            // if (tokens.length > 1){
-            String topic = "#AdmIn";
-            SetTopic.remove(topic);
-            // }
-        }
 
         // Works
         private void sendMsg(String msg) throws IOException {
@@ -700,16 +712,16 @@ public class server_frame extends javax.swing.JFrame {
 //            }
 //        }
 
-        private void sendStatus() {
-            String role = " ";
-            List<ServerWorker> workerList = server.getworkerList();
-            for(ServerWorker worker : workerList){
-                role = getStatus();
-                //System.out.print(role + "\n");
-                
-            }
-            System.out.println(role);
-        }
+//        private void sendStatus() {
+//            String role = " ";
+//            List<ServerWorker> workerList = server.getworkerList();
+//            for(ServerWorker worker : workerList){
+//                role = getStatus();
+//                //System.out.print(role + "\n");
+//                
+//            }
+//            System.out.println(role);
+//        }
 
         private void checkStatus() throws IOException {
 //            InputStream inputStream = clientSocket.getInputStream();
