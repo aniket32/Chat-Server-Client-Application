@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /*
 TODO LIST:
@@ -182,8 +183,8 @@ public class server_frame extends javax.swing.JFrame {
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
                                 //String[] tokenMsg = line.split(" ");
-                                Boolean status = getStatus();
-                                if(status == true){
+                                Boolean v1 = getStatus();
+                                if(v1 == true){
                                     NUKE();
                                 }else{
                                     wrongPermission();
@@ -196,8 +197,8 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "kick":
                                 // calls the kickuser functin and removes a client from the Server
-                                Boolean stat = getStatus();
-                                if(stat == true){
+                                Boolean v2 = getStatus();
+                                if(v2 == true){
                                     String[] msg = line.split(" ");
                                     kickUser(msg);
                                 }else{
@@ -215,13 +216,12 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "stop-server":
                                 //calls function to stop the Server
-                                Boolean stats = getStatus();
-                                if(stats == true){
+                                Boolean v3 = getStatus();
+                                if(v3 == true){
                                     stopServer();
                                 }else{
                                     wrongPermission();
                                 }
-                                stopServer();
                                 break;
                             case "sendStatus":
                                 //calls a function to send the satatus of all online users to all the Clients
@@ -230,7 +230,12 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
-                                checkStatus();
+                                Boolean v4 = getStatus();
+                                if(v4 == true){
+                                    checkStatus();
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;
                             case "changeStatus":
                                 //call a function to keep the Clinet in the Server
@@ -240,8 +245,8 @@ public class server_frame extends javax.swing.JFrame {
                                 //calls a function to kick the Clinet out of the server
                                 break;
                             case "promote":
-                                Boolean sta = getStatus();
-                                if(sta == true){
+                                Boolean v5 = getStatus();
+                                if(v5 == true){
                                     String[] usr = line.split(" ");
                                     promote(usr);
                                     adminStatus();
@@ -250,8 +255,8 @@ public class server_frame extends javax.swing.JFrame {
                                 }
                                 break;
                             case "demote":
-                                Boolean s = getStatus();
-                                if(s == true){
+                                Boolean v6 = getStatus();
+                                if(v6 == true){
                                     String[] usr = line.split(" ");
                                     demote(usr);
                                     adminStatus();
@@ -260,8 +265,8 @@ public class server_frame extends javax.swing.JFrame {
                                 }
                                 break;
                             case "pass-ownership":
-                                Boolean st = getStatus();
-                                if(st == true){
+                                Boolean v7 = getStatus();
+                                if(v7 == true){
                                     String[] usr = line.split(" ");
                                     passOwnership(usr);
                                     adminStatus();
@@ -705,18 +710,18 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        public void stopServer() throws IOException {
+        public void stopServer() throws IOException, InterruptedException {
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
             ArrayList list = (ArrayList) usr_id_list.get(i);
                 for (ServerWorker worker : workerList) {
-                    if(worker.getLogin().equals(list.get(0)) || worker.getLogin() != null){
-                        //String msg = "\n" + "Server Closing \n";
-                        //worker.sendAll(msg);
-                        String name = worker.getLogin();
-                        System.out.println(name);
-                        //clientSocket.close();
-                    } 
+                    if(worker.getLogin().equals(list.get(0)) && worker.getLogin() != null){
+                        String msg = "\n Server Closing in 10 seconds \n";
+                        sendAll(msg);
+                    }
+                    TimeUnit.SECONDS.sleep(10);
+                    worker.clientSocket.close();
+                    worker.idRemover();
                 }
             }
         }
