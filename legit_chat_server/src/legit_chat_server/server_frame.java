@@ -17,6 +17,7 @@ import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayDeque;
+import java.util.Date;
 
 /*
 TODO LIST:
@@ -81,10 +82,10 @@ public class server_frame extends javax.swing.JFrame {
                 // Accepting Client Sockets and creates the connection between them
                 // clientSocket used to identify Clients
                 while (true) {
-                    console_text.append(" About to accept connections....\n ");
+                    console_text.append( new Date() + " About to accept connections....\n ");
                     // While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
-                    console_text.append(" Accepting Connections from \n " + clientSocket);
+                    console_text.append( new Date() + " Accepting Connections from \n " + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
                     // System.out.print(Ip);
@@ -94,7 +95,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
             } catch (IOException e) {
                 // print in server console if error in Creating Server~
-                console_text.append(" Server broke \n");
+                console_text.append( new Date() + " Server broke \n");
             }
         }
     }
@@ -340,7 +341,7 @@ public class server_frame extends javax.swing.JFrame {
                  usr_id_list.set(i, list);
                 }
             } 
-            String Msg = usr + " is now the admin of the Server \n";
+            String Msg = new Date() + usr + " is now the admin of the Server \n";
                 for (ServerWorker worker : workerList) {
                     if (!username.equals(worker.getLogin())) {
                         worker.sendMsg(Msg);
@@ -355,10 +356,10 @@ public class server_frame extends javax.swing.JFrame {
                 List<ServerWorker> workerList = server.getworkerList();
                 //int i = 0;
                 if (!(ArrayIteratorCompare(username, usr_id_list))) {
-                    String msg = " Logged in " + username + "\n";
+                    String msg = new Date() + " Logged in " + username + "\n";
                     outputStream.write(msg.getBytes());
                     this.username = username;
-                    console_text.append(" Logged in User: " + username + "\n");
+                    console_text.append( new Date() + " Logged in User: " + username + "\n");
                     int port = getPort();
                     InetAddress address = getIP();
                     role_queue.addLast(username);
@@ -369,14 +370,14 @@ public class server_frame extends javax.swing.JFrame {
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
                             if (worker.getLogin() != null) {
-                                String onlineMsg = " User online: " + worker.getLogin() + "\n";
+                                String onlineMsg = new Date() + " User online: " + worker.getLogin() + "\n";
                                 sendMsg(onlineMsg);
                             }
                         }
                     }
 
                     // Send other online users current users Status
-                    String Msg = " User Online: " + username + "\n";
+                    String Msg =new Date() +  " User Online: " + username + "\n";
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
                             worker.sendMsg(Msg);
@@ -384,9 +385,9 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 } else {
                     //handle login failure
-                    String msg = "login failed \n";
+                    String msg = new Date() + "login failed \n";
                     outputStream.write(msg.getBytes());
-                    console_text.append(" Logged in Failed for User: " + username + "\n");
+                    console_text.append( new Date() + " Logged in Failed for User: " + username + "\n");
                     
                     //clientSocket.close();
                 }
@@ -406,7 +407,7 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         private void wrongPermission() throws IOException{
-            String msg = "You dont the correct Credentials for this command \n";
+            String msg = new Date() +  " You dont the correct Credentials for this command \n ";
             outputStream.write(msg.getBytes());
         }
 
@@ -443,7 +444,7 @@ public class server_frame extends javax.swing.JFrame {
             // Function to handle all User Disconnection from the Server
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
-                String msg = "User Disconnected: " + username + "\n";
+                String msg = new Date() + " User Disconnected: " + username + "\n";
                 worker.sendMsg(msg);
                 idRemover();
                 role_queue.remove(username);
@@ -453,7 +454,7 @@ public class server_frame extends javax.swing.JFrame {
 
             }
             // Append approipriate response to the Server
-            console_text.append(" User Disconnected: " + username + "\n");
+            console_text.append( new Date() + " User Disconnected: " + username + "\n");
             //clientSocket.close();
         }
 
@@ -474,13 +475,13 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList) {
                 if (isTopic) {
                     if (worker.Membership(receiver)) {
-                        String MsgOut = "Msg: " + receiver + " : " + username + " " + message + "\n";
+                        String MsgOut = new Date() + "Msg: " + receiver + " : " + username + " " + message + "\n";
                         // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
                 } else {
                     if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                        String MsgOut = "Msg: " + username + " " + message + "\n";
+                        String MsgOut = new Date() +  "Msg: " + username + " " + message + "\n";
                         // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
@@ -563,7 +564,7 @@ public class server_frame extends javax.swing.JFrame {
                 if(!first.equals(worker.getLogin())){
                     //System.out.println();
                     if (worker.getLogin() != null) {
-                        String msg = first + " is now the admin of the Server \n";
+                        String msg = new Date() + first + " is now the admin of the Server \n";
                         worker.outputStream.write(msg.getBytes()); 
                     }
                 
@@ -622,7 +623,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server \n";
+                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     worker.clientSocket.close();
@@ -664,7 +665,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "Msg : " + username + " " + "YOU are banned from the server for 20 sec \n";
+                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are banned from the server for 20 sec \n";
                     // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     Thread.sleep(50000);
@@ -770,7 +771,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = " Are you online yes/no? \n";
+                        String msg = new Date() +  " Are you online yes/no? \n";
                         worker.outputStream.write(msg.getBytes()); 
                         // need to find a way to get the latest typed message after this outputStream
                         }
@@ -803,7 +804,7 @@ public class server_frame extends javax.swing.JFrame {
         // ServerWorker Thread and the clientHandler
         Thread starter = new Thread(new StartServer());
         starter.start();
-        console_text.append(" Server started...\n");
+        console_text.append(new Date() + " Server started...\n");
     }
 
     // Needs to Fix it ==> Find a way to call the function on line 579 to be called
