@@ -648,7 +648,6 @@ public class server_frame extends javax.swing.JFrame {
 
         // Works ==> has been fixed but might break in the future
         private void announcements(String[] token) throws IOException {
-
             String msg = token[1];
 
             console_text.append(msg);
