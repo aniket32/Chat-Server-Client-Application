@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 /*
 TODO LIST:
 
-Client must handle login failed
+Client must handle login failed -> "fixed"
 
-Client must not get stuck in an loop when disconnected.
+Client must not get stuck in an loop when disconnected. -> "fixed"
 
-Client gets stuck in ConnectionReset Loop when server is closed sometimes.
+Client gets stuck in ConnectionReset Loop when server is closed sometimes. -> "fixed"
 
 
 */
@@ -169,7 +169,10 @@ public class client_frame extends javax.swing.JFrame
                             clientconsoleText.append("Connection Lost\n");
                             clientWindow = null;
                             
+                        }else{
+                            run();
                         }
+                        
                     } catch (IOException ex) {
                         Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
                     }
