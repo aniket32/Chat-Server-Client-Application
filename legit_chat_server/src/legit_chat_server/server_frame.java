@@ -23,12 +23,10 @@ import java.util.concurrent.TimeUnit;
 
 /*
 TODO LIST:
-Will try and fix the admin thingi ==> AB
 
-Fix the Server stop button ==> AB
+
 Need help calling the stopServer() function from outside the ServerWorker class
 
-Fix disconnect both in server and in Client ==> Leo
 
 
 
@@ -36,11 +34,11 @@ Fix disconnect both in server and in Client ==> Leo
 
 /*
 Added Functionality 
+Added AFK but need help with removing users when they are AFK
 
 */
 
 public class server_frame extends javax.swing.JFrame {
-
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
     // Declairing global variables
@@ -102,7 +100,7 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
-    // Works
+    // Best Code I ==> AB has written in my entire life
     public class ServerWorker extends Thread {
         public final Socket clientSocket;
         public ServerS server;
@@ -153,7 +151,6 @@ public class server_frame extends javax.swing.JFrame {
                                 // calls the loginHandler function to handle login 
                                 loginHandler(outputStream, tokens);
                                 adminStatus();
-                                //getAll();
                                 break;
                             case "join":
                                 // calls the joinHandler function to join a group
@@ -177,8 +174,7 @@ public class server_frame extends javax.swing.JFrame {
                                 announcements(token);
                                 break;
                             case "ListUser":
-                                // calls the ListUser function to lists all the activ users in the server
-                                //ListUser();
+                                // calls the ListUser function to lists all the activ users in the serve
                                 getAll();
                                 break;
                             case "NUKE":
@@ -311,6 +307,7 @@ public class server_frame extends javax.swing.JFrame {
             return clientSocket.getInetAddress();
         }
         
+        // gets the Status of the Clients ==> Boolean
         public Boolean getStatus(){
             String status = null;
             Boolean states = null;
@@ -328,12 +325,12 @@ public class server_frame extends javax.swing.JFrame {
             return states;
         }
 
+            
+        // Changes the status of all the Clients to Client except the first one
         public String changeStatus(String usr){
             String role = null;
             //String status = null;
             if (usr.equals(role_queue.peek())){
-                //System.out.println(role_queue.peek());
-                //System.out.println(role_queue);
                 role = "Admin";
             } else {
                 role = "Client";
@@ -342,6 +339,8 @@ public class server_frame extends javax.swing.JFrame {
             return role;  
         }
         
+        
+        // Lets all the user knows the active admin of the server
         public void StatusUpdater() throws IOException{
             String usr = role_queue.peek();
             List<ServerWorker> workerList = server.getworkerList();
@@ -361,7 +360,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
         }
                 
-        // Works
+        // 
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
                 String username = tokens[1];
@@ -406,9 +405,8 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Fixed
+        // Changes the ID and the related data of the Client
         private void idRemover() {
-            
             for (int i = 0; i < usr_id_list.size(); i++) {
                 // Removing disconnected Users from the list
                 ArrayList list = (ArrayList) usr_id_list.get(i);
@@ -418,12 +416,15 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        
+        // Checks if the User have the correct permission to send certain commands
         private void wrongPermission() throws IOException{
             String msg = new Date() +  " You dont the correct Credentials for this command \n ";
             outputStream.write(msg.getBytes());
         }
 
-        // Fixed
+        
+        // Gathers and displays all the active users in the server
         private LinkedList<String> getAll() throws IOException {
             // Declairing all the variables
             String usr_list = null;
@@ -461,20 +462,14 @@ public class server_frame extends javax.swing.JFrame {
                 idRemover();
                 role_queue.remove(username);
                 StatusUpdater();
-                //clientSocket.close();
+                clientSocket.close();
                 break;
 
             }
             // Append approipriate response to the Server
             console_text.append( new Date() + " User Disconnected: " + username + "\n");
-            //clientSocket.close();
         }
 
-        // Broken
-        private void quit() throws IOException {
-            // At this moment does nothing but i hope to make it wortk in the near future
-            clientSocket.close();
-        }
 
         // Works
         private void messageHandler(String[] tokens) throws IOException {
@@ -488,13 +483,11 @@ public class server_frame extends javax.swing.JFrame {
                 if (isTopic) {
                     if (worker.Membership(receiver)) {
                         String MsgOut = new Date() + "Msg: " + receiver + " : " + username + " " + message + "\n";
-                        // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
                 } else {
                     if (receiver.equalsIgnoreCase(worker.getLogin())) {
                         String MsgOut = new Date() +  "Msg: " + username + " " + message + "\n";
-                        // outputStream.write(message.getBytes());
                         worker.sendMsg(MsgOut);
                     }
                 }
@@ -508,8 +501,7 @@ public class server_frame extends javax.swing.JFrame {
             return path;
         }
 
-        // Works for the clinet
-        // Need to make a thing where it works for the Admin as well
+        // displays the current commands for the client and admin
         private void help() throws IOException {
             String help = null;
             String dataFile = null;
@@ -610,11 +602,10 @@ public class server_frame extends javax.swing.JFrame {
 //                    }
 //                }
             }
-            // }
         }
 
 
-        // Works
+        // sends and displays mesages to other clients and the server
         private void sendMsg(String msg) throws IOException {
             // Function to send Message to the Client Side in this case its the Command
             // Prompt
@@ -625,6 +616,7 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
 
+        // function to send a message to all the active users
         private void sendAll(String msg) throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
@@ -633,9 +625,7 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
 
-        // Broken ==> Kicks the client that sends the message and not the other person
-        // in command line
-        // In Client GUI it works perfectly but since client is broke to Null infinitely
+        // kicks a specified user from the sever
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
 
@@ -651,7 +641,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Works ==> has been fixed but might break in the future
+        // makes a announcemnet to all the clients through the server
         private void announcements(String[] token) throws IOException {
             String msg = token[1];
 
@@ -664,12 +654,12 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Works
+        // Spams WORLD DOMINATION to all the clients and server for 5 seconds
         private void NUKE() throws IOException {
 
             List<ServerWorker> workerList = server.getworkerList();
             long aTime = System.currentTimeMillis();
-            while (false || (System.currentTimeMillis() - aTime) < 10000) {
+            while (false || (System.currentTimeMillis() - aTime) < 5000) {
                 for (ServerWorker worker : workerList) {
                     String msg = "WORLD DOMINATION \n";
                     worker.sendMsg(msg);
@@ -677,7 +667,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // A bit Broken
+        // Bans the specified user for a certain amount of time
         private void sleep(String[] tokens) throws InterruptedException, IOException {
             String receiver = tokens[1];
             String time = tokens[2];
@@ -694,12 +684,12 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Works
+        // Handles the topic of group messaging 
         public boolean Membership(String topic) {
             return SetTopic.contains(topic);
         }
 
-        // Works
+        // Hadles the Clients joining a group messaging
         private void joinHandler(String[] tokens) {
             if (tokens.length > 1) {
                 String topic = tokens[1];
@@ -707,7 +697,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Works
+        // Handles the Clients Leavinf the group messaging
         private void leaveHandler(String[] tokens) {
             if (tokens.length > 1) {
                 String topic = tokens[1];
@@ -726,7 +716,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        //Fixed
+        // Kicks akk active users and closes the server after a specified time
         public void stopServer( String[] tokens) throws IOException, InterruptedException {
             String time = tokens[1];
             int sec = Integer.parseInt(time);
@@ -745,7 +735,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        
+        // change the statsu of a specific user to Admin and change all other status to Client
         private void passOwnership(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -760,6 +750,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
          
+        // promotes a specified Client's status to Admin
         private void promote(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -773,6 +764,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
+        // demotes a specified Client's status back from Admin to a Client
         private void demote(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -787,16 +779,8 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         
-//            
-//        private void AFK() throws SocketException{
-//            clientSocket.setSoTimeout(10000);
-//           
-//        }
-
+        // Check for Afk Users
         private void checkStatus() throws IOException {
-//            InputStream inputStream = clientSocket.getInputStream();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
@@ -804,34 +788,14 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins";
                         worker.outputStream.write(msg.getBytes()); 
                         worker.clientSocket.setSoTimeout(10000);
-                        }
                     }
-                
-                
-                
-                //String msg = "Are you Online, yes/no";
-                //worker.outputStream.write(msg.getBytes());  
-                
-                
-//                String line;
-//                while ((line = reader.readLine()) != null){
-//                    String tokens[] = line.split(" ");
-//                    if (tokens!=null && tokens.length>0){
-//                       if (tokens.equals("yes")){   
-//                            clientSocket.close();
-//                        }else{
-//                            String msg1 = worker.getLogin()+ " is online ";
-//                            sendMsg(msg1);
-//                        }
-//                        
-//                    }
-//                }
+                }
            }
         }
 
     }
 
-    // Works
+    // Stps the server 
     public void serverStartButton() {
         // Starts the Server by calling in the StratServer Thread that in turn calls the
         // ServerWorker Thread and the clientHandler
@@ -860,7 +824,7 @@ public class server_frame extends javax.swing.JFrame {
     }
 
     
-    // Works
+    // Generates a ramdon ID for each user the joind the server
     public void idGenerator(String username, int port, String ipaddress, String status) {
         // Creates random number for the ID of eash User
         ArrayList<String> port_usr_list = new ArrayList<String>();
@@ -876,15 +840,13 @@ public class server_frame extends javax.swing.JFrame {
         System.out.println(usr_id_list);
     }
 
-    // Works but is of no use at the moment
+    // Prints in the console window all the online users or running ServerWorker
     public void idRetriever(String username) {
-        // Prints in the console window all the online users or running ServerWorker
         console_text.append(usr_id_list + "\n");
     }
 
-    // Works
+    // Checks for duplicates in the array
     public boolean ArrayIteratorCompare(String usr, ArrayList list) {
-        // Goes Through the array and checks for duplicates
         Boolean duplicate_usr = false;
         for (int i = 0; i < usr_id_list.size(); i++) {
             // System.out.println(k);
