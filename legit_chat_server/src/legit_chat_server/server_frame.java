@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -192,8 +193,13 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "sleep":
                                 // calls the sleep fucntion and bans a client for a certain time
-                                String[] Msg = line.split(" ");
-                                sleep(Msg);
+                                 Boolean v8 = getStatus();
+                                if(v8 == true){
+                                    String[] Msg = line.split(" ");
+                                    sleep(Msg);
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;
                             case "kick":
                                 // calls the kickuser functin and removes a client from the Server
@@ -354,7 +360,7 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
         }
-        
+                
         // Works
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
@@ -637,7 +643,6 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
                     String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
-                    // outputStream.write(message.getBytes());
                     worker.sendMsg(MsgOut);
                     TimeUnit.SECONDS.sleep(5);
                     worker.clientSocket.close();
@@ -680,10 +685,11 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = new Date() +  "Msg : " + username + "YOU are banned from the server for " + sec + " sec \n";
+                    String MsgOut = new Date() +  "Msg : " + username + " You are banned from the server for " + sec + " sec \n";
                     worker.sendMsg(MsgOut);
                     int msec = sec * 1000;
-                    Thread.sleep(msec);
+                    //clientSocket.setSoTimeout(10000);
+                    worker.sleep(msec);
                 }
             }
         }
@@ -780,6 +786,12 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+        
+//            
+//        private void AFK() throws SocketException{
+//            clientSocket.setSoTimeout(10000);
+//           
+//        }
 
         private void checkStatus() throws IOException {
 //            InputStream inputStream = clientSocket.getInputStream();
@@ -789,11 +801,14 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = new Date() +  " Are you online yes/no? \n";
+                        String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins";
                         worker.outputStream.write(msg.getBytes()); 
-                        // need to find a way to get the latest typed message after this outputStream
+                        worker.clientSocket.setSoTimeout(10000);
                         }
                     }
+                
+                
+                
                 //String msg = "Are you Online, yes/no";
                 //worker.outputStream.write(msg.getBytes());  
                 
