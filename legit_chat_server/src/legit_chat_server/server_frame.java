@@ -716,7 +716,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        // Kicks akk active users and closes the server after a specified time
+        // Kicks all active users and closes the server after a specified time
         public void stopServer( String[] tokens) throws IOException, InterruptedException {
             String time = tokens[1];
             int sec = Integer.parseInt(time);
@@ -735,7 +735,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        // change the statsu of a specific user to Admin and change all other status to Client
+        // change the status of a specific user to Admin and change all other status to Client
         private void passOwnership(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -781,13 +781,16 @@ public class server_frame extends javax.swing.JFrame {
         
         // Check for Afk Users
         private void checkStatus() throws IOException {
+                
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins";
-                        worker.outputStream.write(msg.getBytes()); 
-                        worker.clientSocket.setSoTimeout(10000);
+                        String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins \n";
+                        worker.outputStream.write(msg.getBytes());  
+                        worker.clientSocket.setSoTimeout(5000);
+                        worker.clientSocket.setKeepAlive(false);
+                        console_text.append(worker.getLogin());
                     }
                 }
            }
