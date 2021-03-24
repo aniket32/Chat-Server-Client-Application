@@ -94,27 +94,6 @@ public class client_frame extends javax.swing.JFrame
             } 
         }
         
-        // BullShit Code
-        // Need to Delete this
-//        private void login(String address, int port ,String username) throws IOException { 
-//            this.socket = new Socket(serverName, serverPort);
-//            //this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
-//            this.serverOut = socket.getOutputStream();
-//            if (address.equalsIgnoreCase(serverName) && port == serverPort){
-//                username = usernametext.getText();
-////                String cmd = "login " + username + "\n";
-////                serverOut.write(cmd.getBytes());
-//                
-////                String response = bufferedIn.readLine();
-////                System.out.println(response);
-////                clientconsoleText.append(response);
-////            
-//                
-//                PrintWriter out = new PrintWriter(serverOut, true);
-//                String login_command = ("login "+username);
-//                out.println(login_command);
-//            }
-//       }
         
         // Works
         public void sendMsg(String msg_text_str) throws IOException{
@@ -122,68 +101,84 @@ public class client_frame extends javax.swing.JFrame
             packetOut.println(msg_text_str);  
         }
         
-        // Works
-        public void server_manual_disconnect() throws IOException{
-            if (connection_state == true){
-                packetOut.println("quit");
-                socket.close();
-                connection_state = false;
+        //Function to handle disconnection and change GUI elements.
+        public void disconnectHandler(String disc_type) throws IOException{
+            if (disc_type.equals("forced")){
+                clientconsoleText.append("Connection Lost\n");
+            } else if(disc_type.equals("manual")){
+                clientWindow.sendMsg("quit");
+                clientconsoleText.append("You have been disconnected.\n");
+            } else if (disc_type.equals("kick")){
+                clientconsoleText.append("You have been kicked.\n");
             }
+            addressStr.setEditable(true);
+            portID.setEditable(true);
+            usernametext.setEditable(true);
+            addressStr.setBackground(Color.white);
+            portID.setBackground(Color.white);
+            usernametext.setBackground(Color.white);
+            socket.close();
+            clientWindow = null;
+            connection_state = false;
+            
         }
     }
-    
     // Works Beautifully
     // Leo is the BEST
     public class SocketListener implements Runnable {
-    //function to receive messages
+    //Function to receive messages and check connection
         public void run() {
-            //Will run until client has disconnected.
-            while (connection_state == true && socket.isClosed() == false){
-                try {
-                    String message = packetIn.readLine();
-                    if (message != null){
-                    clientconsoleText.append(message+"\n");
-                    }
-
-                } catch (IOException ex) {
-                    Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            try {
+                //Will run until client has disconnected or loses connection.
+                String message = packetIn.readLine();
+                while (connection_state == true){
+                        if (message != null && !message.equals("446973636f6e6e656374")){
+                            clientconsoleText.append(message+"\n");
+                            run();
+                        } else if("kick".equals(message)){
+                            clientWindow.disconnectHandler("kick");
+                        } else if (message == null){
+                            clientWindow.disconnectHandler("forced");
+                        }
+                }   
+            
+            } catch (IOException ex) {
+                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
     
-    public class DisconnectListener implements Runnable {
-        public void run() {
-            try {
-                TimeUnit.SECONDS.sleep(5);
-                while(connection_state == true){
-                    try {
-                        if (packetIn.readLine() == null){
-                            connection_state = false;
-                            addressStr.setEditable(true);
-                            portID.setEditable(true);
-                            usernametext.setEditable(true);
-                            addressStr.setBackground(Color.white);
-                            portID.setBackground(Color.white);
-                            usernametext.setBackground(Color.white);
-                            clientconsoleText.append("Connection Lost\n");
-                            clientWindow = null;
-                            
-                        }else{
-                            run();
-                        }
-                        
-                    } catch (IOException ex) {
-                        Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-           
-        }
-        
-    }
+//    public class DisconnectListener implements Runnable {
+//        public void run() {
+//            try {
+//                TimeUnit.SECONDS.sleep(5);
+//                String x = packetIn.readLine();
+//                while(connection_state == true){
+//                        if (x == null){
+//                            connection_state = false;
+//                            addressStr.setEditable(true);
+//                            portID.setEditable(true);
+//                            usernametext.setEditable(true);
+//                            addressStr.setBackground(Color.white);
+//                            portID.setBackground(Color.white);
+//                            usernametext.setBackground(Color.white);
+//                            clientconsoleText.append("Connection Lost\n");
+//                            clientWindow = null;
+//                            
+//                        }else{
+//                            run();
+//                        }
+//                       
+//                }
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IOException ex) {
+//                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//           
+//        }
+//        
+//    }
     
     public client_frame() throws IOException
     {
@@ -193,19 +188,19 @@ public class client_frame extends javax.swing.JFrame
     }
     
     // Works
-    //Fuction that creates new thread dedicated to listening for inputs.
+    //Fuction that creates new thread dedicated to listening for inputs and checks connection.
     public void ListenThread() {
                 if (socket.isClosed() != true){
 		Thread SocketListener = new Thread(new SocketListener());
 		SocketListener.start();
             }
     }
-   //Function that listens for disconnects.
-    public void DiscThread(){
-                Thread DisconnectListener = new Thread(new DisconnectListener());
-                DisconnectListener.start();
-                
-    }
+//   //Function that listens for disconnects.
+//    public void DiscThread(){
+//                Thread DisconnectListener = new Thread(new DisconnectListener());
+//                DisconnectListener.start();
+//                
+//    }
      
     
      /**
@@ -423,7 +418,7 @@ public class client_frame extends javax.swing.JFrame
                     portID.setBackground(Color.gray);
                     usernametext.setBackground(Color.gray);
                     ListenThread();
-                    DiscThread();
+                    //DiscThread();
                     
                 }
             }
@@ -443,14 +438,7 @@ public class client_frame extends javax.swing.JFrame
         }
        else {
             try {
-                clientWindow.server_manual_disconnect();
-                clientWindow = null;
-                addressStr.setEditable(true);
-                portID.setEditable(true);
-                usernametext.setEditable(true);
-                addressStr.setBackground(Color.white);
-                portID.setBackground(Color.white);
-                usernametext.setBackground(Color.white);
+                clientWindow.disconnectHandler("manual");
             } catch (IOException ex) {
                 Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -594,4 +582,4 @@ public class client_frame extends javax.swing.JFrame
     private javax.swing.JButton sendBtn;
     private javax.swing.JTextField usernametext;
     // End of variables declaration//GEN-END:variables
-}
+    }

@@ -459,7 +459,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList) {
                 String msg = new Date() + " User Disconnected: " + username + "\n";
                 worker.sendMsg(msg);
-                idRemover();
+                worker.idRemover();
                 role_queue.remove(username);
                 StatusUpdater();
                 clientSocket.close();
@@ -632,10 +632,11 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
+                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
+                    //String MsgOut ="kick";  
                     worker.sendMsg(MsgOut);
-                    TimeUnit.SECONDS.sleep(5);
-                    worker.clientSocket.close();
+                    //TimeUnit.SECONDS.sleep(5);    
+                    //worker.sendMsg(disc_command);
                     worker.idRemover();
                 }
             }
