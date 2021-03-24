@@ -74,7 +74,7 @@ public class client_frame extends javax.swing.JFrame
                 clientconsoleText.append( new Date() + " Connection Sucessful\n ");
                 //Using the login command in the server_code and passing in the entire username as a command
                 String login_command = ("login "+username);
-                packetIn = new BufferedReader(new InputStreamReader(serverIn));
+                packetIn = new BufferedReader(new InputStreamReader(serverIn), 128);
                 packetOut = new PrintWriter(serverOut, true);
                 // Printing the login command in this case its login <username>
                 //System.out.println(login_command);
@@ -131,15 +131,16 @@ public class client_frame extends javax.swing.JFrame
             try {
                 //Will run until client has disconnected or loses connection.
                 String message = packetIn.readLine();
+                System.out.println(message);
                 while (connection_state == true){
-                        if (message != null && !message.equals("446973636f6e6e656374")){
-                            clientconsoleText.append(message+"\n");
-                            run();
-                        } else if("kick".equals(message)){
-                            clientWindow.disconnectHandler("kick");
-                        } else if (message == null){
-                            clientWindow.disconnectHandler("forced");
-                        }
+                    if (message != null && !message.equals("kick ")) {
+                        clientconsoleText.append(message+"\n");
+                        run();
+                    } else if (message == null) {
+                        clientWindow.disconnectHandler("forced");
+                    } else if(message.equals("kick ")) {
+                        clientWindow.disconnectHandler("kick");
+                    }
                 }   
             
             } catch (IOException ex) {

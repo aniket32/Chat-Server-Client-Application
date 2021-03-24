@@ -632,8 +632,8 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
-                    //String MsgOut ="kick";  
+                    //String MsgOut = "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
+                    String MsgOut ="kick \n";  
                     worker.sendMsg(MsgOut);
                     //TimeUnit.SECONDS.sleep(5);    
                     //worker.sendMsg(disc_command);
