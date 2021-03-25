@@ -407,15 +407,13 @@ public class server_frame extends javax.swing.JFrame {
 
         // Changes the ID and the related data of the Client
         private void idRemover() {
-            ArrayList usr_to_del = null;
             for (int i = 0; i < usr_id_list.size(); i++) {
                 // Removing disconnected Users from the list
                 ArrayList list = (ArrayList) usr_id_list.get(i);
                 if (username.equals(list.get(0))) {
-                    usr_to_del = list;
+                    usr_id_list.remove(i);
                 }
             }
-            usr_id_list.remove(usr_to_del);
         }
         
         
@@ -464,7 +462,6 @@ public class server_frame extends javax.swing.JFrame {
                 idRemover();
                 role_queue.remove(username);
                 StatusUpdater();
-                workerList.remove(worker);
                 //worker.clientSocket.close();
                 //break;
 
@@ -635,12 +632,11 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "kick \n";
+                    String MsgOut = new Date() +  "Msg : " + username + " " + "YOU are KICKED from the Server in 5 sec \n";
                     worker.sendMsg(MsgOut);
                     TimeUnit.SECONDS.sleep(5);
-                    worker.clientSocket.close();
+                    //worker.clientSocket.close();
                     worker.idRemover();
-                    workerList.remove(worker);
                 }
             }
         }
@@ -733,7 +729,7 @@ public class server_frame extends javax.swing.JFrame {
                         sendAll(msg);
                         TimeUnit.SECONDS.sleep(sec);
                     }
-                    worker.clientSocket.close();
+                    //worker.clientSocket.close();
                     worker.idRemover();
                 }
             }

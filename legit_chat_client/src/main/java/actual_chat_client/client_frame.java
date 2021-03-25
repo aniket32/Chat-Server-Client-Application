@@ -111,15 +111,16 @@ public class client_frame extends javax.swing.JFrame
             } else if (disc_type.equals("kick")){
                 clientconsoleText.append("You have been kicked.\n");
             }
+            connection_state = false;
             addressStr.setEditable(true);
             portID.setEditable(true);
             usernametext.setEditable(true);
             addressStr.setBackground(Color.white);
             portID.setBackground(Color.white);
             usernametext.setBackground(Color.white);
-            socket.close();
+            //socket.close();
             clientWindow = null;
-            connection_state = false;
+            
             
         }
     }
