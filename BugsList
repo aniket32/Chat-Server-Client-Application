@@ -4,6 +4,7 @@ This is a list to represent all errors/bugs our code has:
 (removed socket.close statements from server)
 
 - Server will print several connected statements when one user connects (depends how many connections there are);
-- Client sometimes loses connection randomly,
-- Shows random clients that are disconnected still connected
+- Client sometimes loses connection randomly - Fixed;
+- Shows random clients that are disconnected still connected - Fixed;
 - WorkerList Is bugged
+- AFK needs to be Completed 
