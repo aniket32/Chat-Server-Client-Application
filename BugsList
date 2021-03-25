@@ -1,7 +1,8 @@
 This is a list to represent all errors/bugs our code has:
-- Doing Quit command causes server to stop accepting connections - Fixed;
-- Kicking a user causes server to stop accepting connections - Fixed;
-(removed socket.close statements from server)
+- Doing Quit command causes server to stop accepting connections ;
+- Kicking a user causes server to stop accepting connections ;
+(attempted fix, removed socket.close statements from server)
 
 - Server will print several connected statements when one user connects (depends how many connections there are);
 - Client sometimes loses connection randomly,
+- 
