@@ -6,5 +6,6 @@ This is a list to represent all errors/bugs our code has:
 - Server will print several connected statements when one user connects (depends how many connections there are);
 - Client sometimes loses connection randomly - Fixed;
 - Shows random clients that are disconnected still connected - Fixed;
-- WorkerList Is bugged
+- WorkerList Is bugged (ConcurrentModificationException);
+- Spam Protection(if we want)
 - AFK needs to be Completed 
