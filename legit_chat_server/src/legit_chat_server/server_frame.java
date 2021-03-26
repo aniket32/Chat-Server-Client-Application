@@ -295,10 +295,10 @@ public class server_frame extends javax.swing.JFrame {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
                     if(username.equals(info_list.get(0))){
                         status = (String) info_list.get(4);
-                        if (status.equals("Admin")){
-                            states = true;
-                        }else if (status.equals("Client")){
-                        states = false;
+                        if (status.equals("Client")){
+                            states = false;
+                        }else if (status.equals("Admin")){
+                        states = true;
                     }
                 }
             }
@@ -487,17 +487,17 @@ public class server_frame extends javax.swing.JFrame {
             // This line needs to be universal, currently only works on Leo's machine. Path
             // must be changed.
             Scanner adminFile = new Scanner(new File(
-                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
+                    "C:\\Users\\Pacific\\Desktop\\AB\\Chat-Server-Client-Application\\legit_chat_server\\src\\legit_chat_server\\adminCommand.txt"));
             Scanner clientFile = new Scanner(new File(
-                    "/Users/aniketbasu/Programming_codes/Java/Net Beans/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
+                    "C:\\Users\\Pacific\\Desktop\\AB\\Chat-Server-Client-Application\\legit_chat_server\\src\\legit_chat_server\\clientCommand.txt"));
           if(status == true){
                 while (adminFile.hasNextLine()) {
                     dataFile = adminFile.nextLine() + "\n";
                     outputStream.write(dataFile.getBytes());
                 }
-            }else{
-                while (adminFile.hasNextLine()) {
-                    dataFile = clientFile.nextLine() + "\n";
+            }if (status == false){
+                while (clientFile.hasNextLine()) {
+                    dataFile = clientFile.nextLine();
                     outputStream.write(dataFile.getBytes());
                 }
             }
