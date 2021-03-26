@@ -509,75 +509,41 @@ public class server_frame extends javax.swing.JFrame {
         // Need to add the functionality that when a person leaves the next becomes the
         // admin
         private void adminStatus() throws IOException {
-//            String ID = tokens[1];
-//            String dataFile = null;
-
-            // This line needs to be universal, currently only works on Leo's machine. Path
-            // must be changed.
-
-            // Gets the file path for the file
-            //String adminFilePath = findPath("adminCommands.txt");
-            //String clientFilePath = findPath("clientCommands.txt");
-
-            // Path is half right so I <AB> moved the files up a folder, it should work by
-            // doesnt
-            // Ned to try this with Buffered Reader
-//            Scanner adminFile = new Scanner(new File(
-//                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/adminCommand.txt"));
-//            Scanner clientFile = new Scanner(new File(
-//                    "/home/jesus/Nextcloud/JAVA/src/git/Chat-Server-Client-Application/legit_chat_server/src/legit_chat_server/clientCommand.txt"));
-
-            // Scanner adminFile = new Scanner(new File("\""+adminFilePath+"\""));
-            // Scanner clientFile = new Scanner(new File("\""+clientFilePath+"\""));
 
             List<ServerWorker> workerList = server.getworkerList();
-            // while(true){
-            for (ServerWorker worker : workerList) {
-                if (role_queue.contains(worker.getLogin()) == true) {
-                    //System.out.println();
-                } else {
-                    role_queue.add(worker.getLogin());
-                    System.out.println(role_queue);
-                }
-                
-                if(worker.getLogin().equals(role_queue)){
-                    role_queue.remove();
-                }else{
-                    //System.out.println("No");
-                }
-                // System.out.println(queue.peek());
-                String first = role_queue.peek();
-                //System.out.println(first);
-                if(!first.equals(worker.getLogin())){
-                    //System.out.println();
-                    if (worker.getLogin() != null) {
-                        String msg = new Date() + first + " is now the admin of the Server \n";
-                        worker.outputStream.write(msg.getBytes()); 
+            for (int i = 0; i < usr_id_list.size(); i++) {
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
+                for(ServerWorker worker : workerList){
+                    if(info_list.get(4).equals("Admin")){
+                        if(!info_list.get(0).equals(worker.getLogin())){
+                            if (worker.getLogin() != null) {
+                                String msg = new Date() + (String) info_list.get(0)+ " is now the admin of the Server \n";
+                                worker.outputStream.write(msg.getBytes()); 
+                            }
+                        }
                     }
-                
+                }  
             }
-//                if (first.equals(worker.getLogin())) {
-//                    String msg = worker.getLogin() + " the admin of this server " + "\n";
-//                    adminjoinHandler();
-//                    boolean isTopic = first.charAt(0) == '#';
-//                    if (isTopic) {
-//                        if (worker.Membership(first))
-//                            ;
-//                    }
-//                    worker.sendMsg(msg);
-//                    if (username != null && username == first) {
-//                        while (adminFile.hasNextLine()) {
-//                            dataFile = adminFile.nextLine() + "\n";
-//                            outputStream.write(dataFile.getBytes());
-//                        }
-//                    } else {
-//                        while (clientFile.hasNextLine()) {
-//                            dataFile = clientFile.nextLine() + "\n";
-//                            outputStream.write(dataFile.getBytes());
-//                        }
-//                    }
+            
+            // while(true){
+//            for (ServerWorker worker : workerList) {
+//                if (role_queue.contains(worker.getLogin()) == true) {
+//                    //System.out.println();
+//                } else {
+//                    role_queue.add(worker.getLogin());
 //                }
-            }
+//                if(worker.getLogin().equals(role_queue)){
+//                    role_queue.remove();
+//                }
+//                String first = role_queue.peek();
+//                if(!first.equals(worker.getLogin())){
+//                    if (worker.getLogin() != null) {
+//                        String msg = new Date() + first + " is now the admin of the Server \n";
+//                        worker.outputStream.write(msg.getBytes()); 
+//                    }
+//                
+//                }
+//            }
         }
 
         // Sends admin the status of the active users when checkStatus Command is used
