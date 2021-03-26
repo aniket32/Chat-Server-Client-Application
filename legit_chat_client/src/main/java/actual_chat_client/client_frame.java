@@ -132,12 +132,12 @@ public class client_frame extends javax.swing.JFrame
             try {
                 //Will run until client has disconnected or loses connection.
                 String message = packetIn.readLine();
-                System.out.println(message);
                 while (connection_state == true){
-                    if (message != null && !message.equals("kick ")) {
+                    System.out.println(message);
+                    if (message != null && !message.equals("kick ") && !socket.isClosed()) {
                         clientconsoleText.append(message+"\n");
                         run();
-                    } else if (message == null) {
+                    } else if (message == null || socket.isClosed() == true) {
                         clientWindow.disconnectHandler("forced");
                     } else if(message.equals("kick ")) {
                         clientWindow.disconnectHandler("kick");

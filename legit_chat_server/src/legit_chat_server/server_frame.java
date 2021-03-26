@@ -46,7 +46,7 @@ public class server_frame extends javax.swing.JFrame {
     // later
     PrintWriter printerOut;
     ArrayDeque<String> role_queue = new ArrayDeque<String>();
-
+    Socket clientWindow;
     public class StartServer implements Runnable {
         @Override
         public void run() {
@@ -407,15 +407,13 @@ public class server_frame extends javax.swing.JFrame {
 
         // Changes the ID and the related data of the Client
         private void idRemover() {
-            ArrayList usr_to_del = null;
             for (int i = 0; i < usr_id_list.size(); i++) {
                 // Removing disconnected Users from the list
                 ArrayList list = (ArrayList) usr_id_list.get(i);
                 if (username.equals(list.get(0))) {
-                    usr_to_del = list;
+                    usr_id_list.remove(i);
                 }
             }
-            usr_id_list.remove(usr_to_del);
         }
         
         
@@ -457,9 +455,10 @@ public class server_frame extends javax.swing.JFrame {
         // Works but sometimes breaks
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server
-            List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
+            ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
+            for (int i = 0; i < workerList.size(); i++) {
                 String msg = new Date() + " User Disconnected: " + username + "\n";
+                ServerWorker worker = workerList.get(i);
                 worker.sendMsg(msg);
                 idRemover();
                 role_queue.remove(username);
@@ -733,7 +732,7 @@ public class server_frame extends javax.swing.JFrame {
                         sendAll(msg);
                         TimeUnit.SECONDS.sleep(sec);
                     }
-                    worker.clientSocket.close();
+                    clientSocket.close();
                     worker.idRemover();
                 }
             }
