@@ -165,9 +165,6 @@ public class server_frame extends javax.swing.JFrame {
                                 String[] tokensMsg = line.split(" ", 3);
                                 messageHandler(tokensMsg);
                                 break;
-                            case "privatemsg":
-                                // privately message a user
-                                privateMsg();
                             case "sendall":
                                 // calls the sendAll function to send a message to all the clients
                                 String[] token = line.split(" ", 2);
@@ -183,16 +180,6 @@ public class server_frame extends javax.swing.JFrame {
                                 Boolean v1 = getStatus();
                                 if(v1 == true){
                                     NUKE();
-                                }else{
-                                    wrongPermission();
-                                }
-                                break;
-                            case "sleep":
-                                // calls the sleep fucntion and bans a client for a certain time
-                                 Boolean v8 = getStatus();
-                                if(v8 == true){
-                                    String[] Msg = line.split(" ");
-                                    sleep(Msg);
                                 }else{
                                     wrongPermission();
                                 }
@@ -226,11 +213,7 @@ public class server_frame extends javax.swing.JFrame {
                                     wrongPermission();
                                 }
                                 break;
-                            case "sendStatus":
-                                //calls a function to send the satatus of all online users to all the Clients
-                                //sendStatus();
-                                getStatus();
-                                break;
+                           
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
                                 Boolean v4 = getStatus();
@@ -239,10 +222,6 @@ public class server_frame extends javax.swing.JFrame {
                                 }else{
                                     wrongPermission();
                                 }
-                                break;
-                            case "changeStatus":
-                                //call a function to keep the Clinet in the Server
-                                //changeStatus();
                                 break;
                             case "yes":
                                 //calls a function to kick the Clinet out of the server
@@ -361,7 +340,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
         }
                 
-        // 
+        // Handles login of all the Clients
         private void loginHandler(OutputStream outputStream, String[] tokens) throws IOException {
             if (tokens.length == 2) {
                 String username = tokens[1];
@@ -406,7 +385,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Changes the ID and the related data of the Client
+        // Deletes the ID and the related data of the Client
         private void idRemover() {
             for (int i = 0; i < usr_id_list.size(); i++) {
                 // Removing disconnected Users from the list
@@ -453,7 +432,7 @@ public class server_frame extends javax.swing.JFrame {
             return null;
         }
 
-        // Works but sometimes breaks
+        // Disconnects Clients from the server
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server
             ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
@@ -474,7 +453,7 @@ public class server_frame extends javax.swing.JFrame {
         }
 
 
-        // Works
+        // Handles messages from all the Clients
         private void messageHandler(String[] tokens) throws IOException {
             String receiver = tokens[1];
             String message = tokens[2];
@@ -497,12 +476,6 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        private String findPath(String file) {
-            File f = new File(file);
-            String path = f.getAbsolutePath();
-
-            return path;
-        }
 
         // displays the current commands for the client and admin
         private void help() throws IOException {
@@ -607,7 +580,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        
+        // Sends admin the status of the active users when checkStatus Command is used
         public void serverStay() throws IOException{
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
@@ -623,7 +596,7 @@ public class server_frame extends javax.swing.JFrame {
             
         
 
-        // sends and displays mesages to other clients and the server
+        // Sends and displays mesages to other clients and the server
         private void sendMsg(String msg) throws IOException {
             // Function to send Message to the Client Side in this case its the Command
             // Prompt
@@ -634,7 +607,7 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
 
-        // function to send a message to all the active users
+        // Function to send a message to all the active users
         private void sendAll(String msg) throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
@@ -643,7 +616,7 @@ public class server_frame extends javax.swing.JFrame {
             console_text.append(msg);
         }
 
-        // kicks a specified user from the sever
+        // Function to kick a specified user from the sever
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
 
@@ -660,7 +633,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // makes a announcemnet to all the clients through the server
+        // Function to makes a announcemnet to all the clients through the server
         private void announcements(String[] token) throws IOException {
             String msg = token[1];
 
@@ -686,22 +659,6 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Bans the specified user for a certain amount of time
-        private void sleep(String[] tokens) throws InterruptedException, IOException {
-            String receiver = tokens[1];
-            String time = tokens[2];
-            int sec = Integer.parseInt(time);
-            List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
-                if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = new Date() +  "Msg : " + username + " You are banned from the server for " + sec + " sec \n";
-                    worker.sendMsg(MsgOut);
-                    int msec = sec * 1000;
-                    //clientSocket.setSoTimeout(10000);
-                    worker.sleep(msec);
-                }
-            }
-        }
 
         // Handles the topic of group messaging 
         public boolean Membership(String topic) {
@@ -724,16 +681,6 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // no functionality Yet
-        private void privateMsg() {
-            List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
-                String name = worker.getLogin();
-                int port = worker.getPort();
-                System.out.print(port);
-                System.out.print(name);
-            }
-        }
         
         // Kicks all active users and closes the server after a specified time
         public void stopServer( String[] tokens) throws IOException, InterruptedException {
@@ -756,7 +703,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        // change the status of a specific user to Admin and change all other status to Client
+        // Function to change the status of a specific user to Admin and change all other status to Client
         private void passOwnership(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -771,7 +718,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
          
-        // promotes a specified Client's status to Admin
+        // Function to promotes a specified Client's status to Admin
         private void promote(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -785,7 +732,7 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
         
-        // demotes a specified Client's status back from Admin to a Client
+        // Function to demotes a specified Client's status back from Admin to a Client
         private void demote(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -801,6 +748,8 @@ public class server_frame extends javax.swing.JFrame {
 
         
         // Check for Afk Users
+        // Needs to find a way to get the name of the user that get sdisconnected and a way to 
+        // spam the message in regular interval
         private void checkStatus() throws IOException {
                 
             List<ServerWorker> workerList = server.getworkerList();
@@ -819,7 +768,7 @@ public class server_frame extends javax.swing.JFrame {
 
     }
 
-    // Stps the server 
+    // Calls the ServerStaretr to start the server 
     public void serverStartButton() {
         // Starts the Server by calling in the StratServer Thread that in turn calls the
         // ServerWorker Thread and the clientHandler
