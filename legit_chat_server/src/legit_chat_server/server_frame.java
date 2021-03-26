@@ -244,8 +244,9 @@ public class server_frame extends javax.swing.JFrame {
                                 //call a function to keep the Clinet in the Server
                                 //changeStatus();
                                 break;
-                            case "no":
+                            case "yes":
                                 //calls a function to kick the Clinet out of the server
+                                serverStay();
                                 break;
                             case "promote":
                                 Boolean v5 = getStatus();
@@ -606,6 +607,21 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+        
+        public void serverStay() throws IOException{
+            List<ServerWorker> workerList = server.getworkerList();
+            for (int i = 0; i < usr_id_list.size(); i++) {
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
+                for (ServerWorker worker : workerList){
+                    if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
+                        String msg = username + " is still active \n ";
+                        worker.outputStream.write(msg.getBytes());
+                    }
+                }
+            }
+        }
+            
+        
 
         // sends and displays mesages to other clients and the server
         private void sendMsg(String msg) throws IOException {
