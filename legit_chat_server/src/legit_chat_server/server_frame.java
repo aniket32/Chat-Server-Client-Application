@@ -747,9 +747,11 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = "\n Server Closing in " + sec +  " seconds \n";
                         sendAll(msg);
                         TimeUnit.SECONDS.sleep(sec);
+                        workerList.remove(worker);
+                        worker.idRemover();
                     }
-                    clientSocket.close();
-                    worker.idRemover();
+                    //worker.clientSocket.close();
+                    //worker.idRemover();
                 }
             }
         }

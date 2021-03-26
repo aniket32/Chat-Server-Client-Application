@@ -8,4 +8,6 @@ This is a list to represent all errors/bugs our code has:
 - Shows random clients that are disconnected still connected - Fixed;
 - WorkerList Is bugged (ConcurrentModificationException);
 - Spam Protection(if we want)
-- AFK needs to be Completed 
+- AFK needs to be Completed
+- StopServer needs to be fixed, works but once closed cannot be opeaned again, if thast what you want then
+its okay, otherwise needs to think of a differnt way to do it 
