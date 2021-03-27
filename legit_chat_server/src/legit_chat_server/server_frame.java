@@ -201,7 +201,7 @@ public class server_frame extends javax.swing.JFrame {
                             case "quit":
                                 // calls the disconnectHandler functin and removes a user from the 
                                 disconnectHandler();
-                                //adminStatus();
+                                adminStatus();
                                 break;
                             case "stop-server":
                                 //calls function to stop the Server
@@ -438,12 +438,15 @@ public class server_frame extends javax.swing.JFrame {
             ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
             for (int i = 0; i < workerList.size(); i++) {
                 String msg = new Date() + " User Disconnected: " + username + "\n";
-                ServerWorker worker = workerList.get(i);
-                worker.sendMsg(msg);
-                idRemover();
-                role_queue.remove(username);
-                StatusUpdater();
-                workerList.remove(worker);
+                //ServerWorker worker = workerList.get(i);
+                for (ServerWorker worker : workerList){
+                    worker.sendMsg(msg);
+                    idRemover();
+                    role_queue.remove(username);
+                    StatusUpdater();
+                    workerList.remove(worker);
+                }
+                
                 //worker.clientSocket.close();
                 //break;
 
