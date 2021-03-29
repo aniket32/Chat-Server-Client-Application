@@ -1,17 +1,16 @@
 login  <username>   // logs you into the server 
 msg <receiver> <message_body>  // send a message to your targeted receiver
 kick <username>    // kicks the specified user from the server
-sleep <username>    // bans a user for a certain time period
 join <group_name>  // join a group chat
 leave <group_name> // leave the group chat
 msg <group_name> <message-body>    // message all the participants in the specified group chat
-announcement <message_body>    // send a message to all the active users in the server 
+sendall <message_body>    // send a message to all the active users in the server 
 quit   // disconnects you from the server
 ListUser    // lists all the current active users and their server ID in the server
 help       // shows all commands you can use in the interface
 pass-ownership <user_name> // make the specified user an admin and changes all others status to Client
 promote <user_name>  // makes the specific user an admin along with previous admin
 demote <user_name>  // makes the specific user from an admin to a client 
-check-Status  // sends a message to all the active clients and awaits response to see if they are active or are AFK
+checkStatus  // sends a message to all the active clients and awaits response to see if they are active or are AFK
 NUKE   // spams "WORLD DOMINATION" all throughout the server and all active client window for 10 seconds
-stop-server     // closes all Client Connections with appropriate message and closes the server
+stop-server <Seconds>   // closes all Client Connections with appropriate message and closes the server

@@ -41,6 +41,7 @@ Added AFK but need help with removing users when they are AFK
 public class server_frame extends javax.swing.JFrame {
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
+    ArrayList active_usr_list = new ArrayList<ArrayList>();
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
     // later
@@ -550,7 +551,7 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         // Sends admin the status of the active users when checkStatus Command is used
-        public void serverStay() throws IOException{
+        public void serverStay() throws IOException, InterruptedException{
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
@@ -558,6 +559,19 @@ public class server_frame extends javax.swing.JFrame {
                     if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
                         String msg = username + " is still active \n ";
                         worker.outputStream.write(msg.getBytes());
+                        active_usr_list.add(username);
+                        System.out.println(active_usr_list);
+                        TimeUnit.SECONDS.sleep(5);
+                        if (active_usr_list.size() != usr_id_list.size()){
+                            for(int x = 0; x < active_usr_list.size(); x++){
+                                String usrn = (String) active_usr_list.get(x);
+                                if (ArrayIteratorCompare(usrn,usr_id_list) == true){
+                                    String msg2 = username + " is inactive \n ";
+                                    worker.outputStream.write(msg2.getBytes());
+                                }
+                                
+                            }
+                        }
                     }
                 }
             }
@@ -727,9 +741,10 @@ public class server_frame extends javax.swing.JFrame {
                     if (worker.getLogin() != null) {
                         String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins \n";
                         worker.outputStream.write(msg.getBytes());  
-                        worker.clientSocket.setSoTimeout(5000);
-                        worker.clientSocket.setKeepAlive(false);
-                        console_text.append(worker.getLogin());
+                        
+//                        worker.clientSocket.setSoTimeout(5000);
+//                        worker.clientSocket.setKeepAlive(false);
+//                        console_text.append(worker.getLogin());
                     }
                 }
            }
