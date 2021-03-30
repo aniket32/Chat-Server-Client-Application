@@ -398,8 +398,10 @@ public class client_frame extends javax.swing.JFrame
         username = usernametext.getText();
         if (addressStr.getText().equals("IP Address") || portID.getText().equals("Port") || addressStr.getText().equals("") || portID.equals("")){
             clientconsoleText.append("Please enter a valid address and port.\n");
-        }
-        else {
+        } else if (username.contains(" ")) {
+            clientconsoleText.append("Spaces are not allowed in usernames.\n");
+            username = null;
+        } else {
             if (connection_state == true) {
             clientconsoleText.append("Alredy connected.\n");
             }
