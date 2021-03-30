@@ -16,27 +16,9 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-/*
-TODO LIST:
-
-
-Need help calling the stopServer() function from outside the ServerWorker class
-
-
-
-
-*/
-
-/*
-Added Functionality 
-Added AFK but need help with removing users when they are AFK
-
-*/
 
 public class server_frame extends javax.swing.JFrame {
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
@@ -45,8 +27,6 @@ public class server_frame extends javax.swing.JFrame {
     ArrayList <String> inactive_usr_list = new ArrayList<String>();
     
     // Declairing global variables
-    // Forgot where they are used, just leave them will do semothing about them
-    // later
     PrintWriter printerOut;
     ArrayDeque<String> role_queue = new ArrayDeque<String>();
     Socket clientWindow;
@@ -91,7 +71,6 @@ public class server_frame extends javax.swing.JFrame {
                     console_text.append( new Date() + " Accepting Connections from \n " + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
-                    // System.out.print(Ip);
                     workerList.add(worker);
                     console_text.append(String.valueOf(workerList));
                     worker.start();
@@ -103,7 +82,6 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
-    // Best Code I ==> AB has written in my entire life
     public class ServerWorker extends Thread {
         public final Socket clientSocket;
         public ServerS server;
@@ -130,7 +108,6 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
-        // Best Code I ==> AB has writtem in my entire life
         private void handleClientSocket() throws InterruptedException, IOException {
             // Main function to handel all the Users and in case the Moderators action in the Server
             try (clientSocket) {
@@ -184,7 +161,6 @@ public class server_frame extends javax.swing.JFrame {
                                 break;    
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
-                                //String[] tokenMsg = line.split(" ");
                                 Boolean v1 = getStatus();
                                 if(v1 == true){
                                     NUKE();
@@ -232,7 +208,11 @@ public class server_frame extends javax.swing.JFrame {
                                 }
                                 break;
                             case "yes":
-                                //calls a function to kick the Clinet out of the server
+                                //calls a function to let the admin know that the user is active/online
+                                serverStay();
+                                break;
+                            case "Y":
+                                //calls a function to let the admin know that the user is active/online
                                 serverStay();
                                 break;
                             case "promote":
@@ -275,7 +255,6 @@ public class server_frame extends javax.swing.JFrame {
             }
        }
 
-        // Functions
         // gets the Login name ==> String
         public String getLogin() {
             return username;
@@ -328,14 +307,13 @@ public class server_frame extends javax.swing.JFrame {
         }
         
         
-        // Lets all the user knows the active admin of the server
+        // Updates the Clients about the admin of the server
         public void StatusUpdater() throws IOException{
             String usr = role_queue.peek();
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
              ArrayList list = (ArrayList) usr_id_list.get(i);
              if (usr.equals(list.get(0))) {
-                 System.out.println(list);
                  list.set(4, "Admin");
                  usr_id_list.set(i, list);
                 }
@@ -353,7 +331,6 @@ public class server_frame extends javax.swing.JFrame {
             if (tokens.length == 2) {
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
-                //int i = 0;
                 if (!(ArrayIteratorCompare(username, usr_id_list))) {
                     String msg = new Date() + " Logged in " + username + "\n";
                     outputStream.write(msg.getBytes());
@@ -387,8 +364,6 @@ public class server_frame extends javax.swing.JFrame {
                     String msg = new Date() + "login failed \n";
                     outputStream.write(msg.getBytes());
                     console_text.append( new Date() + " Logged in Failed for User: " + username + "\n");
-                    
-                    //clientSocket.close();
                 }
             }
         }
@@ -423,17 +398,12 @@ public class server_frame extends javax.swing.JFrame {
             // Going through the list of workers in the LinkedList workerList
             for (int i = 0; i < usr_id_list.size(); i++) { // will need this to get the Port, IP and Name
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
-                //System.out.println(usr_id_map);
                 // Storing all the values in the variable
                 String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
                         + " Port ID: " + info_list.get(2) +","+ " IP Address: " 
                         + info_list.get(3) +","+ " Status: " + info_list.get(4) + "\n";
                 listUser.add(info);
                 usr_list = listUser.toString();
-                System.out.println(usr_list);
-                // System.out.print(listUser);
-                // worker.sendMsg();
-
             }
             sendMsg(usr_list);
             listUser.clear();
@@ -454,10 +424,6 @@ public class server_frame extends javax.swing.JFrame {
                     StatusUpdater();
                     workerList.remove(worker);
                 }
-                
-                //worker.clientSocket.close();
-                //break;
-
             }
             // Append approipriate response to the Server
             console_text.append( new Date() + " User Disconnected: " + username + "\n");
@@ -473,14 +439,15 @@ public class server_frame extends javax.swing.JFrame {
 
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
+                // Checking if the worker or Clinet belong in any group messaging
                 if (isTopic) {
                     if (worker.Membership(receiver)) {
-                        String MsgOut = new Date() + "Msg: " + receiver + " : " + username + " " + message + "\n";
+                        String MsgOut = new Date() + " Msg: " + receiver + " : " + username + " " + message + "\n";
                         worker.sendMsg(MsgOut);
                     }
                 } else {
                     if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                        String MsgOut = new Date() +  "Msg: " + username + " " + message + "\n";
+                        String MsgOut = new Date() +  " Msg: " + username + " " + message + "\n";
                         worker.sendMsg(MsgOut);
                     }
                 }
@@ -494,9 +461,7 @@ public class server_frame extends javax.swing.JFrame {
             String dataFile = null;
             Boolean status = getStatus();
             List<ServerWorker> workerList = server.getworkerList();
-             //for (ServerWorker worker : workerList){
-            // This line needs to be universal, currently only works on Leo's machine. Path
-            // must be changed.
+            // Path must be changed for the help command to work 
             Scanner adminFile = new Scanner(new File(
                     "C:\\Users\\Pacific\\Desktop\\AB\\Chat-Server-Client-Application\\legit_chat_server\\src\\legit_chat_server\\adminCommand.txt"));
             Scanner clientFile = new Scanner(new File(
@@ -516,11 +481,8 @@ public class server_frame extends javax.swing.JFrame {
         
         
         
-        // a bit broken need to fix it
-        // Need to add the functionality that when a person leaves the next becomes the
-        // admin
+        // Lets the Clients know about the admin of the server
         private void adminStatus() throws IOException {
-
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
@@ -535,26 +497,6 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }  
             }
-            
-            // while(true){
-//            for (ServerWorker worker : workerList) {
-//                if (role_queue.contains(worker.getLogin()) == true) {
-//                    //System.out.println();
-//                } else {
-//                    role_queue.add(worker.getLogin());
-//                }
-//                if(worker.getLogin().equals(role_queue)){
-//                    role_queue.remove();
-//                }
-//                String first = role_queue.peek();
-//                if(!first.equals(worker.getLogin())){
-//                    if (worker.getLogin() != null) {
-//                        String msg = new Date() + first + " is now the admin of the Server \n";
-//                        worker.outputStream.write(msg.getBytes()); 
-//                    }
-//                
-//                }
-//            }
         }
 
         // Sends admin the status of the active users when checkStatus Command is used
@@ -564,46 +506,29 @@ public class server_frame extends javax.swing.JFrame {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
                 for (ServerWorker worker : workerList){
                     if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
-                        String msg = username + " is still active \n ";
-                        worker.outputStream.write(msg.getBytes());
+                        //String msg = username + " is still active \n ";
+                        //worker.outputStream.write(msg.getBytes());
+                        String msg = new Date() + username  + " is still active \n" ;
+                        sendAdmin(msg);
                         active_usr_list.add(username);
                         System.out.print("active" + active_usr_list + "\n");
-                        
                     }
                 }   
-            }
-//             for (int j = 0; j < usr_id_list.size(); j++) {
-//                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
-//                    if (!active_usr_list.get(0).equals(user_list.get(0)) && user_list.get(4).equals("Client")){
-//                        inactive_usr_list.add((String) user_list.get(0));
-//                        System.out.print("Inactive" + inactive_usr_list);
-//                    }
-//                }
-//                for (int x =0; x < inactive_usr_list.size(); x++){
-//                    for (int i = 0; i < usr_id_list.size(); i++) {
-//                        ArrayList info_list = (ArrayList) usr_id_list.get(i);
-//                        for (ServerWorker worker : workerList){
-//                            if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
-//                                String msg = inactive_usr_list.get(x) + " is inactive \n ";
-//                                worker.outputStream.write(msg.getBytes());
-//                            }
-//                        }
-//                    }
-//                }            
+            }         
         }
         
-          
-        public void getInactiveUser(){
-            List<ServerWorker> workerList = server.getworkerList();
+        // admin command to see the inactive clients in the server  
+        public void getInactiveUser() throws IOException{
             for (String v : active_usr_list){
                 for (int j = 0; j < usr_id_list.size(); j++) {
                     ArrayList user_list = (ArrayList) usr_id_list.get(j);
-                    //for(ServerWorker worker : workerList) {
-                        if (user_list.get(4).equals("Client") && !v.equals(user_list.get(0)) && !inactive_usr_list.contains(v)){
-                            inactive_usr_list.add((String) user_list.get(0));
-                            System.out.print("Inactive" + inactive_usr_list + "\n");
-                        } 
-                    }
+                    if (user_list.get(4).equals("Client") && !v.equals(user_list.get(0)) && !inactive_usr_list.contains(v)){
+                        inactive_usr_list.add((String) user_list.get(0));
+                        System.out.print("Inactive" + inactive_usr_list + "\n");
+                        String msg =new Date()+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
+                        sendAdmin(msg);
+                    }  
+                }
             }
         }
 
@@ -626,8 +551,22 @@ public class server_frame extends javax.swing.JFrame {
             }
             console_text.append(msg);
         }
+        
+        // Function to send certain messages to the Admin of the server
+        private void sendAdmin(String msg) throws IOException{
+            List<ServerWorker> workerList = server.getworkerList();
+            for (int i = 0; i < usr_id_list.size(); i++) {
+                ArrayList info_list = (ArrayList) usr_id_list.get(i);
+                for (ServerWorker worker : workerList){
+                    if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
+                        worker.outputStream.write(msg.getBytes());
+                        active_usr_list.add(username);
+                    }
+                }   
+            }  
+        }
 
-        // Function to kick a specified user from the sever
+        // Function to kick a specified user from the server
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
 
@@ -637,21 +576,20 @@ public class server_frame extends javax.swing.JFrame {
                     String MsgOut = "kick \n";
                     worker.sendMsg(MsgOut);
                     TimeUnit.SECONDS.sleep(5);
-                    worker.clientSocket.close();
                     worker.idRemover();
                     workerList.remove(worker);
                 }
             }
         }
 
-        // Function to makes a announcemnet to all the clients through the server
+        // Function to makes a announcement to all the clients through the server
         private void announcements(String[] token) throws IOException {
             String msg = token[1];
 
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (username != null) {
-                    worker.sendMsg(new Date() + msg + "\n");
+                    worker.sendMsg(new Date() + "Announcement: \n" + msg + "\n");
                 }
             }
             console_text.append(msg + "\n");
@@ -693,7 +631,7 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         
-        // Kicks all active users and closes the server after a specified time
+        // Disconnects all active users and closes the server after a specified time
         public void stopServer( String[] tokens) throws IOException, InterruptedException {
             String time = tokens[1];
             int sec = Integer.parseInt(time);
@@ -708,13 +646,11 @@ public class server_frame extends javax.swing.JFrame {
                         workerList.remove(worker);
                         worker.idRemover();
                     }
-                    //worker.clientSocket.close();
-                    //worker.idRemover();
                 }
             }
         }
         
-        // Function to change the status of a specific user to Admin and change all other status to Client
+        // Function to change the status of a specific user to Admin and change all other user status to Client
         private void passOwnership(String[] user){
             String name = user[1];
             List<ServerWorker> workerList = server.getworkerList();
@@ -758,24 +694,17 @@ public class server_frame extends javax.swing.JFrame {
         }
 
         
-        // Check for Afk Users
-        // Needs to find a way to get the name of the user that get sdisconnected and a way to 
-        // spam the message in regular interval
+        // Sends a message to all the Clients and checks for their online Status
         private void checkStatus() throws IOException {
-                
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = new Date() +  " Are you online? \n Type anything to cancel \n Inactive users will be disconnected after 5 mins \n";
+                        String msg = new Date() +  " Are you online? \n Type 'yes' or 'Y' to cancel \n Inactive users will be disconnected after 5 mins \n";
                         worker.outputStream.write(msg.getBytes());  
-                        
-//                        worker.clientSocket.setSoTimeout(5000);
-//                        worker.clientSocket.setKeepAlive(false);
-//                        console_text.append(worker.getLogin());
                     }
                 }
-           }
+            }
         }
 
     }
@@ -789,23 +718,9 @@ public class server_frame extends javax.swing.JFrame {
         console_text.append(new Date() + " Server started...\n");
     }
 
-    // Needs to Fix it ==> Find a way to call the function on line 579 to be called
-    // here to close the Server
-    // With appropriate messages to all the active clients
+    // Forcefully closes the server
     public void serverStopButton() throws InterruptedException {
-        // Closes the Server without any warnings, ned to find a way to send message to
-        // everyone when Server is closing
-        Thread starter = new Thread(new StartServer());
-        // try
-        // {
-        // console_text.append("Closing Server.\n");
-        // The Thread will wait for 5 seconds before closing the server
-        // Thread.sleep(5000);
         System.exit(0);
-        // }
-        // catch(InterruptedException ex) {
-        // ex.printStackTrace();
-        // }
     }
 
     
@@ -822,7 +737,6 @@ public class server_frame extends javax.swing.JFrame {
         
         usr_id_list.add(port_usr_list);
         // keys + all values
-        System.out.println(usr_id_list);
     }
 
     // Prints in the console window all the online users or running ServerWorker
@@ -834,7 +748,6 @@ public class server_frame extends javax.swing.JFrame {
     public boolean ArrayIteratorCompare(String usr, ArrayList list) {
         Boolean duplicate_usr = false;
         for (int i = 0; i < usr_id_list.size(); i++) {
-            // System.out.println(k);
             ArrayList info_list = (ArrayList) list.get(i);
             if (usr.equals(info_list.get(0))) {
                 duplicate_usr = true;
