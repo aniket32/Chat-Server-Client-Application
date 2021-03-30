@@ -179,6 +179,10 @@ public class server_frame extends javax.swing.JFrame {
                                 // calls the ListUser function to lists all the activ users in the serve
                                 getAll();
                                 break;
+                            case "InactiveUser":
+                                // calls the ListUser function to lists all the activ users in the serve
+                                getInactiveUser();
+                                break;    
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
                                 //String[] tokenMsg = line.split(" ");
@@ -228,11 +232,6 @@ public class server_frame extends javax.swing.JFrame {
                                     wrongPermission();
                                 }
                                 break;
-//                            case "changeStatus":
-//                                //calls a function to change the status of the Curent client 
-//                                String[] statMsg = line.split(" ", 2);
-//                               changeStatus(statMsg);
-//                                break;
                             case "yes":
                                 //calls a function to kick the Clinet out of the server
                                 serverStay();
@@ -561,7 +560,6 @@ public class server_frame extends javax.swing.JFrame {
 
         // Sends admin the status of the active users when checkStatus Command is used
         public void serverStay() throws IOException, InterruptedException{
-            long startingTime = System.currentTimeMillis();
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
@@ -570,60 +568,43 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = username + " is still active \n ";
                         worker.outputStream.write(msg.getBytes());
                         active_usr_list.add(username);
+                        System.out.print("active" + active_usr_list);
+                        
                     }
                 }   
             }
-            
-            if((System.currentTimeMillis()-startingTime) >= 20000){
-                afk();
-            }else{
-                System.out.println("Waiting for everyones response");
-                afk();
-            }
-        }
-        
-        private void afk() throws IOException{
-            List<ServerWorker> workerList = server.getworkerList();
-            for (int j = 0; j < usr_id_list.size(); j++) {
-                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
-                    if (!active_usr_list.get(0).equals(user_list.get(0)) && user_list.get(4).equals("Client")){
-                        inactive_usr_list.add((String) user_list.get(0));
-                    }
-                }
-                for (int x =0; x < inactive_usr_list.size(); x++){
-                    for (int i = 0; i < usr_id_list.size(); i++) {
-                        ArrayList info_list = (ArrayList) usr_id_list.get(i);
-                        for (ServerWorker worker : workerList){
-                            if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
-                                String msg = inactive_usr_list.get(x) + " is inactive \n ";
-                                worker.outputStream.write(msg.getBytes());
-                            }
-                        }
-                    }
-                }
-        }
-//        
-//        public void changeStatus(String[] tokens){
-//            String status = tokens[1];
-//             
-//            List<ServerWorker> workerList = server.getworkerList();
-//                for (int i = 0; i < usr_id_list.size(); i++) {
-//                    ArrayList info_list = (ArrayList) usr_id_list.get(i);
-//                    active_list.add((String) info_list.get(0));
-//                }
-//                if (status.equalsIgnoreCase("away")){
-//                    for(ServerWorker worker : workerList){
-//                        active_list.remove(worker.getLogin());
-//                        inactive_list.add(worker.getLogin());
-//                        System.out.println( "Active "+ active_list);
-//                        System.out.println("Inactive "+inactive_list);
+//             for (int j = 0; j < usr_id_list.size(); j++) {
+//                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
+//                    if (!active_usr_list.get(0).equals(user_list.get(0)) && user_list.get(4).equals("Client")){
+//                        inactive_usr_list.add((String) user_list.get(0));
+//                        System.out.print("Inactive" + inactive_usr_list);
 //                    }
 //                }
-//            
-//        }
+//                for (int x =0; x < inactive_usr_list.size(); x++){
+//                    for (int i = 0; i < usr_id_list.size(); i++) {
+//                        ArrayList info_list = (ArrayList) usr_id_list.get(i);
+//                        for (ServerWorker worker : workerList){
+//                            if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
+//                                String msg = inactive_usr_list.get(x) + " is inactive \n ";
+//                                worker.outputStream.write(msg.getBytes());
+//                            }
+//                        }
+//                    }
+//                }            
+        }
+        
           
-        public void getActiveList(){
-           
+        public void getInactiveUser(){
+            List<ServerWorker> workerList = server.getworkerList();
+            for (int j = 0; j < usr_id_list.size(); j++) {
+                ArrayList user_list = (ArrayList) usr_id_list.get(j);
+                //for(ServerWorker worker : workerList) {
+                    if (user_list.get(4).equals("Client") && !active_usr_list.get(0).equals(user_list.get(0))){
+                        inactive_usr_list.add((String) user_list.get(0));
+                        System.out.print("Inactive" + inactive_usr_list);
+                    }
+                //}
+            }
         }
 
         // Sends and displays mesages to other clients and the server
@@ -670,7 +651,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (username != null) {
-                    worker.sendMsg(msg + "\n");
+                    worker.sendMsg(new Date() + msg + "\n");
                 }
             }
             console_text.append(msg + "\n");
