@@ -43,9 +43,7 @@ public class server_frame extends javax.swing.JFrame {
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
     ArrayList <String> active_usr_list = new ArrayList<String>();
     ArrayList <String> inactive_usr_list = new ArrayList<String>();
-    ArrayList <String> active_list = new ArrayList<String>();
-    ArrayList <String> inactive_list = new ArrayList<String>();
-    long startingTime ;
+    
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
     // later
@@ -181,6 +179,7 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "InactiveUser":
                                 // calls the ListUser function to lists all the activ users in the serve
+                                inactive_usr_list.clear();
                                 getInactiveUser();
                                 break;    
                             case "NUKE":
@@ -224,9 +223,9 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
-                                startingTime = System.currentTimeMillis();
                                 Boolean v4 = getStatus();
                                 if(v4 == true){
+                                    active_usr_list.clear();
                                     checkStatus();
                                 }else{
                                     wrongPermission();
@@ -568,7 +567,7 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = username + " is still active \n ";
                         worker.outputStream.write(msg.getBytes());
                         active_usr_list.add(username);
-                        System.out.print("active" + active_usr_list);
+                        System.out.print("active" + active_usr_list + "\n");
                         
                     }
                 }   
@@ -596,14 +595,15 @@ public class server_frame extends javax.swing.JFrame {
           
         public void getInactiveUser(){
             List<ServerWorker> workerList = server.getworkerList();
-            for (int j = 0; j < usr_id_list.size(); j++) {
-                ArrayList user_list = (ArrayList) usr_id_list.get(j);
-                //for(ServerWorker worker : workerList) {
-                    if (user_list.get(4).equals("Client") && !active_usr_list.get(0).equals(user_list.get(0))){
-                        inactive_usr_list.add((String) user_list.get(0));
-                        System.out.print("Inactive" + inactive_usr_list);
+            for (String v : active_usr_list){
+                for (int j = 0; j < usr_id_list.size(); j++) {
+                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
+                    //for(ServerWorker worker : workerList) {
+                        if (user_list.get(4).equals("Client") && !v.equals(user_list.get(0)) && !inactive_usr_list.contains(v)){
+                            inactive_usr_list.add((String) user_list.get(0));
+                            System.out.print("Inactive" + inactive_usr_list + "\n");
+                        } 
                     }
-                //}
             }
         }
 
