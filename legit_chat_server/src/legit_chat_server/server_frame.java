@@ -511,7 +511,7 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = new Date() + username  + " is still active \n" ;
                         sendAdmin(msg);
                         active_usr_list.add(username);
-                        System.out.print("active" + active_usr_list + "\n");
+                        //System.out.print("active" + active_usr_list + "\n");
                     }
                 }   
             }         
@@ -519,16 +519,14 @@ public class server_frame extends javax.swing.JFrame {
         
         // admin command to see the inactive clients in the server  
         public void getInactiveUser() throws IOException{
-            for (String v : active_usr_list){
-                for (int j = 0; j < usr_id_list.size(); j++) {
-                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
-                    if (user_list.get(4).equals("Client") && !v.equals(user_list.get(0)) && !inactive_usr_list.contains(v)){
-                        inactive_usr_list.add((String) user_list.get(0));
-                        System.out.print("Inactive" + inactive_usr_list + "\n");
-                        String msg =new Date()+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
-                        sendAdmin(msg);
-                    }  
-                }
+            for (int j = 0; j < usr_id_list.size(); j++) {
+                ArrayList user_list = (ArrayList) usr_id_list.get(j);
+                if (user_list.get(4).equals("Client") && !active_usr_list.contains(user_list.get(0))){
+                    inactive_usr_list.add((String) user_list.get(0));
+                    System.out.print("Inactive" + inactive_usr_list + "\n");
+                    String msg =new Date()+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
+                    sendAdmin(msg);
+                }  
             }
         }
 
