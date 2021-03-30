@@ -414,17 +414,17 @@ public class server_frame extends javax.swing.JFrame {
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server
             ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
-            for (int i = 0; i < workerList.size(); i++) {
-                String msg = new Date() + " User Disconnected: " + username + "\n";
+            //for (int i = 0; i < workerList.size(); i++) {
                 //ServerWorker worker = workerList.get(i);
                 for (ServerWorker worker : workerList){
+                    String msg = new Date() + " User Disconnected: " + username + "\n";
                     worker.sendMsg(msg);
                     idRemover();
                     role_queue.remove(username);
                     StatusUpdater();
                     workerList.remove(worker);
                 }
-            }
+            //}
             // Append approipriate response to the Server
             console_text.append( new Date() + " User Disconnected: " + username + "\n");
         }

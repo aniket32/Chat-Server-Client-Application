@@ -12,28 +12,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 
-/*
-TODO LIST:
-
-Client must handle login failed -> "fixed"
-
-Client must not get stuck in an loop when disconnected. -> "fixed"
-
-Client gets stuck in ConnectionReset Loop when server is closed sometimes. -> "fixed"
-
-
-*/
-
-/*
-Added Functionality 
-
-Added a Refresh functionality in the Client GUI
-*/        
-
-
+       
 public class client_frame extends javax.swing.JFrame 
 {
     Boolean connection_state = false;
@@ -150,37 +131,6 @@ public class client_frame extends javax.swing.JFrame
         }
     }
     
-//    public class DisconnectListener implements Runnable {
-//        public void run() {
-//            try {
-//                TimeUnit.SECONDS.sleep(5);
-//                String x = packetIn.readLine();
-//                while(connection_state == true){
-//                        if (x == null){
-//                            connection_state = false;
-//                            addressStr.setEditable(true);
-//                            portID.setEditable(true);
-//                            usernametext.setEditable(true);
-//                            addressStr.setBackground(Color.white);
-//                            portID.setBackground(Color.white);
-//                            usernametext.setBackground(Color.white);
-//                            clientconsoleText.append("Connection Lost\n");
-//                            clientWindow = null;
-//                            
-//                        }else{
-//                            run();
-//                        }
-//                       
-//                }
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (IOException ex) {
-//                Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//           
-//        }
-//        
-//    }
     
     public client_frame() throws IOException
     {
@@ -197,14 +147,7 @@ public class client_frame extends javax.swing.JFrame
 		SocketListener.start();
             }
     }
-//   //Function that listens for disconnects.
-//    public void DiscThread(){
-//                Thread DisconnectListener = new Thread(new DisconnectListener());
-//                DisconnectListener.start();
-//                
-//    }
      
-    
      /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
