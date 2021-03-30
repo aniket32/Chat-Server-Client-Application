@@ -41,7 +41,9 @@ Added AFK but need help with removing users when they are AFK
 public class server_frame extends javax.swing.JFrame {
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
-    ArrayList active_usr_list = new ArrayList<ArrayList>();
+    ArrayList <String> active_usr_list = new ArrayList<String>();
+    ArrayList <String> inactive_usr_list = new ArrayList<String>();
+    long startingTime ;
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
     // later
@@ -217,6 +219,7 @@ public class server_frame extends javax.swing.JFrame {
                            
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
+                                startingTime = System.currentTimeMillis();
                                 Boolean v4 = getStatus();
                                 if(v4 == true){
                                     checkStatus();
@@ -552,6 +555,7 @@ public class server_frame extends javax.swing.JFrame {
 
         // Sends admin the status of the active users when checkStatus Command is used
         public void serverStay() throws IOException, InterruptedException{
+            long startingTime = System.currentTimeMillis();
             List<ServerWorker> workerList = server.getworkerList();
             for (int i = 0; i < usr_id_list.size(); i++) {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
@@ -560,23 +564,38 @@ public class server_frame extends javax.swing.JFrame {
                         String msg = username + " is still active \n ";
                         worker.outputStream.write(msg.getBytes());
                         active_usr_list.add(username);
-                        System.out.println(active_usr_list);
-                        TimeUnit.SECONDS.sleep(5);
-                        if (active_usr_list.size() != usr_id_list.size()){
-                            for(int x = 0; x < active_usr_list.size(); x++){
-                                String usrn = (String) active_usr_list.get(x);
-                                if (ArrayIteratorCompare(usrn,usr_id_list) == true){
-                                    String msg2 = username + " is inactive \n ";
-                                    worker.outputStream.write(msg2.getBytes());
-                                }
-                                
+                    }
+                }   
+            }
+            
+            if((System.currentTimeMillis()-startingTime) == 20000){
+                afk();
+            }else{
+
+            }
+        }
+        
+        private void afk() throws IOException{
+            List<ServerWorker> workerList = server.getworkerList();
+            for (int j = 0; j < usr_id_list.size(); j++) {
+                    ArrayList user_list = (ArrayList) usr_id_list.get(j);
+                    if (!active_usr_list.get(0).equals(user_list.get(0)) && user_list.get(4).equals("Client")){
+                        inactive_usr_list.add((String) user_list.get(0));
+                    }
+                }
+                for (int x =0; x < inactive_usr_list.size(); x++){
+                    for (int i = 0; i < usr_id_list.size(); i++) {
+                        ArrayList info_list = (ArrayList) usr_id_list.get(i);
+                        for (ServerWorker worker : workerList){
+                            if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
+                                String msg = inactive_usr_list.get(x) + " is inactive \n ";
+                                worker.outputStream.write(msg.getBytes());
                             }
                         }
                     }
                 }
-            }
         }
-            
+          
         
 
         // Sends and displays mesages to other clients and the server
