@@ -43,6 +43,8 @@ public class server_frame extends javax.swing.JFrame {
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
     ArrayList <String> active_usr_list = new ArrayList<String>();
     ArrayList <String> inactive_usr_list = new ArrayList<String>();
+    ArrayList <String> active_list = new ArrayList<String>();
+    ArrayList <String> inactive_list = new ArrayList<String>();
     long startingTime ;
     // Declairing global variables
     // Forgot where they are used, just leave them will do semothing about them
@@ -216,7 +218,6 @@ public class server_frame extends javax.swing.JFrame {
                                     wrongPermission();
                                 }
                                 break;
-                           
                             case "checkStatus":
                                 //calls a function to check if the Clients are online or not
                                 startingTime = System.currentTimeMillis();
@@ -227,6 +228,11 @@ public class server_frame extends javax.swing.JFrame {
                                     wrongPermission();
                                 }
                                 break;
+//                            case "changeStatus":
+//                                //calls a function to change the status of the Curent client 
+//                                String[] statMsg = line.split(" ", 2);
+//                               changeStatus(statMsg);
+//                                break;
                             case "yes":
                                 //calls a function to kick the Clinet out of the server
                                 serverStay();
@@ -308,7 +314,7 @@ public class server_frame extends javax.swing.JFrame {
             }
             return states;
         }
-
+        
             
         // Changes the status of all the Clients to Client except the first one
         public String changeStatus(String usr){
@@ -568,10 +574,11 @@ public class server_frame extends javax.swing.JFrame {
                 }   
             }
             
-            if((System.currentTimeMillis()-startingTime) == 20000){
+            if((System.currentTimeMillis()-startingTime) >= 20000){
                 afk();
             }else{
-
+                System.out.println("Waiting for everyones response");
+                afk();
             }
         }
         
@@ -595,8 +602,29 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 }
         }
+//        
+//        public void changeStatus(String[] tokens){
+//            String status = tokens[1];
+//             
+//            List<ServerWorker> workerList = server.getworkerList();
+//                for (int i = 0; i < usr_id_list.size(); i++) {
+//                    ArrayList info_list = (ArrayList) usr_id_list.get(i);
+//                    active_list.add((String) info_list.get(0));
+//                }
+//                if (status.equalsIgnoreCase("away")){
+//                    for(ServerWorker worker : workerList){
+//                        active_list.remove(worker.getLogin());
+//                        inactive_list.add(worker.getLogin());
+//                        System.out.println( "Active "+ active_list);
+//                        System.out.println("Inactive "+inactive_list);
+//                    }
+//                }
+//            
+//        }
           
-        
+        public void getActiveList(){
+           
+        }
 
         // Sends and displays mesages to other clients and the server
         private void sendMsg(String msg) throws IOException {
@@ -639,13 +667,13 @@ public class server_frame extends javax.swing.JFrame {
         private void announcements(String[] token) throws IOException {
             String msg = token[1];
 
-            console_text.append(msg);
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (username != null) {
-                    worker.sendMsg(msg);
+                    worker.sendMsg(msg + "\n");
                 }
             }
+            console_text.append(msg + "\n");
         }
 
         // Spams WORLD DOMINATION to all the clients and server for 5 seconds
