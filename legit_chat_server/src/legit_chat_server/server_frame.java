@@ -6,8 +6,14 @@ import java.util.concurrent.TimeUnit;
 import java.io.*;
 import java.net.*;
 import java.awt.Color;
+import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
 
 public class server_frame extends javax.swing.JFrame {
+    // Time stamps for the server
+    Calendar cal = Calendar.getInstance();
+    SimpleDateFormat timeOnly = new SimpleDateFormat("HH:mm:ss");
+    String timeStamp = timeOnly.format(cal.getTime());
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
     ArrayList<ArrayList> usr_id_list = new ArrayList<ArrayList>();
     ArrayList <String> active_usr_list = new ArrayList<String>();
@@ -51,10 +57,10 @@ public class server_frame extends javax.swing.JFrame {
                 // Accepting Client Sockets and creates the connection between them
                 // clientSocket used to identify Clients
                 while (true) {
-                    console_text.append( new Date() + " About to accept connections....\n ");
+                    console_text.append( timeStamp + " About to accept connections....\n ");
                     // While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
-                    console_text.append( new Date() + " Accepting Connections from \n " + clientSocket);
+                    console_text.append( timeStamp + " Accepting Connections from \n " + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
                     workerList.add(worker);
@@ -63,7 +69,7 @@ public class server_frame extends javax.swing.JFrame {
                 }
             } catch (IOException e) {
                 // print in server console if error in Creating Server~
-                console_text.append( new Date() + " Server broke \n");
+                console_text.append( timeStamp + " Server broke \n");
             }
         }
     }
@@ -304,7 +310,7 @@ public class server_frame extends javax.swing.JFrame {
                  usr_id_list.set(i, list);
                 }
             } 
-            String Msg = new Date() + usr + " is now the admin of the Server \n";
+            String Msg = timeStamp + usr + " is now the admin of the Server \n";
                 for (ServerWorker worker : workerList) {
                     if (!username.equals(worker.getLogin())) {
                         worker.sendMsg(Msg);
@@ -318,10 +324,10 @@ public class server_frame extends javax.swing.JFrame {
                 String username = tokens[1];
                 List<ServerWorker> workerList = server.getworkerList();
                 if (!(ArrayIteratorCompare(username, usr_id_list))) {
-                    String msg = new Date() + " Logged in " + username + "\n";
+                    String msg = timeStamp + " Logged in " + username + "\n";
                     outputStream.write(msg.getBytes());
                     this.username = username;
-                    console_text.append( new Date() + " Logged in User: " + username + "\n");
+                    console_text.append( timeStamp + " Logged in User: " + username + "\n");
                     int port = getPort();
                     InetAddress address = getIP();
                     role_queue.addLast(username);
@@ -332,14 +338,14 @@ public class server_frame extends javax.swing.JFrame {
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
                             if (worker.getLogin() != null) {
-                                String onlineMsg = new Date() + " User online: " + worker.getLogin() + "\n";
+                                String onlineMsg = timeStamp + " User online: " + worker.getLogin() + "\n";
                                 sendMsg(onlineMsg);
                             }
                         }
                     }
 
                     // Send other online users current users Status
-                    String Msg =new Date() +  " User Online: " + username + "\n";
+                    String Msg =timeStamp +  " User Online: " + username + "\n";
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {
                             worker.sendMsg(Msg);
@@ -347,9 +353,9 @@ public class server_frame extends javax.swing.JFrame {
                     }
                 } else {
                     //handle login failure
-                    String msg = new Date() + "login failed \n";
+                    String msg = timeStamp + "login failed \n";
                     outputStream.write(msg.getBytes());
-                    console_text.append( new Date() + " Logged in Failed for User: " + username + "\n");
+                    console_text.append( timeStamp + " Logged in Failed for User: " + username + "\n");
                 }
             }
         }
@@ -368,7 +374,7 @@ public class server_frame extends javax.swing.JFrame {
         
         // Checks if the User have the correct permission to send certain commands
         private void wrongPermission() throws IOException{
-            String msg = new Date() +  " You dont the correct Credentials for this command \n ";
+            String msg = timeStamp +  " You dont the correct Credentials for this command \n ";
             outputStream.write(msg.getBytes());
         }
 
@@ -401,7 +407,7 @@ public class server_frame extends javax.swing.JFrame {
             // Function to handle all User Disconnection from the Server
             ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
             ServerWorker worker = workerList.get(workerFinder());
-            String msg = new Date() + " User Disconnected: " + username + "\n";
+            String msg = timeStamp + " User Disconnected: " + username + "\n";
             worker.sendMsg(msg);
             idRemover();
             role_queue.remove(username);
@@ -410,7 +416,7 @@ public class server_frame extends javax.swing.JFrame {
                 
             //}
             // Append approipriate response to the Server
-            console_text.append( new Date() + " User Disconnected: " + username + "\n");
+            console_text.append( timeStamp + " User Disconnected: " + username + "\n");
         }
 
 
@@ -426,12 +432,12 @@ public class server_frame extends javax.swing.JFrame {
                 // Checking if the worker or Clinet belong in any group messaging
                 if (isTopic) {
                     if (worker.Membership(receiver)) {
-                        String MsgOut = new Date() + " Msg: " + receiver + " : " + username + " " + message + "\n";
+                        String MsgOut = timeStamp + " Msg: " + receiver + " : " + username + " " + message + "\n";
                         worker.sendMsg(MsgOut);
                     }
                 } else {
                     if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                        String MsgOut = new Date() +  " Msg: " + username + " " + message + "\n";
+                        String MsgOut = timeStamp +  " Msg: " + username + " " + message + "\n";
                         worker.sendMsg(MsgOut);
                     }
                 }
@@ -474,7 +480,7 @@ public class server_frame extends javax.swing.JFrame {
                     if(info_list.get(4).equals("Admin")){
                         if(!info_list.get(0).equals(worker.getLogin())){
                             if (worker.getLogin() != null) {
-                                String msg = new Date() + (String) info_list.get(0)+ " is now the admin of the Server \n";
+                                String msg = timeStamp + (String) info_list.get(0)+ " is now the admin of the Server \n";
                                 worker.outputStream.write(msg.getBytes()); 
                             }
                         }
@@ -492,7 +498,7 @@ public class server_frame extends javax.swing.JFrame {
                     if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
                         //String msg = username + " is still active \n ";
                         //worker.outputStream.write(msg.getBytes());
-                        String msg = new Date() + username  + " is still active \n" ;
+                        String msg = timeStamp + username  + " is still active \n" ;
                         sendAdmin(msg);
                         active_usr_list.add(username);
                         //System.out.print("active" + active_usr_list + "\n");
@@ -508,7 +514,7 @@ public class server_frame extends javax.swing.JFrame {
                 if (user_list.get(4).equals("Client") && !active_usr_list.contains(user_list.get(0))){
                     inactive_usr_list.add((String) user_list.get(0));
                     System.out.print("Inactive" + inactive_usr_list + "\n");
-                    String msg =new Date()+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
+                    String msg =timeStamp+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
                     sendAdmin(msg);
                 }  
             }
@@ -571,7 +577,7 @@ public class server_frame extends javax.swing.JFrame {
             List<ServerWorker> workerList = server.getworkerList();
             for (ServerWorker worker : workerList) {
                 if (username != null) {
-                    worker.sendMsg(new Date() + "Announcement: \n" + msg + "\n");
+                    worker.sendMsg(timeStamp + "Announcement: \n" + msg + "\n");
                 }
             }
             console_text.append(msg + "\n");
@@ -682,7 +688,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = new Date() +  " Are you online? \n Type 'yes' or 'Y' to cancel \n Inactive users will be disconnected after 5 mins \n";
+                        String msg = timeStamp +  " Are you online? \n Type 'yes' or 'Y' to cancel \n Inactive users will be disconnected after 5 mins \n";
                         worker.outputStream.write(msg.getBytes());  
                     }
                 }
@@ -705,7 +711,7 @@ public class server_frame extends javax.swing.JFrame {
         // ServerWorker Thread and the clientHandler
         Thread starter = new Thread(new StartServer());
         starter.start();
-        console_text.append(new Date() + " Server started...\n");
+        console_text.append(timeStamp + " Server started...\n");
         portId.setEditable(false);
         portId.setBackground(Color.gray);
     }
@@ -733,13 +739,20 @@ public class server_frame extends javax.swing.JFrame {
 
     // Prints in the console window all the online users or running ServerWorker
     public void idRetriever(String username) {
-        console_text.append("Online Users:");
-        for (ArrayList info_list : usr_id_list){
-        String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
-                        + " Port ID: " + info_list.get(2) +","+ " IP Address: " 
-                        + info_list.get(3) +","+ " Status: " + info_list.get(4) + "\n";
-        console_text.append(info);
+        String usr_list = null;
+        // Linked Hash ,map to store the Users name, POrt ID and IP Address
+        // THis will be used to show the other users who is online
+        LinkedList<String> listUser = new LinkedList<String>();
+        for (int i = 0; i < usr_id_list.size(); i++) { // will need this to get the Port, IP and Name
+            ArrayList info_list = (ArrayList) usr_id_list.get(i);
+            // Storing all the values in the variable
+            String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
+                    + " Port ID: " + info_list.get(2) +","+ " IP Address: " 
+                    + info_list.get(3) +","+ " Status: " + info_list.get(4) + "\n";
+            listUser.add(info);
+            usr_list = listUser.toString();
         }
+        JOptionPane.showInternalMessageDialog(null, "Active Users \n"+String.valueOf(usr_list) + "\n");
     }
 
     

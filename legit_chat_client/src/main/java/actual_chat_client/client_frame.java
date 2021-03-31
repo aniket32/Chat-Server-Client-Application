@@ -4,11 +4,16 @@ package actual_chat_client;
 import java.awt.Color;
 import java.net.Socket;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
   
 public class client_frame extends javax.swing.JFrame 
-{
+{   //Time stamps for the client
+    Calendar cal = Calendar.getInstance();
+    SimpleDateFormat timeOnly = new SimpleDateFormat("HH:mm:ss");
+    String timeStamp = timeOnly.format(cal.getTime());
+    
     //Global variable declaration:
     Boolean connection_state = false;
     //Tells the entire client if a connection has been made.
@@ -46,7 +51,7 @@ public class client_frame extends javax.swing.JFrame
                 socket = new Socket(serverName, serverPort);
                 serverOut = socket.getOutputStream();
                 serverIn = socket.getInputStream();
-                clientconsoleText.append( new Date() + " Connection Sucessful\n ");
+                clientconsoleText.append( timeStamp + " Connection Sucessful\n ");
                 //Using the login command in the server_code and passing in the entire username as a command
                 String login_command = ("login "+username);
                 packetIn = new BufferedReader(new InputStreamReader(serverIn), 128);
@@ -63,7 +68,7 @@ public class client_frame extends javax.swing.JFrame
             catch(IOException ex)
             {
                 ex.printStackTrace();
-                clientconsoleText.append(new Date() + " Connection Failed\n ");
+                clientconsoleText.append(timeStamp + " Connection Failed\n ");
                 connection_state = false;
             } 
         }
@@ -367,7 +372,7 @@ public class client_frame extends javax.swing.JFrame
         //These if statements check if client has alredy disconnected
         if (connection_state == false) 
         {
-            clientconsoleText.append(new Date() + " No Connection detected.\n ");
+            clientconsoleText.append(timeStamp + " No Connection detected.\n ");
         }
        else {
             try {
@@ -430,7 +435,7 @@ public class client_frame extends javax.swing.JFrame
             }
              
         }else{
-            clientconsoleText.append(new Date() + " Connection not found. Please Connect to a Server\n ");
+            clientconsoleText.append(timeStamp + " Connection not found. Please Connect to a Server\n ");
         }
     }//GEN-LAST:event_sendBtnActionPerformed
 
