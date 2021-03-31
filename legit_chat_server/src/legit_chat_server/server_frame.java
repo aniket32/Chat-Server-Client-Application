@@ -1,25 +1,11 @@
 package legit_chat_server;
 
 //Importing all the Packages 
-import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.LinkedList;
-import java.io.File;
-import java.util.Scanner;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.util.ArrayDeque;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.net.*;
+import java.awt.Color;
 
 public class server_frame extends javax.swing.JFrame {
     // List of lists to store ArrayList object containing username,userID,Port,IP Address,Role 
@@ -42,7 +28,6 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
-    // Works
     public class ServerS extends Thread {
         // Main reason for creating this class is to havce a clooection for this workers
         // for every Client that joins the Server
@@ -54,7 +39,7 @@ public class server_frame extends javax.swing.JFrame {
             this.serverPort = serverPort;
         }
 
-        // Works
+   
         public List<ServerWorker> getworkerList() {
             return workerList;
         }
