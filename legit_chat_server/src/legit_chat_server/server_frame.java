@@ -57,14 +57,12 @@ public class server_frame extends javax.swing.JFrame {
                 // Accepting Client Sockets and creates the connection between them
                 // clientSocket used to identify Clients
                 while (true) {
-                    console_text.append( timeStamp + " About to accept connections....\n ");
                     // While loop to keep looking or accepting from clients
                     Socket clientSocket = serverSocket.accept();
-                    console_text.append( timeStamp + " Accepting Connections from \n " + clientSocket);
                     ServerWorker worker = new ServerWorker(this, clientSocket);
                     InetAddress Ip = clientSocket.getLocalAddress();
                     workerList.add(worker);
-                    console_text.append(String.valueOf(workerList));
+                    //console_text.append(String.valueOf(workerList));
                     worker.start();
                 }
             } catch (IOException e) {
@@ -333,7 +331,6 @@ public class server_frame extends javax.swing.JFrame {
                     role_queue.addLast(username);
                     String role = changeStatus(username);
                     idGenerator(username, port, address.toString(), role);
-                    console_text.append(usr_id_list + "\n");
                     // Send the current user other online Login
                     for (ServerWorker worker : workerList) {
                         if (!username.equals(worker.getLogin())) {

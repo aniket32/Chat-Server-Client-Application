@@ -12,5 +12,6 @@ pass-ownership <user_name> // make the specified user an admin and changes all o
 promote <user_name>  // makes the specific user an admin along with previous admin
 demote <user_name>  // makes the specific user from an admin to a client 
 checkStatus  // sends a message to all the active clients and awaits response to see if they are active or are AFK
+InactiveUser // promts the client about all the inactive user after checkStatus is issued
 NUKE   // spams "WORLD DOMINATION" all throughout the server and all active client window for 10 seconds
 stop-server <Seconds>   // closes all Client Connections with appropriate message and closes the server
