@@ -1,6 +1,7 @@
 package legit_chat_server;
 
 //Importing all the Packages 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -720,6 +721,8 @@ public class server_frame extends javax.swing.JFrame {
         Thread starter = new Thread(new StartServer());
         starter.start();
         console_text.append(new Date() + " Server started...\n");
+        portId.setEditable(false);
+        portId.setBackground(Color.gray);
     }
 
     // Forcefully closes the server
@@ -745,6 +748,7 @@ public class server_frame extends javax.swing.JFrame {
 
     // Prints in the console window all the online users or running ServerWorker
     public void idRetriever(String username) {
+        console_text.append("Online Users:");
         for (ArrayList info_list : usr_id_list){
         String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
                         + " Port ID: " + info_list.get(2) +","+ " IP Address: " 

@@ -17,13 +17,17 @@ import java.util.Date;
        
 public class client_frame extends javax.swing.JFrame 
 {
+    //Global variable declaration:
     Boolean connection_state = false;
+    //Tells the entire client if a connection has been made.
     String username;
+    //Username for connecting to the server;
     ChatClient clientWindow;
+    //Class variable to easily acess class methods
     BufferedReader packetIn;
     Socket socket;
+    //Buffered reader packetIn for socket
     
-    // Works
     public class ChatClient
     {
         private final String serverName;
@@ -38,13 +42,11 @@ public class client_frame extends javax.swing.JFrame
        
         public ChatClient (String serverName, int serverPort) throws IOException 
         {
-          
           this.serverName = serverName;
           this.serverPort = serverPort;
         
         }
         
-        // Works
         public void server_connector()
         {
             try
@@ -58,7 +60,6 @@ public class client_frame extends javax.swing.JFrame
                 packetIn = new BufferedReader(new InputStreamReader(serverIn), 128);
                 packetOut = new PrintWriter(serverOut, true);
                 // Printing the login command in this case its login <username>
-                //System.out.println(login_command);
                 packetOut.println(login_command);
                 String message = packetIn.readLine();
                 //statement is only active until it receives the login message from server.
@@ -76,14 +77,14 @@ public class client_frame extends javax.swing.JFrame
         }
         
         
-        // Works
+        //Function to send messages to the server
         public void sendMsg(String msg_text_str) throws IOException{
-            //this.serverOut.write(msg_text_str.getBytes());
             packetOut.println(msg_text_str);  
         }
         
         //Function to handle disconnection and change GUI elements.
         public void disconnectHandler(String disc_type) throws IOException{
+            //Messages will print according to the type of disconnection required.
             if (disc_type.equals("forced")){
                 clientconsoleText.append("Connection Lost\n");
             } else if(disc_type.equals("manual")){
@@ -139,7 +140,6 @@ public class client_frame extends javax.swing.JFrame
         
     }
     
-    // Works
     //Fuction that creates new thread dedicated to listening for inputs and checks connection.
     public void ListenThread() {
                 if (socket.isClosed() != true){
@@ -333,18 +333,18 @@ public class client_frame extends javax.swing.JFrame
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    // Works
     private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed
-        // This code verifies what the user has entered using if statements or if the client is alredy connected.
+        // This code verifies what the user has entered using if statements or if the client is alredy connected
         username = usernametext.getText();
         if (addressStr.getText().equals("IP Address") || portID.getText().equals("Port") || addressStr.getText().equals("") || portID.equals("")){
             //Checks if the user input fields have been changed
             clientconsoleText.append("Please enter a valid address and port.\n");
         } else if (username.contains(" ") || username.contains("Username")) {
-            //Checks if username field contains any spaces.
+            //Checks if username field contains any spaces
             clientconsoleText.append("Username not valid. Contains spaces or has not been changed.\n");
             username = null;
         } else {
+            //Checks if the client is alredy connected
             if (connection_state == true) {
             clientconsoleText.append("Alredy connected.\n");
             }
@@ -365,18 +365,12 @@ public class client_frame extends javax.swing.JFrame
                     portID.setBackground(Color.gray);
                     usernametext.setBackground(Color.gray);
                     ListenThread();
-                    //DiscThread();
                     
                 }
             }
         }
-        
-        
-      
-        
     }//GEN-LAST:event_connectBtnActionPerformed
 
-    // Works
     private void discBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discBtnActionPerformed
         //These if statements check if client has alredy disconnected
         if (connection_state == false) 
@@ -397,7 +391,7 @@ public class client_frame extends javax.swing.JFrame
     }//GEN-LAST:event_usernametextActionPerformed
 
     private void usernametextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usernametextMouseClicked
-        // TODO add your handling code here:
+        // Mouse click to clear only works once, user input makes disables the shortcut
        if (connection_state == false && usernametext.getText().equals("Username")){
             usernametext.setText("");
        }
@@ -414,7 +408,7 @@ public class client_frame extends javax.swing.JFrame
     }//GEN-LAST:event_portIDActionPerformed
 
     private void portIDMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_portIDMouseClicked
-        // TODO add your handling code here:
+        // Mouse click to clear only works once, user input makes disables the shortcut
         if (connection_state == false && portID.getText().equals("Port")){
             portID.setText("");
         }
@@ -425,13 +419,13 @@ public class client_frame extends javax.swing.JFrame
     }//GEN-LAST:event_chatinputBoxActionPerformed
 
     private void chatinputBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chatinputBoxMouseClicked
+        // Mouse click to clear only works once, user input makes disables the shortcut
         if (connection_state == false && chatinputBox.getText().equals("Type a command...")){
             chatinputBox.setText("");
         }
     }//GEN-LAST:event_chatinputBoxMouseClicked
 
     private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
-        // TODO add your handling code here:
         String msgText = chatinputBox.getText();
         //int portnum = Integer.parseInt(portID.getText());
         System.out.print(connection_state);
@@ -449,18 +443,18 @@ public class client_frame extends javax.swing.JFrame
     }//GEN-LAST:event_sendBtnActionPerformed
 
     private void addressStrMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addressStrMouseClicked
-        // TODO add your handling code here:
+        // Mouse click to clear only works once, user input makes disables the shortcut
         if (connection_state == false && addressStr.getText().equals("IP Address")){
             addressStr.setText("");
         }
     }//GEN-LAST:event_addressStrMouseClicked
 
     private void refreshbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshbuttonActionPerformed
-        // TODO add your handling code here:
+        // Refresh button that clears all GUI elements
         revalidate();
         clientconsoleText.setText("");
         addressStr.setText("IP Address");
-        chatinputBox.setText("Type something nice...");
+        chatinputBox.setText("Type a command...");
         portID.setText("Port");
         usernametext.setText("Username");
         clientWindow = null;
