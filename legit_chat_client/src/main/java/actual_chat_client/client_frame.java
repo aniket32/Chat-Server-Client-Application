@@ -112,7 +112,6 @@ public class client_frame extends javax.swing.JFrame
                 //Will run until client has disconnected or loses connection.
                 String message = packetIn.readLine();
                 while (connection_state == true){
-                    System.out.println(message);
                     if (message != null && !message.equals("kick ") && !socket.isClosed()) {
                         clientconsoleText.append(message+"\n");
                         run();
@@ -425,7 +424,6 @@ public class client_frame extends javax.swing.JFrame
     private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
         String msgText = chatinputBox.getText();
         //int portnum = Integer.parseInt(portID.getText());
-        System.out.print(connection_state);
         if (connection_state == true) {
             clientconsoleText.append(username+":"+msgText+"\n");
             try {

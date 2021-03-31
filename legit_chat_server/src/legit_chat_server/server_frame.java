@@ -146,8 +146,13 @@ public class server_frame extends javax.swing.JFrame {
                                 break;
                             case "InactiveUser":
                                 // calls the ListUser function to lists all the activ users in the serve
-                                inactive_usr_list.clear();
-                                getInactiveUser();
+                                Boolean v10 = getStatus();
+                                if(v10 == true){
+                                    inactive_usr_list.clear();
+                                    getInactiveUser();
+                                }else{
+                                    wrongPermission();
+                                }
                                 break;    
                             case "NUKE":
                                 // calls the NUKE function and Spams WORLD DOMINATION all over the server and client
@@ -308,7 +313,7 @@ public class server_frame extends javax.swing.JFrame {
                  usr_id_list.set(i, list);
                 }
             } 
-            String Msg = timeStamp + usr + " is now the admin of the Server \n";
+            String Msg = timeStamp + " " + usr + " is now the admin of the Server \n";
                 for (ServerWorker worker : workerList) {
                     if (!username.equals(worker.getLogin())) {
                         worker.sendMsg(Msg);
@@ -371,7 +376,7 @@ public class server_frame extends javax.swing.JFrame {
         
         // Checks if the User have the correct permission to send certain commands
         private void wrongPermission() throws IOException{
-            String msg = timeStamp +  " You dont the correct Credentials for this command \n ";
+            String msg = timeStamp +  " Permission Denied \n";
             outputStream.write(msg.getBytes());
         }
 
@@ -411,8 +416,7 @@ public class server_frame extends javax.swing.JFrame {
             StatusUpdater();
             workerList.remove(worker);
                 
-            //}
-            // Append approipriate response to the Server
+            // Append appropriate response to the Server
             console_text.append( timeStamp + " User Disconnected: " + username + "\n");
         }
 
@@ -477,7 +481,7 @@ public class server_frame extends javax.swing.JFrame {
                     if(info_list.get(4).equals("Admin")){
                         if(!info_list.get(0).equals(worker.getLogin())){
                             if (worker.getLogin() != null) {
-                                String msg = timeStamp + (String) info_list.get(0)+ " is now the admin of the Server \n";
+                                String msg = timeStamp + " " + (String) info_list.get(0)+ " is now the admin of the Server \n";
                                 worker.outputStream.write(msg.getBytes()); 
                             }
                         }
@@ -493,28 +497,24 @@ public class server_frame extends javax.swing.JFrame {
                 ArrayList info_list = (ArrayList) usr_id_list.get(i);
                 for (ServerWorker worker : workerList){
                     if (info_list.get(4).equals("Admin") && info_list.get(0).equals(worker.getLogin())){
-                        //String msg = username + " is still active \n ";
-                        //worker.outputStream.write(msg.getBytes());
-                        String msg = timeStamp + username  + " is still active \n" ;
+                        String msg = timeStamp + " " + username  + " is still active \n" ;
                         sendAdmin(msg);
                         active_usr_list.add(username);
-                        //System.out.print("active" + active_usr_list + "\n");
                     }
                 }   
             }         
         }
         
-        // admin command to see the inactive clients in the server  
+        // Admin command to see the inactive clients in the server  
         public void getInactiveUser() throws IOException{
             for (int j = 0; j < usr_id_list.size(); j++) {
                 ArrayList user_list = (ArrayList) usr_id_list.get(j);
                 if (user_list.get(4).equals("Client") && !active_usr_list.contains(user_list.get(0))){
                     inactive_usr_list.add((String) user_list.get(0));
-                    System.out.print("Inactive" + inactive_usr_list + "\n");
-                    String msg =timeStamp+ "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
-                    sendAdmin(msg);
                 }  
             }
+            String msg =timeStamp+ " " + "Inactive Clients: \n"+ inactive_usr_list + "\n" ;
+            sendAdmin(msg);
         }
 
         // Sends and displays mesages to other clients and the server
@@ -531,9 +531,9 @@ public class server_frame extends javax.swing.JFrame {
         // Function to send a message to all the active users
         private void sendAll(String msg) throws IOException {
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
-                worker.outputStream.write(msg.getBytes());
-            }
+                for (ServerWorker worker : workerList) {
+                    worker.outputStream.write(msg.getBytes());
+                }
             console_text.append(msg);
         }
         
@@ -554,17 +554,16 @@ public class server_frame extends javax.swing.JFrame {
         // Function to kick a specified user from the server
         private void kickUser(String[] tokens) throws IOException, InterruptedException {
             String receiver = tokens[1];
-
             List<ServerWorker> workerList = server.getworkerList();
-            for (ServerWorker worker : workerList) {
-                if (receiver.equalsIgnoreCase(worker.getLogin())) {
-                    String MsgOut = "kick \n";
-                    worker.sendMsg(MsgOut);
-                    TimeUnit.SECONDS.sleep(5);
-                    worker.idRemover();
-                    workerList.remove(worker);
-                }
+            ServerWorker worker = workerList.get(workerFinder());
+            if (receiver.equalsIgnoreCase(worker.getLogin())) {
+                String MsgOut = "kick \n";
+                worker.sendMsg(MsgOut);
+                TimeUnit.SECONDS.sleep(5);
+                worker.idRemover();
+                workerList.remove(worker);
             }
+            
         }
 
         // Function to makes a announcement to all the clients through the server
@@ -685,7 +684,7 @@ public class server_frame extends javax.swing.JFrame {
             for (ServerWorker worker : workerList){
                 if (!username.equals(worker.getLogin())) {
                     if (worker.getLogin() != null) {
-                        String msg = timeStamp +  " Are you online? \n Type 'yes' or 'Y' to cancel \n Inactive users will be disconnected after 5 mins \n";
+                        String msg = timeStamp +  " Are you online? \n Type 'yes' or 'Y' to confirm \n";
                         worker.outputStream.write(msg.getBytes());  
                     }
                 }
