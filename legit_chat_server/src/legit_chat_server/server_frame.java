@@ -414,16 +414,14 @@ public class server_frame extends javax.swing.JFrame {
         private void disconnectHandler() throws IOException {
             // Function to handle all User Disconnection from the Server
             ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
-            //for (int i = 0; i < workerList.size(); i++) {
-                //ServerWorker worker = workerList.get(i);
-                for (ServerWorker worker : workerList){
-                    String msg = new Date() + " User Disconnected: " + username + "\n";
-                    worker.sendMsg(msg);
-                    idRemover();
-                    role_queue.remove(username);
-                    StatusUpdater();
-                    workerList.remove(worker);
-                }
+            ServerWorker worker = workerList.get(workerFinder());
+            String msg = new Date() + " User Disconnected: " + username + "\n";
+            worker.sendMsg(msg);
+            idRemover();
+            role_queue.remove(username);
+            StatusUpdater();
+            workerList.remove(worker);
+                
             //}
             // Append approipriate response to the Server
             console_text.append( new Date() + " User Disconnected: " + username + "\n");
@@ -704,9 +702,17 @@ public class server_frame extends javax.swing.JFrame {
                 }
             }
         }
-
+        
+        //Returns the index(int) for the worker in workerList
+        public int workerFinder(){
+            int index_int = 0;
+            ArrayList<ServerWorker> workerList = (ArrayList<ServerWorker>) server.getworkerList();
+            for (ServerWorker worker: workerList) {
+                index_int = workerList.indexOf(worker);
+            }
+            return index_int;
+        }
     }
-
     // Calls the ServerStaretr to start the server 
     public void serverStartButton() {
         // Starts the Server by calling in the StratServer Thread that in turn calls the
@@ -739,9 +745,15 @@ public class server_frame extends javax.swing.JFrame {
 
     // Prints in the console window all the online users or running ServerWorker
     public void idRetriever(String username) {
-        console_text.append(usr_id_list + "\n");
+        for (ArrayList info_list : usr_id_list){
+        String info = " Username: " + info_list.get(0) +","+ "User ID: " + info_list.get(1) + "," 
+                        + " Port ID: " + info_list.get(2) +","+ " IP Address: " 
+                        + info_list.get(3) +","+ " Status: " + info_list.get(4) + "\n";
+        console_text.append(info);
+        }
     }
 
+    
     // Checks for duplicates in the array
     public boolean ArrayIteratorCompare(String usr, ArrayList list) {
         Boolean duplicate_usr = false;

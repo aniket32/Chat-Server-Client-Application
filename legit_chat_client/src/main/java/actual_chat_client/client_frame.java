@@ -105,8 +105,8 @@ public class client_frame extends javax.swing.JFrame
             
         }
     }
-    // Works Beautifully
-    // Leo is the BEST
+  
+    
     public class SocketListener implements Runnable {
     //Function to receive messages and check connection
         public void run() {
@@ -226,7 +226,7 @@ public class client_frame extends javax.swing.JFrame
         clientconsoleText.setRows(5);
         jScrollPane2.setViewportView(clientconsoleText);
 
-        chatinputBox.setText("Type something nice...");
+        chatinputBox.setText("Type a command...");
         chatinputBox.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 chatinputBoxMouseClicked(evt);
@@ -268,9 +268,7 @@ public class client_frame extends javax.swing.JFrame
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(usernametext, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(usernametext, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(addressStr, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -337,12 +335,14 @@ public class client_frame extends javax.swing.JFrame
 
     // Works
     private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed
-        // TODO add your handling code here:
+        // This code verifies what the user has entered using if statements or if the client is alredy connected.
         username = usernametext.getText();
         if (addressStr.getText().equals("IP Address") || portID.getText().equals("Port") || addressStr.getText().equals("") || portID.equals("")){
+            //Checks if the user input fields have been changed
             clientconsoleText.append("Please enter a valid address and port.\n");
-        } else if (username.contains(" ")) {
-            clientconsoleText.append("Spaces are not allowed in usernames.\n");
+        } else if (username.contains(" ") || username.contains("Username")) {
+            //Checks if username field contains any spaces.
+            clientconsoleText.append("Username not valid. Contains spaces or has not been changed.\n");
             username = null;
         } else {
             if (connection_state == true) {
@@ -378,10 +378,10 @@ public class client_frame extends javax.swing.JFrame
 
     // Works
     private void discBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discBtnActionPerformed
-        // TODO add your handling code here:
+        //These if statements check if client has alredy disconnected
         if (connection_state == false) 
         {
-            clientconsoleText.append(new Date() + " No Connection\n ");
+            clientconsoleText.append(new Date() + " No Connection detected.\n ");
         }
        else {
             try {
@@ -415,7 +415,7 @@ public class client_frame extends javax.swing.JFrame
 
     private void portIDMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_portIDMouseClicked
         // TODO add your handling code here:
-        if (connection_state == false){
+        if (connection_state == false && portID.getText().equals("Port")){
             portID.setText("");
         }
     }//GEN-LAST:event_portIDMouseClicked
@@ -425,7 +425,7 @@ public class client_frame extends javax.swing.JFrame
     }//GEN-LAST:event_chatinputBoxActionPerformed
 
     private void chatinputBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chatinputBoxMouseClicked
-        if (connection_state == false){
+        if (connection_state == false && chatinputBox.getText().equals("Type a command...")){
             chatinputBox.setText("");
         }
     }//GEN-LAST:event_chatinputBoxMouseClicked
@@ -450,7 +450,7 @@ public class client_frame extends javax.swing.JFrame
 
     private void addressStrMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addressStrMouseClicked
         // TODO add your handling code here:
-        if (connection_state == false){
+        if (connection_state == false && addressStr.getText().equals("IP Address")){
             addressStr.setText("");
         }
     }//GEN-LAST:event_addressStrMouseClicked
