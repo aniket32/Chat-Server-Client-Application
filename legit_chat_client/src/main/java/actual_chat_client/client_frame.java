@@ -2,11 +2,17 @@ package actual_chat_client;
 
 // Importing the Packages
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.net.Socket;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
   
 public class client_frame extends javax.swing.JFrame 
 {   //Time stamps for the client
@@ -133,6 +139,27 @@ public class client_frame extends javax.swing.JFrame
     {
         initComponents();
         clientWindow = null;
+        
+        Action printAction = new AbstractAction("Disconnect") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //These if statements check if client has alredy disconnected
+                if (connection_state == false) 
+                {
+                    clientconsoleText.append(timeStamp + " No Connection detected.\n ");
+                }
+                else {
+                    try {
+                        clientWindow.disconnectHandler("manual");
+                    } catch (IOException ex) {
+                        Logger.getLogger(client_frame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
+        String key = "Disconnect";
+        discBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK), key);
+        discBtn.getActionMap().put(key, printAction);
         
     }
     
